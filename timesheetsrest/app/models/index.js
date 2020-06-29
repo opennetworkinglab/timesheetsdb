@@ -20,6 +20,8 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.tsuser = require("./tsuser.model.js")(sequelize, Sequelize);
-db.tsuser = require("./tsweek.model.js")(sequelize, Sequelize.DataTypes);
+db.tsweek = require("./tsweek.model.js")(sequelize, Sequelize.DataTypes);
+db.tsday = require("./tsday.model.js")(sequelize, Sequelize, db.tsuser, db.tsweek);
+db.tsweekly = require("./tsweekly.model.js")(sequelize, Sequelize, db.tsuser, db.tsweek);
 
 module.exports = db;

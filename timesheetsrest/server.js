@@ -26,7 +26,10 @@ db.sequelize.sync({force: true}).then(() => {
 //     res.json({message: "Welcome to timesheets application\n"});
 // });
 
-require("./app/routes/tsuer.routes")(app);
+require("./app/routes/tsuser.routes")(app);
+require("./app/routes/tsweek.routes")(app);
+require("./app/routes/tsday.routes")(app);
+require("./app/routes/tsweekly.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8085;
