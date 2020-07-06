@@ -3,12 +3,16 @@ module.exports = (sequelize, DataTypes) => {
         year: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            unique: 'tsweek_year_week_uk'
+            unique: 'tsweek_year_week_uk',
         },
         weekno: {
             type: DataTypes.INTEGER,
             allowNull: false,
             unique: 'tsweek_year_week_uk'
+        },
+        monthno: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         begin: {
             type: DataTypes.DATEONLY,

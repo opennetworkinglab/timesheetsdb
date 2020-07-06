@@ -7,10 +7,10 @@ const Op = db.Sequelize.Op;
 // Retrieve all Tsday from the database.
 exports.findAll = (req, res) => {
     const email = req.query.email;
-    const day = req.query.day;
-    var condition = email || day ? {} : null;
+    const weekid = req.query.weekid;
+    var condition = email || weekid ? {} : null;
     email ? condition.email = {[Op.like]: `%${email}%`} : '';
-    day ? condition.day = {[Op.like]: `%${day}%`} : '';
+    weekid ? condition.weekid = {[Op.eq]: weekid} : '';
 
     Tsday.findAll({where: condition})
         .then(data => {

@@ -2,6 +2,9 @@ CREATE DATABASE timesheets;
 GRANT ALL PRIVILEGES ON timesheets.* TO scondon@localhost;
 USE timesheets;
 
+# Obsolete - run the application instead which will run create the database
+# and populate it
+
 CREATE TABLE tsusers (
     email char(50) primary key,
     fullname char(100),
@@ -12,6 +15,7 @@ CREATE TABLE tsweek (
      weekid INT UNSIGNED PRIMARY KEY,
      year SMALLINT UNSIGNED,
      weekno SMALLINT UNSIGNED,
+     month SMALLINT UNSIGNED,
      begin DATE,
      end DATE,
      CONSTRAINT tsweek_begin_uk UNIQUE KEY (begin),
