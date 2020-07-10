@@ -19,6 +19,9 @@ module.exports = (sequelize, Sequelize, Tsuser, Tsweek) => {
         document: {
             type: Sequelize.DataTypes.BLOB,
         },
+        preview: {
+            type: Sequelize.DataTypes.BLOB,
+        },
         signed: {
             type: Sequelize.DataTypes.DATE,
         }
