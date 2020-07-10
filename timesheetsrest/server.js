@@ -17,8 +17,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 const db = require("./app/models");
+const weekms = 168 * 60 * 60 * 1000;
 db.sequelize.sync({force: true}).then(() => {
     console.log("Drop and re-sync db'");
+}).then(() => {
+    var startdate = 1588550400000; // Mon 4th may 2020
+    var initweek = 19;
+    for (var w=0; w <= 20; w++) {
+        var d = new Date(startdate + w * weekms);
+        db.tsweek.create({
+            year: d.getFullYear(),
+            weekno: initweek + w,
+            monthno: d.getMonth(),
+            begin: d.getTime(),
+            end: d.getTime() + weekms - 1000
+        })
+    }
+
 });
 
 // // simple route
