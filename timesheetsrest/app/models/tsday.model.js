@@ -50,16 +50,16 @@ module.exports = (sequelize, Sequelize, Tsuser, Tsweek) => {
             type: Sequelize.DataTypes.INTEGER,
         },
         timein1: {
-            type: Sequelize.DataTypes.DATE,
+            type: Sequelize.DataTypes.TIME,
         },
         timeout1: {
-            type: Sequelize.DataTypes.DATE,
+            type: Sequelize.DataTypes.TIME,
         },
         timein2: {
-            type: Sequelize.DataTypes.DATE,
+            type: Sequelize.DataTypes.TIME,
         },
         timeout2: {
-            type: Sequelize.DataTypes.DATE,
+            type: Sequelize.DataTypes.TIME,
         },
         reg_min: {
             type: Sequelize.DataTypes.INTEGER,
