@@ -38,6 +38,4 @@ INSERT INTO tsweeklies (email, weekid, createdAt, updatedAt)
 VALUES ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-01'), NOW(), NOW()),
        ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-08'), NOW(), NOW()),
        ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-15'), NOW(), NOW()),
-       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-22'), NOW(), NOW()),
-       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-29'), NOW(), NOW()),
-       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-07-06'), NOW(), NOW());
+       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-22'), NOW(), NOW());

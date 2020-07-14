@@ -6,8 +6,5 @@ module.exports = app => {
     // Retrieve all Tsweekly(s)
     router.get("/", tsweekly.findAll);
 
-    // Retrieve a single Tsweekly by email (pk)
-    router.get("/:email", tsweekly.findOne);
-
     app.use('/api/tsweekly', router);
 };

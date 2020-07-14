@@ -22,10 +22,11 @@ db.sequelize.sync({force: true}).then(() => {
     console.log("Drop and re-sync db'");
 }).then(() => {
     var startdate = 1588550400000; // Mon 4th may 2020
-    var initweek = 19;
-    for (var w=0; w <= 20; w++) {
+    var initweek = 18;
+    for (var w=1; w <= 34; w++) {
         var d = new Date(startdate + w * weekms);
         db.tsweek.create({
+            id: w,
             year: d.getFullYear(),
             weekno: initweek + w,
             monthno: d.getMonth(),
