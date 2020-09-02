@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-ONF-Member-1.0
  */
 
-import { BaseEntity, Column, Entity, PrimaryColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('tsweeks') // Database table name
@@ -14,13 +14,15 @@ import { ApiProperty } from '@nestjs/swagger';
 export class Tsweek extends BaseEntity {
 
   @ApiProperty()
+  @PrimaryGeneratedColumn()
+  id: number
+
+  @ApiProperty()
   @Column({ name: 'year' })
-  @PrimaryColumn()
   year: number
 
   @ApiProperty()
   @Column({ name: 'weekno' })
-  @PrimaryColumn()
   weekno: number
 
   @ApiProperty()
