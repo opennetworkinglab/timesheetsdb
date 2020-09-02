@@ -11,5 +11,10 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true
-  }
+  },
+  "include": [
+    ".eslintrc.js",
+    "./test/*.ts",
+    "./src/**/*.ts"
+  ]
 }
