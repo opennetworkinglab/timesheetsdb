@@ -8,7 +8,7 @@ import { Controller, Get, Post, Query } from '@nestjs/common';
 import { TsweekService } from './tsweek.service';
 import { Tsweek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
-import { ApiQuery } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse } from '@nestjs/swagger';
 
 @Controller('tsweek')
 export class TsweekController {
@@ -20,12 +20,12 @@ export class TsweekController {
    * @param filterTsweekDto
    */
   @Get()
-  @ApiQuery({ name: 'year' })
   getTsweek(@Query() filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
     return this.tsweekService.getTsweek(filterTsweekDto);
   }
 
   @Post()
+  @ApiResponse({ status: 201, description: "Table populated" })
   createTsweek(): Promise<void> {
     return this.tsweekService.createTsweek();
   }

@@ -23,7 +23,7 @@ export class TsweekService {
     }
 
     async createTsweek(): Promise<void> {
-      this.tsweekRepository.createTsweek();
+      this.tsweekRepository.createWeek();
     }
 }
 

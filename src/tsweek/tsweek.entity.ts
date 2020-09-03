@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-ONF-Member-1.0
  */
 
-import { BaseEntity, Column, Entity, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('tsweeks') // Database table name

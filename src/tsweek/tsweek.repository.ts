@@ -30,7 +30,7 @@ export class TsweekRepository extends Repository<Tsweek> {
     return tsweeks;
   }
 
-  async createTsweek(): Promise<void> {
+  async createWeek(): Promise<void> {
 
     const weekms = 168 * 60 * 60 * 1000;
     const startdate = 1588550400000; // Mon 4th may 2020
