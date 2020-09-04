@@ -17,13 +17,17 @@ export class TsweekService {
     @InjectRepository(TsweekRepository)
     private tsweekRepository: TsweekRepository) {}
 
+    /**
+    * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
+    * @param filterTsweekDto
+    */
     async getTsweek(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
 
-      return this.tsweekRepository.getWeeks(filterTsweekDto);
+      return this.tsweekRepository.getTsweeks(filterTsweekDto);
     }
 
     async createTsweek(): Promise<void> {
-      this.tsweekRepository.createWeek();
+      await this.tsweekRepository.createTsweek();
     }
 }
 

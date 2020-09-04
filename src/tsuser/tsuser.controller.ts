@@ -16,14 +16,18 @@ export class TsuserController {
 
   constructor(private tsuserService: TsuserService) {}
 
+  /**
+   * Returns a Promise of an array of Tsuser based on filter. One to many Tsuser can be returned.
+   * @param filterTsweekDto
+   */
   @Get()
-  getTsweek(@Query() filterTsuserDto: FilterTsuserDto): Promise<Tsuser[]> {
-    return this.tsuserService.getUser(filterTsuserDto);
+  getTsusers(@Query() filterTsuserDto: FilterTsuserDto): Promise<Tsuser[]> {
+    return this.tsuserService.getTsusers(filterTsuserDto);
   }
 
   @Post()
   @ApiResponse({ status: 201, description: "User added" })
-  createTsweek(@Body() createTsuserDto:  CreateTsuserDto): Promise<Tsuser> {
-    return this.tsuserService.createUser(createTsuserDto);
+  createTsuser(@Body() createTsuserDto:  CreateTsuserDto): Promise<void> {
+    return this.tsuserService.createTsuser(createTsuserDto);
   }
 }

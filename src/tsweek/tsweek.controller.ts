@@ -8,7 +8,7 @@ import { Controller, Get, Post, Query } from '@nestjs/common';
 import { TsweekService } from './tsweek.service';
 import { Tsweek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
-import { ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('tsweek')
 export class TsweekController {
@@ -16,7 +16,7 @@ export class TsweekController {
   constructor(private tsweekService: TsweekService) {}
 
   /**
-   * Gets the ts weeks based on filter. No filter gets all weeks
+   * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
    * @param filterTsweekDto
    */
   @Get()

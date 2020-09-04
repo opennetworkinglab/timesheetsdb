@@ -14,7 +14,11 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 @EntityRepository(Tsweekly)
 export class TsweeklyRepository extends Repository<Tsweekly> {
 
-  async getWeeks(filterTsweeklyDto: FilterTsweeklyDto): Promise<Tsweekly[]> {
+  /**
+   * Returns a Promise of an array of Tsweekly based on filter. One to many Tsweekly can be returned.
+   * @param filterTsweeklyDto
+   */
+  async getTsweekly(filterTsweeklyDto: FilterTsweeklyDto): Promise<Tsweekly[]> {
 
     const { email } = filterTsweeklyDto;
 
@@ -32,7 +36,7 @@ export class TsweeklyRepository extends Repository<Tsweekly> {
     return tsweekly;
   }
 
-  async createWeekly(createTsweeklyDto : CreateTsweeklyDto): Promise<void> {
+  async createTsweekly(createTsweeklyDto : CreateTsweeklyDto): Promise<void> {
 
     const { email, weekid, document, preview } = createTsweeklyDto;
 

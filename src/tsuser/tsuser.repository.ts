@@ -8,11 +8,18 @@ import { EntityRepository, Repository } from 'typeorm';
 import { Tsuser } from './tsuser.entity';
 import { FilterTsuserDto } from './dto/filter-user.dto';
 import { CreateTsuserDto } from './dto/create-user.dto';
-
+/**
+ * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
+ * @param filterTsweekDto
+ */
 @EntityRepository(Tsuser)
 export class TsuserRepository extends Repository<Tsuser> {
 
-  async getUser(filterTsweekDto: FilterTsuserDto): Promise<Tsuser[]> {
+  /**
+   * Returns a Promise of an array of Tsuser based on filter. One to many Tsuser can be returned.
+   * @param filterTsweekDto
+   */
+  async getTsusers(filterTsweekDto: FilterTsuserDto): Promise<Tsuser[]> {
 
     const { email, firstname, lastname } = filterTsweekDto;
 
@@ -30,12 +37,10 @@ export class TsuserRepository extends Repository<Tsuser> {
       query.andWhere('tsuser.lastname = :lastname', { lastname });
     }
 
-    // Gets all the weeks
-    const tsusers = await query.getMany();
-    return tsusers;
+    return await query.getMany();
   }
 
-  async createUser(createTsuserDto: CreateTsuserDto): Promise<Tsuser> {
+  async createTsuser(createTsuserDto: CreateTsuserDto): Promise<void> {
 
     const { email, firstname, lastname } = createTsuserDto;
 
@@ -45,9 +50,5 @@ export class TsuserRepository extends Repository<Tsuser> {
     tsuser.lastname = lastname;
 
     await tsuser.save();
-
-    return tsuser;
   }
-
-
 }

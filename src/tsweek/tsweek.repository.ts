@@ -11,7 +11,11 @@ import { FilterTsweekDto } from './dto/filter-tsweek.dto';
 @EntityRepository(Tsweek)
 export class TsweekRepository extends Repository<Tsweek> {
 
-  async getWeeks(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
+  /**
+   * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
+   * @param filterTsweekDto
+   */
+  async getTsweeks(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
 
     const { year, weekno } = filterTsweekDto;
 
@@ -25,12 +29,11 @@ export class TsweekRepository extends Repository<Tsweek> {
       query.andWhere('tsweek.weekno = :weekno', { weekno });
     }
 
-    // Gets all the weeks
-    const tsweeks = await query.getMany();
-    return tsweeks;
+    // Gets all the weeks or weeks based on filters
+    return await query.getMany();
   }
 
-  async createWeek(): Promise<void> {
+  async createTsweek(): Promise<void> {
 
     const weekms = 168 * 60 * 60 * 1000;
     const startdate = 1588550400000; // Mon 4th may 2020

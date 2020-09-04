@@ -6,23 +6,29 @@
 
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateTsweeklyDto {
+export class FilterTsdayDto {
 
   @ApiProperty()
   email: string
 
   @ApiProperty()
+  day: Date
+
+  @ApiProperty()
   weekid: number
 
   @ApiProperty()
-  document: string
+  darpatime: number
 
   @ApiProperty()
-  preview: string
+  nondarpatime: number
 
   @ApiProperty()
-  userSigned: Date
+  sick: number
 
   @ApiProperty()
-  adminSigned: Date
+  pto: number
+
+  @ApiProperty()
+  holiday: number
 }

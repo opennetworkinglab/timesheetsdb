@@ -10,6 +10,10 @@ export class TsweeklyController {
 
   constructor(private tsweeklyService: TsweeklyService) {}
 
+  /**
+   * Returns a Promise of an array of Tsweekly based on filter. One to many Tsweekly can be returned.
+   * @param filterTsweeklyDto
+   */
   @Get()
   getTsweekly(@Query() filterTsweeklyDto: FilterTsweeklyDto): Promise<Tsweekly[]> {
     return this.tsweeklyService.getTsweekly(filterTsweeklyDto);

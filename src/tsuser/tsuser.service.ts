@@ -18,12 +18,16 @@ export class TsuserService {
     @InjectRepository(TsuserRepository)
     private tsuserRepository: TsuserRepository) {}
 
-  async getUser(filterTsuserDto: FilterTsuserDto): Promise<Tsuser[]> {
+  /**
+   * Returns a Promise of an array of Tsuser based on filter. One to many Tsuser can be returned.
+   * @param filterTsweekDto
+   */
+  async getTsusers(filterTsuserDto: FilterTsuserDto): Promise<Tsuser[]> {
 
-    return this.tsuserRepository.getUser(filterTsuserDto);
+    return this.tsuserRepository.getTsusers(filterTsuserDto);
   }
 
-  async createUser(createTsuserDto: CreateTsuserDto): Promise<Tsuser> {
-    return this.tsuserRepository.createUser(createTsuserDto);
+  async createTsuser(createTsuserDto: CreateTsuserDto): Promise<void> {
+    return this.tsuserRepository.createTsuser(createTsuserDto);
   }
 }
