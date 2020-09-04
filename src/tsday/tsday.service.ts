@@ -33,7 +33,6 @@ export class TsdayService {
    * @param filterTsdayDto
    */
   async getTsdays(filterTsdayDto: FilterTsdayDto): Promise<Tsday[]> {
-
     return this.tsdayRepository.getTsdays(filterTsdayDto);
   }
 

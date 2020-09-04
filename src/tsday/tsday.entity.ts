@@ -43,21 +43,21 @@ export class Tsday extends BaseEntity {
 
   @ApiProperty()
   @Column()
-  darpatime: number
+  darpamins: number
 
   @ApiProperty()
   @Column()
-  nondarpatime: number
+  nondarpamins: number
 
   @ApiProperty()
   @Column()
-  sick: number
+  sickmins: number
 
   @ApiProperty()
   @Column()
-  pto: number
+  ptomins: number
 
   @ApiProperty()
   @Column()
-  holiday: number
+  holidaymins: number
 }

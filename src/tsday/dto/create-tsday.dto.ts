@@ -28,17 +28,17 @@ export class CreateTsdayDto {
   weekid: number
 
   @ApiProperty()
-  darpatime: number
+  darpamins: number
 
   @ApiProperty()
-  nondarpatime: number
+  nondarpamins: number
 
   @ApiProperty()
-  sick: number
+  sickmins: number
 
   @ApiProperty()
-  pto: number
+  ptomins: number
 
   @ApiProperty()
-  holiday: number
+  holidaymins: number
 }

@@ -45,17 +45,17 @@ export class TsdayRepository extends Repository<Tsday> {
 
   async createTsday(createTsdayDto: CreateTsdayDto): Promise<void> {
 
-    const { email, day, weekid, darpatime, nondarpatime, sick, pto, holiday } = createTsdayDto;
+    const { email, day, weekid, darpamins, nondarpamins, sickmins, ptomins, holidaymins } = createTsdayDto;
 
     const tsday = new Tsday();
     tsday.email = email
     tsday.day = new Date(); // will be day
     tsday.weekid = weekid;
-    tsday.darpatime = darpatime;
-    tsday.nondarpatime = nondarpatime;
-    tsday.sick = sick;
-    tsday.pto = pto;
-    tsday.holiday = holiday;
+    tsday.darpamins = darpamins;
+    tsday.nondarpamins = nondarpamins;
+    tsday.sickmins = sickmins;
+    tsday.ptomins = ptomins;
+    tsday.holidaymins = holidaymins;
 
     await tsday.save();
   }
