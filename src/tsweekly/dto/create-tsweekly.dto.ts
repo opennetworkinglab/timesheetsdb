@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
-/**
- * Config for database connetion.
- */
-export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'mariadb',
-  host: 'localhost',
-  port: 3306,
-  username: 'vrud',
-  password: 'temppass',
-  database: 'timesheetstest',
-  entities: [__dirname + '/../**/*.entity.{js,ts}'],
-  synchronize: true,
+export class CreateTsweeklyDto {
+
+  @ApiProperty()
+  email: string
+
+  @ApiProperty()
+  weekid: number
+
+  @ApiProperty()
+  document: string
+
+  @ApiProperty()
+  preview: string
+
+  @ApiProperty()
+  userSigned: Date
+
+  @ApiProperty()
+  adminSigned: Date
 }

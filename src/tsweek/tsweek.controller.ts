@@ -1,14 +1,24 @@
 /*
- * SPDX-FileCopyrightText: 2020-present Open Networking Foundation <info@opennetworking.org>
+ * Copyright 2020-present Open Networking Foundation
  *
- * SPDX-License-Identifier: LicenseRef-ONF-Member-1.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { Controller, Get, Post, Query } from '@nestjs/common';
 import { TsweekService } from './tsweek.service';
 import { Tsweek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
-import { ApiQuery } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('tsweek')
 export class TsweekController {
@@ -16,16 +26,16 @@ export class TsweekController {
   constructor(private tsweekService: TsweekService) {}
 
   /**
-   * Gets the ts weeks based on filter. No filter gets all weeks
+   * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
    * @param filterTsweekDto
    */
   @Get()
-  @ApiQuery({ name: 'year' })
   getTsweek(@Query() filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
     return this.tsweekService.getTsweek(filterTsweekDto);
   }
 
   @Post()
+  @ApiResponse({ status: 201, description: "Table populated" })
   createTsweek(): Promise<void> {
     return this.tsweekService.createTsweek();
   }

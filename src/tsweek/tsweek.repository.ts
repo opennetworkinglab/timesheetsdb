@@ -1,7 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2020-present Open Networking Foundation <info@opennetworking.org>
+ * Copyright 2020-present Open Networking Foundation
  *
- * SPDX-License-Identifier: LicenseRef-ONF-Member-1.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { EntityRepository, Repository } from 'typeorm';
@@ -11,7 +21,11 @@ import { FilterTsweekDto } from './dto/filter-tsweek.dto';
 @EntityRepository(Tsweek)
 export class TsweekRepository extends Repository<Tsweek> {
 
-  async getWeeks(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
+  /**
+   * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
+   * @param filterTsweekDto
+   */
+  async getTsweeks(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
 
     const { year, weekno } = filterTsweekDto;
 
@@ -25,9 +39,8 @@ export class TsweekRepository extends Repository<Tsweek> {
       query.andWhere('tsweek.weekno = :weekno', { weekno });
     }
 
-    // Gets all the weeks
-    const tsweeks = await query.getMany();
-    return tsweeks;
+    // Gets all the weeks or weeks based on filters
+    return await query.getMany();
   }
 
   async createTsweek(): Promise<void> {

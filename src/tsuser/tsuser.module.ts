@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common';
+import { TsuserController } from './tsuser.controller';
+import { TsuserService } from './tsuser.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TsweekRepository } from '../tsweek/tsweek.repository';
+import { TsuserRepository } from './tsuser.repository';
 
-/**
- * Config for database connetion.
- */
-export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'mariadb',
-  host: 'localhost',
-  port: 3306,
-  username: 'vrud',
-  password: 'temppass',
-  database: 'timesheetstest',
-  entities: [__dirname + '/../**/*.entity.{js,ts}'],
-  synchronize: true,
-}
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([TsuserRepository])
+  ],
+  controllers: [TsuserController],
+  providers: [TsuserService]
+})
+export class TsuserModule {}

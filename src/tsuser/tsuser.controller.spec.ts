@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Test, TestingModule } from '@nestjs/testing';
+import { TsuserController } from './tsuser.controller';
 
-/**
- * Config for database connetion.
- */
-export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'mariadb',
-  host: 'localhost',
-  port: 3306,
-  username: 'vrud',
-  password: 'temppass',
-  database: 'timesheetstest',
-  entities: [__dirname + '/../**/*.entity.{js,ts}'],
-  synchronize: true,
-}
+describe('TsuserController', () => {
+  let controller: TsuserController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [TsuserController],
+    }).compile();
+
+    controller = module.get<TsuserController>(TsuserController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});

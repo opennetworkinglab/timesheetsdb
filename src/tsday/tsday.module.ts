@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common';
+import { TsdayController } from './tsday.controller';
+import { TsdayService } from './tsday.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TsdayRepository } from './tsday.repository';
 
-/**
- * Config for database connetion.
- */
-export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'mariadb',
-  host: 'localhost',
-  port: 3306,
-  username: 'vrud',
-  password: 'temppass',
-  database: 'timesheetstest',
-  entities: [__dirname + '/../**/*.entity.{js,ts}'],
-  synchronize: true,
-}
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([TsdayRepository])
+  ],
+  controllers: [TsdayController],
+  providers: [TsdayService]
+})
+export class TsdayModule {}

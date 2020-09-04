@@ -14,36 +14,42 @@
  * limitations under the License.
  */
 
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Tsuser } from '../tsuser/tsuser.entity';
+import { Tsweek } from '../tsweek/tsweek.entity';
 
-@Entity('tsweeks') // Database table name
-@Unique('tsweek_year_week_uk', ['year', 'weekno'])
-@Unique('tsweek_begin_uk', ['begin'])
-@Unique('tsweek_end_uk', ['end'])
-export class Tsweek extends BaseEntity {
-
-  @ApiProperty()
-  @PrimaryGeneratedColumn()
-  id: number
+@Entity()
+@Index(['email', 'weekid'], { unique: true })
+export class Tsweekly extends BaseEntity {
 
   @ApiProperty()
-  @Column({ name: 'year' })
-  year: number
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToOne(type => Tsuser)
+  @JoinColumn({ name: 'email'})
+  @PrimaryColumn()
+  email: string
 
   @ApiProperty()
-  @Column({ name: 'weekno' })
-  weekno: number
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToOne(type => Tsweek)
+  @JoinColumn({ name: 'weekid'})
+  @PrimaryColumn()
+  weekid: number
 
   @ApiProperty()
-  @Column({ name: 'monthno' })
-  monthno: number
+  @Column()
+  document: string
 
   @ApiProperty()
-  @Column({ name: 'begin' })
-  begin: Date
+  @Column()
+  preview: string
 
   @ApiProperty()
-  @Column({ name: 'end' })
-  end: Date
+  @Column()
+  userSigned: Date
+
+  @ApiProperty()
+  @Column()
+  adminSigned: Date
 }

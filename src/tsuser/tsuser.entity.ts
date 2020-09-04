@@ -14,13 +14,35 @@
  * limitations under the License.
  */
 
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Tsweekly } from '../tsweekly/tsweekly.entity';
 
-export class FilterTsweekDto {
+@Entity('tsusers')
+@Unique('tsweek_fullname_uk', ['firstname', 'lastname'])
+export class Tsuser extends BaseEntity {
 
   @ApiProperty()
-  year: number
+  @PrimaryColumn()
+  email: string
 
   @ApiProperty()
-  weekno: number
+  @Column({ name: 'firstname' })
+  firstname: string
+
+  @ApiProperty()
+  @Column({ name: 'lastname' })
+  lastname: string
+
+  @ApiProperty()
+  @Column()
+  supervisoremail: string
+
+  @ApiProperty()
+  @Column()
+  darpaallocationpct: string
+
+  @ApiProperty()
+  @Column()
+  issupervisor: boolean
 }
