@@ -1,7 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2020-present Open Networking Foundation <info@opennetworking.org>
+ * Copyright 2020-present Open Networking Foundation
  *
- * SPDX-License-Identifier: LicenseRef-ONF-Member-1.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { EntityRepository, Repository } from 'typeorm';
@@ -18,7 +28,7 @@ export class TsdayRepository extends Repository<Tsday> {
    */
   async getTsdays(filterTsdayDto: FilterTsdayDto): Promise<Tsday[]> {
 
-    const { email, day, weekid, darpatime, nondarpatime, sick, pto, holiday } = filterTsdayDto;
+    const { email, weekid, } = filterTsdayDto;
 
     const query = this.createQueryBuilder('tsday');
 
@@ -26,32 +36,8 @@ export class TsdayRepository extends Repository<Tsday> {
       query.andWhere('tsday.email = :email', { email });
     }
 
-    if (day) {
-      query.andWhere('tsday.day = :day', { day });
-    }
-
     if (weekid) {
       query.andWhere('tsday.weekid = :weekid', { weekid });
-    }
-
-    if (darpatime) {
-      query.andWhere('tsday.darpatime = :darpatime', { darpatime });
-    }
-
-    if (nondarpatime) {
-      query.andWhere('tsday.nondarpatime = :nondarpatime', { nondarpatime });
-    }
-
-    if (sick) {
-      query.andWhere('tsday.sick = :sick', { sick });
-    }
-
-    if (pto) {
-      query.andWhere('tsday.pto = :pto', { pto });
-    }
-
-    if (holiday) {
-      query.andWhere('tsday.holiday = :holiday', { holiday });
     }
 
     return await query.getMany();
