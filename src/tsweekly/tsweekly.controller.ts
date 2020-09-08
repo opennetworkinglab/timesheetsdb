@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { TsweeklyService } from './tsweekly.service';
 import { FilterTsweeklyDto } from './dto/filter-tsweekly.dto';
 import { Tsweekly } from './tsweekly.entity';
 import { CreateTsweeklyDto } from './dto/create-tsweekly.dto';
+import { EmailValidationPipe } from '../pipes/email-validation.pipe';
+import { UpdateTsweeklyDto } from './dto/update-tsweekly.dto';
 
 @Controller('tsweekly')
 export class TsweeklyController {
@@ -19,14 +21,24 @@ export class TsweeklyController {
     return this.tsweeklyService.getTsweekly(filterTsweeklyDto);
   }
 
+  @Get(':emailId')
+  getTsweeklyById(@Param('emailId') emailId): Promise<Tsweekly[]> {
+    return this.tsweeklyService.getTsweeklyById(emailId);
+  }
+
   @Post()
-  @ApiResponse({ status: 201, description: "Added" })
-  createTsweekly(@Body() createTsweeklyDto: CreateTsweeklyDto): Promise<void> {
+  createTsweekly(@Body('email', EmailValidationPipe) email,
+                 @Body() createTsweeklyDto: CreateTsweeklyDto): Promise<void> {
     return this.tsweeklyService.createTsweekly(createTsweeklyDto);
   }
 
-  @Patch()
-  p (@Body() createTsweeklyDto: CreateTsweeklyDto) {
-    return this.tsweeklyService.createTsweekly(createTsweeklyDto);
-  }
+  // @Patch(':emailId/:weekId')
+  // UpdateTsweekly(@Param('emailId') emailId, @Param('weekId') weekId, @Body() updateTsweeklyDto: UpdateTsweeklyDto) { // @Param
+  //   return this.tsweeklyService.updateTsweekly(emailId, weekId, updateTsweeklyDto);
+  // }
+  //
+  // @Patch(':emailId/:weekId/document')
+  // UpdateTsweeklyDocument(@Param('emailId') emailId, @Param('weekId') weekId, @Body() updateTsweeklyDto: UpdateTsweeklyDto) { // @Param
+  //   return this.tsweeklyService.updateTsweeklyDocument(emailId, weekId, updateTsweeklyDto);
+  // }
 }

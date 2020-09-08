@@ -20,6 +20,8 @@ import { TsdayRepository } from './tsday.repository';
 import { FilterTsdayDto } from './dto/filter-tsday.dto';
 import { Tsday } from './tsday.entity';
 import { CreateTsdayDto } from './dto/create-tsday.dto';
+import { UpdateTsdayDto } from './dto/update-tsday.dto';
+import { UpdateResult } from 'typeorm';
 
 @Injectable()
 export class TsdayService {
@@ -36,7 +38,15 @@ export class TsdayService {
     return this.tsdayRepository.getTsdays(filterTsdayDto);
   }
 
+  async getTsdayById(emailId: string): Promise<Tsday[]> {
+    return this.tsdayRepository.getTsdayById(emailId);
+  }
+
   async createTsday(createTsdayDto: CreateTsdayDto): Promise<void> {
     return this.tsdayRepository.createTsday(createTsdayDto);
+  }
+
+  async updateTsdayMins(emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
+    return this.tsdayRepository.updateTsdayMins(emailId, dayId, updateTsdayDto);
   }
 }

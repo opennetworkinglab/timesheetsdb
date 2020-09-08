@@ -18,6 +18,7 @@ import { EntityRepository, Repository } from 'typeorm';
 import { Tsuser } from './tsuser.entity';
 import { FilterTsuserDto } from './dto/filter-user.dto';
 import { CreateTsuserDto } from './dto/create-user.dto';
+import { HttpException, HttpStatus } from '@nestjs/common';
 /**
  * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
  * @param filterTsweekDto
@@ -31,23 +32,30 @@ export class TsuserRepository extends Repository<Tsuser> {
    */
   async getTsusers(filterTsweekDto: FilterTsuserDto): Promise<Tsuser[]> {
 
-    const { email, firstname, lastname } = filterTsweekDto;
+    const { supervisoremail, darpaallocationpct } = filterTsweekDto;
 
     const query = this.createQueryBuilder('tsuser');
 
-    if (email) {
-      query.andWhere('tsuser.email = :email', { email });
+    if (supervisoremail) {
+      query.andWhere('tsuser.supervisoremail = :supervisoremail', { supervisoremail });
     }
 
-    if (firstname) {
-      query.andWhere('tsuser.firstname = :firstname', { firstname });
-    }
-
-    if (lastname) {
-      query.andWhere('tsuser.lastname = :lastname', { lastname });
+    if (darpaallocationpct) {
+      query.andWhere('tsuser.darpaallocationpct = :darpaallocationpct', { darpaallocationpct });
     }
 
     return await query.getMany();
+  }
+
+  async getTsuserById(emailId: string):Promise<Tsuser> {
+
+    const found =  await this.findOne({ email: emailId });
+
+    if (!found) {
+      throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
+    }
+
+    return found;
   }
 
   async createTsuser(createTsuserDto: CreateTsuserDto): Promise<void> {

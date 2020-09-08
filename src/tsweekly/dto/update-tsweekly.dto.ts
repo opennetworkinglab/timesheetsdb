@@ -15,14 +15,23 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { Column } from 'typeorm';
-import { IsString } from 'class-validator';
+import { IsDate, IsString } from 'class-validator';
 
-export class FilterTsuserDto {
+export class UpdateTsweeklyDto {
 
+  @ApiProperty()
   @IsString()
-  supervisoremail: string
+  document: string
 
-  @IsString()
-  darpaallocationpct: string
+  @ApiProperty()
+  preview: string
+
+  @ApiProperty()
+  @IsDate()
+  userSigned: Date
+
+  @ApiProperty()
+  @IsDate()
+  adminSigned: Date
+
 }

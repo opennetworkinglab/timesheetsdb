@@ -19,6 +19,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TsweekRepository } from './tsweek.repository';
 import { Tsweek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
+import { CreateTsweekDto } from './dto/create-tsweek.dto';
 
 @Injectable()
 export class TsweekService {
@@ -32,12 +33,15 @@ export class TsweekService {
     * @param filterTsweekDto
     */
     async getTsweek(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
-
       return this.tsweekRepository.getTsweeks(filterTsweekDto);
     }
 
-    async createTsweek(): Promise<void> {
-      await this.tsweekRepository.createTsweek();
+    async getTsweekById(id: number):Promise<Tsweek> {
+      return this.tsweekRepository.getTsweekById(id);
+    }
+
+    async createTsweek(createTsweekDto: CreateTsweekDto): Promise<void> {
+      await this.tsweekRepository.createTsweek(createTsweekDto);
     }
 }
 

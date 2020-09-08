@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, UpdateResult } from 'typeorm';
 import { Tsday } from './tsday.entity';
 import { CreateTsdayDto } from './dto/create-tsday.dto';
 import { FilterTsdayDto } from './dto/filter-tsday.dto';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { UpdateTsdayDto } from './dto/update-tsday.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, Max, Min } from 'class-validator';
 
 @EntityRepository(Tsday)
 export class TsdayRepository extends Repository<Tsday> {
@@ -28,7 +32,7 @@ export class TsdayRepository extends Repository<Tsday> {
    */
   async getTsdays(filterTsdayDto: FilterTsdayDto): Promise<Tsday[]> {
 
-    const { email, weekid, } = filterTsdayDto;
+    const { email, weekid } = filterTsdayDto;
 
     const query = this.createQueryBuilder('tsday');
 
@@ -43,13 +47,24 @@ export class TsdayRepository extends Repository<Tsday> {
     return await query.getMany();
   }
 
+  async getTsdayById(emailId: string): Promise<Tsday[]> {
+
+    const found = await this.find({ email: emailId });
+
+    if (!found) {
+      throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
+    }
+
+    return found;
+  }
+
   async createTsday(createTsdayDto: CreateTsdayDto): Promise<void> {
 
     const { email, day, weekid, darpamins, nondarpamins, sickmins, ptomins, holidaymins } = createTsdayDto;
 
     const tsday = new Tsday();
     tsday.email = email
-    tsday.day = new Date(); // will be day
+    tsday.day = new Date("2020-9-8"); // will be day
     tsday.weekid = weekid;
     tsday.darpamins = darpamins;
     tsday.nondarpamins = nondarpamins;
@@ -58,5 +73,16 @@ export class TsdayRepository extends Repository<Tsday> {
     tsday.holidaymins = holidaymins;
 
     await tsday.save();
+  }
+
+  async updateTsdayMins(emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
+
+    const { darpamins, nondarpamins, sickmins, ptomins, holidaymins } = updateTsdayDto;
+
+    return await this.update({ email: emailId, day: dayId }, { darpamins: darpamins,
+                                                                                 nondarpamins: nondarpamins,
+                                                                                 sickmins: sickmins,
+                                                                                 ptomins: ptomins,
+                                                                                 holidaymins: holidaymins });
   }
 }
