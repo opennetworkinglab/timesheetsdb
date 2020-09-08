@@ -20,4 +20,8 @@ export class FilterTsweeklyDto {
 
   @ApiProperty()
   email: string
+
+  //usersigned ??
+
+  //adminsigned ??
 }

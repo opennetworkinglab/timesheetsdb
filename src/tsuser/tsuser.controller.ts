@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, ParseBoolPipe, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TsuserService } from './tsuser.service';
 import { FilterTsuserDto } from './dto/filter-user.dto';
 import { Tsuser } from './tsuser.entity';
 import { CreateTsuserDto } from './dto/create-user.dto';
+import { EmailValidationPipe } from '../pipes/email-validation.pipe';
 
 @Controller('tsuser')
 export class TsuserController {
@@ -28,16 +28,24 @@ export class TsuserController {
 
   /**
    * Returns a Promise of an array of Tsuser based on filter. One to many Tsuser can be returned.
-   * @param filterTsweekDto
+   * @param filterTsuserDto
    */
   @Get()
   getTsusers(@Query() filterTsuserDto: FilterTsuserDto): Promise<Tsuser[]> {
     return this.tsuserService.getTsusers(filterTsuserDto);
   }
 
+  @Get(':emailId')
+  async getTsuserById(@Param('emailId') emailId):Promise<Tsuser> {
+    return this.tsuserService.getTsuserById(emailId);
+  }
+
   @Post()
-  @ApiResponse({ status: 201, description: "User added" })
-  createTsuser(@Body() createTsuserDto:  CreateTsuserDto): Promise<void> {
+  @UsePipes(ValidationPipe)
+  createTsuser(@Body('email', EmailValidationPipe) email,
+               @Body('supervisoremail', EmailValidationPipe) supervisoremail,
+               // @Body('issupervisor', ParseBoolPipe) issupervisor,  String to bool
+               @Body() createTsuserDto:  CreateTsuserDto): Promise<void> {
     return this.tsuserService.createTsuser(createTsuserDto);
   }
 }

@@ -15,24 +15,37 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTsuserDto {
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   email: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   firstname: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   lastname: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   supervisoremail: string
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   darpaallocationpct: string
 
   @ApiProperty()
+  @IsNotEmpty()
+  // @IsBoolean()
   issupervisor: boolean
 }

@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { TsdayService } from './tsday.service';
 import { FilterTsdayDto } from './dto/filter-tsday.dto';
 import { Tsday } from './tsday.entity';
 import { CreateTsdayDto } from './dto/create-tsday.dto';
+import { EmailValidationPipe } from '../pipes/email-validation.pipe';
+import { UpdateResult } from 'typeorm';
+import { UpdateTsdayDto } from './dto/update-tsday.dto';
 
 @Controller('tsday')
 export class TsdayController {
@@ -29,13 +32,25 @@ export class TsdayController {
    * Returns a Promise of an array of Tsday based on filter. One to many Tsday can be returned.
    * @param filterTsdayDto
    */
-  @Get()
+  @Get()// Pass id as param??
   getTsdays(@Query() filterTsdayDto: FilterTsdayDto): Promise<Tsday[]> {
     return this.tsdayService.getTsdays(filterTsdayDto);
   }
 
+  @Get(':emailId')
+  getTsdayById(@Param('emailId') emailId): Promise<Tsday[]> {
+    return this.tsdayService.getTsdayById(emailId);
+  }
+
   @Post()
-  createTsday(@Body() createTsdayDto: CreateTsdayDto): Promise<void> {
+  createTsday(@Body('email', EmailValidationPipe) email,
+              @Body() createTsdayDto: CreateTsdayDto): Promise<void> {
     return this.tsdayService.createTsday(createTsdayDto);
+  }
+
+  @Patch(':emailId/:dayId')
+  // Pass day in by body? Can use filter
+  updateTsdayMins(@Param('emailId') emailId, @Param('dayId') dayId, @Body() updateTsdayDto: UpdateTsdayDto) {
+    return this.tsdayService.updateTsdayMins(emailId, new Date(dayId), updateTsdayDto);
   }
 }

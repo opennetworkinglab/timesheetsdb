@@ -31,7 +31,6 @@ export class Tsday extends BaseEntity {
   email: string
 
   @ApiProperty()
-  @Column()
   @PrimaryColumn()
   day: Date
 
@@ -39,6 +38,7 @@ export class Tsday extends BaseEntity {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @ManyToOne(type => Tsweek)
   @JoinColumn({ name: 'weekid'})
+  @Column()
   weekid: number
 
   @ApiProperty()

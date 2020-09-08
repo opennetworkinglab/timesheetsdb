@@ -33,8 +33,11 @@ export class TsuserService {
    * @param filterTsweekDto
    */
   async getTsusers(filterTsuserDto: FilterTsuserDto): Promise<Tsuser[]> {
-
     return this.tsuserRepository.getTsusers(filterTsuserDto);
+  }
+
+  async getTsuserById(emailId: string):Promise<Tsuser> {
+    return this.tsuserRepository.getTsuserById(emailId);
   }
 
   async createTsuser(createTsuserDto: CreateTsuserDto): Promise<void> {

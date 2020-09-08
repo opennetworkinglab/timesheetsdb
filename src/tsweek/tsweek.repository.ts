@@ -17,6 +17,8 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Tsweek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { CreateTsweekDto } from './dto/create-tsweek.dto';
 
 @EntityRepository(Tsweek)
 export class TsweekRepository extends Repository<Tsweek> {
@@ -43,7 +45,18 @@ export class TsweekRepository extends Repository<Tsweek> {
     return await query.getMany();
   }
 
-  async createTsweek(): Promise<void> {
+  async getTsweekById(id: number):Promise<Tsweek> {
+
+    const found = await this.findOne({ id: id });
+
+    if (!found) {
+      throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
+    }
+
+    return found;
+  }
+
+  async createTsweek(createTsweekDto: CreateTsweekDto): Promise<void> {
 
     const weekms = 168 * 60 * 60 * 1000;
     const startdate = 1588550400000; // Mon 4th may 2020

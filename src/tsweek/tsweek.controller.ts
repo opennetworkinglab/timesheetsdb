@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { TsweekService } from './tsweek.service';
 import { Tsweek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
 import { ApiResponse } from '@nestjs/swagger';
+import { CreateTsweekDto } from './dto/create-tsweek.dto';
 
 @Controller('tsweek')
 export class TsweekController {
@@ -34,9 +35,13 @@ export class TsweekController {
     return this.tsweekService.getTsweek(filterTsweekDto);
   }
 
+  @Get(':id')
+  async getTsweekById(@Param('id') id):Promise<Tsweek> {
+    return this.tsweekService.getTsweekById(id);
+  }
+
   @Post()
-  @ApiResponse({ status: 201, description: "Table populated" })
-  createTsweek(): Promise<void> {
-    return this.tsweekService.createTsweek();
+  createTsweek(createTsweekDto: CreateTsweekDto): Promise<void> {
+    return this.tsweekService.createTsweek(createTsweekDto);
   }
 }

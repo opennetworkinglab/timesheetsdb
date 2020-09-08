@@ -15,24 +15,32 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
+import { IsDate, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTsweeklyDto {
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   email: string
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
   weekid: number
 
   @ApiProperty()
+  @IsString()
   document: string
 
   @ApiProperty()
   preview: string
 
   @ApiProperty()
+  @IsDate()
   userSigned: Date
 
   @ApiProperty()
+  @IsDate()
   adminSigned: Date
 }
