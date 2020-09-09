@@ -67,12 +67,12 @@ export class TsweeklyRepository extends Repository<Tsweekly> {
       tsweekly.weekid = weekid;
       tsweekly.document = document;
       tsweekly.preview = preview;
-      tsweekly.userSigned = new Date();
-      tsweekly.adminSigned = new Date();
+      // tsweekly.userSigned = new Date();
+      // tsweekly.adminSigned = new Date();
       await tsweekly.save();
 
     }catch (err) {
-      throw new HttpException(err.code, HttpStatus.INTERNAL_SERVER_ERROR);// HttpStatus.CONFLICT   HttpStatus.BAD_REQUEST
+      throw new HttpException(err.code, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -80,9 +80,25 @@ export class TsweeklyRepository extends Repository<Tsweekly> {
 
     const { document, preview, userSigned } = updateTsweeklyDto;
 
-    return await this.update({ email: emailId, weekid: weekId }, { document: document,
-                                                                                      preview: preview,
-                                                                                    userSigned: userSigned
+    return await this.update({
+      email: emailId,
+      weekid: weekId
+    }, {
+      document: document,
+      preview: preview,
+      userSigned: userSigned
+    });
+  }
+
+  async updateTsweeklyAdmin(emailId: string, weekId: number, updateTsweeklyDto: UpdateTsweeklyDto) {
+
+    const { adminSigned } = updateTsweeklyDto;
+
+    return await this.update({
+      email: emailId,
+      weekid: weekId
+    },{
+      adminSigned: adminSigned
     });
   }
 }

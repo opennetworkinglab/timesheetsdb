@@ -38,18 +38,18 @@ export class Tsweekly extends BaseEntity {
   weekid: number
 
   @ApiProperty()
-  @Column()
+  @Column({ nullable: true })
   document: string
 
   @ApiProperty()
-  @Column()
+  @Column({ nullable: true })
   preview: string
 
   @ApiProperty()
-  @Column()
+  @Column({ name: 'usersigned', nullable: true })
   userSigned: Date
 
   @ApiProperty()
-  @Column()
+  @Column({ name: 'adminsigned', nullable: true })
   adminSigned: Date
 }

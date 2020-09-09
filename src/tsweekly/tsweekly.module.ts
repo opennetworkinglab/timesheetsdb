@@ -19,10 +19,12 @@ import { TsweeklyController } from './tsweekly.controller';
 import { TsweeklyService } from './tsweekly.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsweeklyRepository } from './tsweekly.repository';
+import { TsuserRepository } from '../tsuser/tsuser.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TsweeklyRepository])
+    TypeOrmModule.forFeature([TsweeklyRepository]),
+    TypeOrmModule.forFeature([TsuserRepository])
   ],
   controllers: [TsweeklyController],
   providers: [TsweeklyService]

@@ -16,6 +16,8 @@
 
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+const MIN_MINS = 0;
+const MAX_MINS = 0;
 
 export class CreateTsdayDto {
 
@@ -36,31 +38,31 @@ export class CreateTsdayDto {
 
   @ApiProperty()
   @IsInt()
-  @Min(0)
-  @Max(10)
+  @Min(MIN_MINS)
+  @Max(MAX_MINS)
   darpamins: number
 
   @ApiProperty()
   @IsInt()
-  @Min(0)
-  @Max(10)
+  @Min(MIN_MINS)
+  @Max(MAX_MINS)
   nondarpamins: number
 
   @ApiProperty()
   @IsInt()
-  @Min(0)
-  @Max(10)
+  @Min(MIN_MINS)
+  @Max(MAX_MINS)
   sickmins: number
 
   @ApiProperty()
   @IsInt()
-  @Min(0)
-  @Max(10)
+  @Min(MIN_MINS)
+  @Max(MAX_MINS)
   ptomins: number
 
   @ApiProperty()
   @IsInt()
-  @Min(0)
-  @Max(10)
+  @Min(MIN_MINS)
+  @Max(MAX_MINS)
   holidaymins: number
 }

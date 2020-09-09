@@ -64,7 +64,7 @@ export class TsdayRepository extends Repository<Tsday> {
 
     const tsday = new Tsday();
     tsday.email = email
-    tsday.day = new Date("2020-9-8"); // will be day
+    tsday.day = new Date('2020-9-8'); // will be day
     tsday.weekid = weekid;
     tsday.darpamins = darpamins;
     tsday.nondarpamins = nondarpamins;
