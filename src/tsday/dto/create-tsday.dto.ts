@@ -16,8 +16,10 @@
 
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+
 const MIN_MINS = 0;
 const MAX_MINS = 0;
+
 
 export class CreateTsdayDto {
 

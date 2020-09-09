@@ -22,7 +22,9 @@ import { Tsweekly } from './tsweekly.entity';
 import { CreateTsweeklyDto } from './dto/create-tsweekly.dto';
 import { UpdateTsweeklyDto } from './dto/update-tsweekly.dto';
 import { UpdateResult } from 'typeorm';
+
 import { TsuserRepository } from '../tsuser/tsuser.repository';
+
 
 @Injectable()
 export class TsweeklyService {
@@ -47,7 +49,7 @@ export class TsweeklyService {
   async createTsweekly(createTsweeklyDto: CreateTsweeklyDto): Promise<void> {
     return this.tsweeklyRepository.createTsweekly(createTsweeklyDto);
   }
-
+  
   /**
    * Updates the tsweekly (document/ preview/ usersigned) based on the email and weekid. Checks that the caller has authorization to do so.
    * @param username
@@ -176,4 +178,5 @@ export class TsweeklyService {
 
      return this.tsweeklyRepository.updateTsweeklyAdmin(emailId, weekId, newUpdatedTsweeklyDto);
   }
+
 }
