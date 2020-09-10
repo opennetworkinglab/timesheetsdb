@@ -19,6 +19,7 @@ import { TsweekController } from './tsweek.controller';
 import { TsweekService } from './tsweek.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsweekRepository } from './tsweek.repository';
+import { TsuserRepository } from '../tsuser/tsuser.repository';
 
 @Module({
   imports: [

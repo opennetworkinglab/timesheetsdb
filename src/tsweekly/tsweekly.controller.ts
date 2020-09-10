@@ -32,13 +32,22 @@ export class TsweeklyController {
     return this.tsweeklyService.createTsweekly(createTsweeklyDto);
   }
 
-  // @Patch(':emailId/:weekId')
-  // UpdateTsweekly(@Param('emailId') emailId, @Param('weekId') weekId, @Body() updateTsweeklyDto: UpdateTsweeklyDto) { // @Param
-  //   return this.tsweeklyService.updateTsweekly(emailId, weekId, updateTsweeklyDto);
-  // }
-  //
-  // @Patch(':emailId/:weekId/document')
-  // UpdateTsweeklyDocument(@Param('emailId') emailId, @Param('weekId') weekId, @Body() updateTsweeklyDto: UpdateTsweeklyDto) { // @Param
-  //   return this.tsweeklyService.updateTsweeklyDocument(emailId, weekId, updateTsweeklyDto);
-  // }
+  @Patch(':emailId/:weekId')
+  UpdateTsweeklyUser(@Param('emailId') emailId,
+                     @Param('weekId') weekId,
+                     @Body() updateTsweeklyDto: UpdateTsweeklyDto,
+                     @Body('username') username,
+                     @Body('userSigned1') userSigned1) { // Will be removed. In as can't pass date object in postman
+
+    return this.tsweeklyService.updateTsweeklyUser(username, emailId, weekId, updateTsweeklyDto, userSigned1);
+  }
+
+  @Patch(':emailId/:weekId/adminsign')
+  UpdateTsweeklyAdmin(@Param('emailId') emailId,
+                      @Param('weekId') weekId,
+                      @Body() updateTsweeklyDto: UpdateTsweeklyDto,
+                      @Body('username') username,
+                      @Body('userSigned1') userSigned1) { // @Param
+    return this.tsweeklyService.updateTsweeklyAdmin(username, emailId, weekId, updateTsweeklyDto, userSigned1);
+  }
 }
