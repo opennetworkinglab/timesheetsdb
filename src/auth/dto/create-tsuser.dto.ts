@@ -14,35 +14,41 @@
  * limitations under the License.
  */
 
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Tsweekly } from '../tsweekly/tsweekly.entity';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
-@Entity('tsusers')
-@Unique('tsweek_fullname_uk', ['firstname', 'lastname'])
-export class Tsuser extends BaseEntity {
+export class CreateTsUserDto {
 
   @ApiProperty()
-  @PrimaryColumn()
-  email: string
+  @IsNotEmpty()
+  @IsString()
+  email: string;
 
   @ApiProperty()
-  @Column({ name: 'firstname' })
-  firstname: string
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
 
   @ApiProperty()
-  @Column({ name: 'lastname' })
-  lastname: string
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @ApiProperty()
-  @Column()
-  supervisoremail: string
+  @IsNotEmpty()
+  @IsString()
+  supervisorEmail: string
 
   @ApiProperty()
-  @Column()
-  darpaallocationpct: string
+  @IsNotEmpty()
+  @IsString()
+  darpaAllocationPct: string
 
   @ApiProperty()
-  @Column()
-  issupervisor: boolean
+  @IsNotEmpty()
+  // @IsBoolean()
+  isSupervisor: boolean
+
+  @ApiProperty()
+  isActive: boolean
 }

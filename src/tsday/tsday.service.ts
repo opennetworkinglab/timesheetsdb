@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TsdayRepository } from './tsday.repository';
-import { FilterTsdayDto } from './dto/filter-tsday.dto';
-import { Tsday } from './tsday.entity';
-import { CreateTsdayDto } from './dto/create-tsday.dto';
+import { TsDayRepository } from './tsday.repository';
+import { FilterTsDayDto } from './dto/filter-tsday.dto';
+import { TsDay } from './tsday.entity';
+import { CreateTsDayDto } from './dto/create-tsday.dto';
 import { UpdateTsdayDto } from './dto/update-tsday.dto';
 import { UpdateResult } from 'typeorm';
 
@@ -27,26 +27,59 @@ import { UpdateResult } from 'typeorm';
 export class TsdayService {
 
   constructor(
-    @InjectRepository(TsdayRepository)
-    private tsdayRepository: TsdayRepository) {}
+    @InjectRepository(TsDayRepository)
+    private tsdayRepository: TsDayRepository) {}
 
   /**
    * Returns a Promise of an array of Tsday based on filter. One to many Tsday can be returned.
    * @param filterTsdayDto
    */
-  async getTsdays(filterTsdayDto: FilterTsdayDto): Promise<Tsday[]> {
-    return this.tsdayRepository.getTsdays(filterTsdayDto);
+  async getTsdays(filterTsdayDto: FilterTsDayDto): Promise<TsDay[]> {
+    return this.tsdayRepository.getTsDays();
   }
 
-  async getTsdayById(emailId: string): Promise<Tsday[]> {
+  async getTsdayById(emailId: string): Promise<TsDay[]> {
     return this.tsdayRepository.getTsdayById(emailId);
   }
 
-  async createTsday(createTsdayDto: CreateTsdayDto): Promise<void> {
-    return this.tsdayRepository.createTsday(createTsdayDto);
+  async createTsday(createTsdayDto: CreateTsDayDto): Promise<void> {
+    return this.tsdayRepository.createTsDay(createTsdayDto);
   }
 
-  async updateTsdayMins(emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
-    return this.tsdayRepository.updateTsdayMins(emailId, dayId, updateTsdayDto);
-  }
+  // async updateTsdayMins(username: string, emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
+  //
+  //
+  //   const authorised = await this.tsdayRepository.findOne({
+  //     select: ['email', 'darpaMins', 'nonDarpaMins', 'sickMins', 'ptoMins', 'holidayMins'],
+  //     where: {email: emailId }
+  //   })
+  //
+  //   if(authorised.email !== username){
+  //     throw new HttpException("Not authorised to make changes", HttpStatus.UNAUTHORIZED);
+  //   }
+  //
+  //   const { darpamins, nondarpamins, sickmins, ptomins, holidaymins } = updateTsdayDto;
+  //
+  //   if(!darpamins){
+  //     updateTsdayDto.darpamins = authorised.darpaMins;
+  //   }
+  //
+  //   if(!nondarpamins) {
+  //     updateTsdayDto.nondarpamins = authorised.nonDarpaMins;
+  //   }
+  //
+  //   if(!sickmins) {
+  //     updateTsdayDto.sickmins = authorised.sickMins
+  //   }
+  //
+  //   if(!ptomins) {
+  //     updateTsdayDto.ptomins = authorised.ptoMins;
+  //   }
+  //
+  //   if(!holidaymins) {
+  //     updateTsdayDto.holidaymins = authorised.holidayMins;
+  //   }
+  //
+  //   return this.tsdayRepository.updateTsdayMins(emailId, dayId, updateTsdayDto);
+  // }
 }

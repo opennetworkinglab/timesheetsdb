@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-import { Test, TestingModule } from '@nestjs/testing';
-import { TsuserService } from './tsuser.service';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-describe('TsuserService', () => {
-  let service: TsuserService;
+export class UpdateTsUserDto {
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [TsuserService],
-    }).compile();
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  supervisorEmail: string
 
-    service = module.get<TsuserService>(TsuserService);
-  });
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  darpaAllocationPct: string
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+  @ApiProperty()
+  @IsNotEmpty()
+    // @IsBoolean()
+  isSupervisor: boolean
+
+  @ApiProperty()
+  isActive: boolean
+}

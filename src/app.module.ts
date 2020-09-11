@@ -18,17 +18,17 @@ import { Module } from '@nestjs/common';
 import { typeOrmConfig } from './config/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsweekModule } from './tsweek/tsweek.module';
-import { TsuserModule } from './tsuser/tsuser.module';
-import { TsweeklyModule } from './tsweekly/tsweekly.module';
+import { TsWeeklyModule } from './tsweekly/tsweekly.module';
 import { TsdayModule } from './tsday/tsday.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
     TsweekModule,
-    TsuserModule,
-    TsweeklyModule,
+    TsWeeklyModule,
     TsdayModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

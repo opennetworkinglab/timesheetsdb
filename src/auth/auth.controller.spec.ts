@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-import { Module } from '@nestjs/common';
-import { TsuserController } from './tsuser.controller';
-import { TsuserService } from './tsuser.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TsweekRepository } from '../tsweek/tsweek.repository';
-import { TsuserRepository } from './tsuser.repository';
+import { Test, TestingModule } from '@nestjs/testing';
+import { AuthController } from './auth.controller';
 
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([TsuserRepository])
-  ],
-  controllers: [TsuserController],
-  providers: [TsuserService]
-})
-export class TsuserModule {}
+describe('AuthController', () => {
+  let controller: AuthController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AuthController],
+    }).compile();
+
+    controller = module.get<AuthController>(AuthController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});

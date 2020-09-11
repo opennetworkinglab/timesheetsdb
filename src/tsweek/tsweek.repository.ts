@@ -15,19 +15,18 @@
  */
 
 import { EntityRepository, Repository } from 'typeorm';
-import { Tsweek } from './tsweek.entity';
+import { TsWeek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { CreateTsweekDto } from './dto/create-tsweek.dto';
 
-@EntityRepository(Tsweek)
-export class TsweekRepository extends Repository<Tsweek> {
+@EntityRepository(TsWeek)
+export class TsWeekRepository extends Repository<TsWeek> {
 
   /**
    * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
    * @param filterTsweekDto
    */
-  async getTsweeks(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
+  async getTsweeks(filterTsweekDto: FilterTsweekDto): Promise<TsWeek[]> {
 
     const { year, weekno } = filterTsweekDto;
 
@@ -45,7 +44,7 @@ export class TsweekRepository extends Repository<Tsweek> {
     return await query.getMany();
   }
 
-  async getTsweekById(id: number):Promise<Tsweek> {
+  async getTsweekById(id: number):Promise<TsWeek> {
 
     const found = await this.findOne({ id: id });
 
@@ -56,7 +55,7 @@ export class TsweekRepository extends Repository<Tsweek> {
     return found;
   }
 
-  async createTsweek(createTsweekDto: CreateTsweekDto): Promise<void> {
+  async createTsWeek(): Promise<void> {
 
     const weekms = 168 * 60 * 60 * 1000;
     const startdate = 1588550400000; // Mon 4th may 2020
@@ -65,13 +64,13 @@ export class TsweekRepository extends Repository<Tsweek> {
     // Populating tsweeks table
     for (let w = 1; w <= 34; w++) {
       const d = new Date(startdate + w * weekms);
-      const tsweek = new Tsweek();
-      tsweek.year = d.getFullYear();
-      tsweek.weekno = initweek + w;
-      tsweek.monthno = d.getMonth();
-      tsweek.begin = new Date(d.getTime());
-      tsweek.end = new Date(d.getTime() + weekms - 1000);
-      await tsweek.save();
+      const tsWeek = new TsWeek();
+      tsWeek.year = d.getFullYear();
+      tsWeek.weekNo = initweek + w;
+      tsWeek.monthNo = d.getMonth();
+      tsWeek.begin = new Date(d.getTime());
+      tsWeek.end = new Date(d.getTime() + weekms - 1000);
+      await tsWeek.save();
     }
   }
 }

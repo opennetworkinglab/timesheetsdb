@@ -14,33 +14,6 @@
  * limitations under the License.
  */
 
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty } from 'class-validator';
-
-export class CreateTsweekDto {
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  year: number
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  weekno: number
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  monthno: number
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  begin: number
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  end: number
+export interface JwtPayloadInterface {
+  email: string
 }

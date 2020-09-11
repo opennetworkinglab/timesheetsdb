@@ -15,39 +15,21 @@
  */
 
 import { EntityRepository, Repository, UpdateResult } from 'typeorm';
-import { Tsday } from './tsday.entity';
-import { CreateTsdayDto } from './dto/create-tsday.dto';
-import { FilterTsdayDto } from './dto/filter-tsday.dto';
+import { TsDay } from './tsday.entity';
+import { CreateTsDayDto } from './dto/create-tsday.dto';
+import { FilterTsDayDto } from './dto/filter-tsday.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateTsdayDto } from './dto/update-tsday.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Max, Min } from 'class-validator';
 
-@EntityRepository(Tsday)
-export class TsdayRepository extends Repository<Tsday> {
+@EntityRepository(TsDay)
+export class TsDayRepository extends Repository<TsDay> {
 
-  /**
-   * Returns a Promise of an array of Tsday based on filter. One to many Tsday can be returned.
-   * @param filterTsdayDto
-   */
-  async getTsdays(filterTsdayDto: FilterTsdayDto): Promise<Tsday[]> {
+  async getTsDays(): Promise<TsDay[]> {
 
-    const { email, weekid } = filterTsdayDto;
-
-    const query = this.createQueryBuilder('tsday');
-
-    if (email) {
-      query.andWhere('tsday.email = :email', { email });
-    }
-
-    if (weekid) {
-      query.andWhere('tsday.weekid = :weekid', { weekid });
-    }
-
-    return await query.getMany();
+    return await this.find();
   }
 
-  async getTsdayById(emailId: string): Promise<Tsday[]> {
+  async getTsdayById(emailId: string): Promise<TsDay[]> {
 
     const found = await this.find({ email: emailId });
 
@@ -58,31 +40,31 @@ export class TsdayRepository extends Repository<Tsday> {
     return found;
   }
 
-  async createTsday(createTsdayDto: CreateTsdayDto): Promise<void> {
+  async createTsDay(createTsDayDto: CreateTsDayDto): Promise<void> {
 
-    const { email, day, weekid, darpamins, nondarpamins, sickmins, ptomins, holidaymins } = createTsdayDto;
+    const { email, day, weekId, darpaMins, nonDarpaMins, sickMins, ptoMins, holidayMins } = createTsDayDto;
 
-    const tsday = new Tsday();
-    tsday.email = email
-    tsday.day = new Date('2020-9-8'); // will be day
-    tsday.weekid = weekid;
-    tsday.darpamins = darpamins;
-    tsday.nondarpamins = nondarpamins;
-    tsday.sickmins = sickmins;
-    tsday.ptomins = ptomins;
-    tsday.holidaymins = holidaymins;
+    const tsDay = new TsDay();
+    tsDay.email = email
+    tsDay.day = new Date('2020-9-8'); // will be day
+    tsDay.weekId = weekId;
+    tsDay.darpaMins = darpaMins;
+    tsDay.nonDarpaMins = nonDarpaMins;
+    tsDay.sickMins = sickMins;
+    tsDay.ptoMins = ptoMins;
+    tsDay.holidayMins = holidayMins;
 
-    await tsday.save();
+    await tsDay.save();
   }
 
-  async updateTsdayMins(emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
-
-    const { darpamins, nondarpamins, sickmins, ptomins, holidaymins } = updateTsdayDto;
-
-    return await this.update({ email: emailId, day: dayId }, { darpamins: darpamins,
-                                                                                 nondarpamins: nondarpamins,
-                                                                                 sickmins: sickmins,
-                                                                                 ptomins: ptomins,
-                                                                                 holidaymins: holidaymins });
-  }
+  // async updateTsdayMins(emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
+  //
+  //   const { darpamins, nondarpamins, sickmins, ptomins, holidaymins } = updateTsdayDto;
+  //
+  //   return await this.update({ email: emailId, day: dayId }, { darpaMins: darpamins,
+  //                                                                                nonDarpaMins: nondarpamins,
+  //                                                                                sickMins: sickmins,
+  //                                                                                ptoMins: ptomins,
+  //                                                                                holidayMins: holidaymins });
+  // }
 }

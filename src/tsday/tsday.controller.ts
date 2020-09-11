@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { TsdayService } from './tsday.service';
-import { FilterTsdayDto } from './dto/filter-tsday.dto';
-import { Tsday } from './tsday.entity';
-import { CreateTsdayDto } from './dto/create-tsday.dto';
+import { FilterTsDayDto } from './dto/filter-tsday.dto';
+import { TsDay } from './tsday.entity';
+import { CreateTsDayDto } from './dto/create-tsday.dto';
 import { EmailValidationPipe } from '../pipes/email-validation.pipe';
-import { UpdateResult } from 'typeorm';
 import { UpdateTsdayDto } from './dto/update-tsday.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('tsday')
+@UseGuards(AuthGuard())
 export class TsdayController {
 
   constructor(private tsdayService: TsdayService) {}
@@ -33,24 +34,27 @@ export class TsdayController {
    * @param filterTsdayDto
    */
   @Get()// Pass id as param??
-  getTsdays(@Query() filterTsdayDto: FilterTsdayDto): Promise<Tsday[]> {
+  getTsdays(@Query() filterTsdayDto: FilterTsDayDto): Promise<TsDay[]> {
     return this.tsdayService.getTsdays(filterTsdayDto);
   }
 
   @Get(':emailId')
-  getTsdayById(@Param('emailId') emailId): Promise<Tsday[]> {
+  getTsdayById(@Param('emailId') emailId): Promise<TsDay[]> {
     return this.tsdayService.getTsdayById(emailId);
   }
 
   @Post()
   createTsday(@Body('email', EmailValidationPipe) email,
-              @Body() createTsdayDto: CreateTsdayDto): Promise<void> {
+              @Body() createTsdayDto: CreateTsDayDto): Promise<void> {
     return this.tsdayService.createTsday(createTsdayDto);
   }
 
-  @Patch(':emailId/:dayId')
-  // Pass day in by body? Can use filter
-  updateTsdayMins(@Param('emailId') emailId, @Param('dayId') dayId, @Body() updateTsdayDto: UpdateTsdayDto) {
-    return this.tsdayService.updateTsdayMins(emailId, new Date(dayId), updateTsdayDto);
-  }
+  // @Patch(':emailId/:dayId')
+  // // token to be passed
+  // updateTsdayMins(@Param('emailId') emailId,
+  //                 @Param('dayId') dayId,
+  //                 @Body('username') username,
+  //                 @Body() updateTsdayDto: UpdateTsdayDto) {
+  //   return this.tsdayService.updateTsdayMins(username, emailId, new Date(dayId), updateTsdayDto);
+  // }
 }

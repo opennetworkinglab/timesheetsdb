@@ -16,11 +16,8 @@
 
 import { ApiProperty } from '@nestjs/swagger';
 
-export class FilterTsdayDto {
+export class FilterTsDayDto {
 
   @ApiProperty()
-  email: string
-
-  @ApiProperty()
-  weekid: number
+  weekId: number
 }
