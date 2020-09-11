@@ -15,19 +15,34 @@
  */
 
 import { Module } from '@nestjs/common';
-import { TsdayController } from './tsday.controller';
-import { TsdayService } from './tsday.service';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TsDayRepository } from './tsday.repository';
-import { TsUserRepository } from '../auth/tsuser.repository';
-import { AuthModule } from '../auth/auth.module';
+import { TsUserRepository } from './tsuser.repository';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TsDayRepository, TsUserRepository]),
-    AuthModule,
+    // create new token
+    PassportModule.register({defaultStrategy: 'jwt'}),
+    JwtModule.register({
+    secret: 'test',
+    signOptions: {
+      expiresIn: 3600
+    },
+    }),
+    TypeOrmModule.forFeature([TsUserRepository])
   ],
-  controllers: [TsdayController],
-  providers: [TsdayService]
+  controllers: [AuthController],
+  providers: [
+    AuthService,
+    JwtStrategy,
+  ],
+  exports: [
+    JwtStrategy,
+    PassportModule
+  ],
 })
-export class TsdayModule {}
+export class AuthModule {}

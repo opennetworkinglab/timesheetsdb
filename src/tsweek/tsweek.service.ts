@@ -16,33 +16,34 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TsweekRepository } from './tsweek.repository';
-import { Tsweek } from './tsweek.entity';
+import { TsWeekRepository } from './tsweek.repository';
+import { TsWeek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
-import { CreateTsweekDto } from './dto/create-tsweek.dto';
 
 @Injectable()
-export class TsweekService {
+export class TsWeekService {
 
   constructor(
-    @InjectRepository(TsweekRepository)
-    private tsweekRepository: TsweekRepository) {}
+    @InjectRepository(TsWeekRepository)
+    private tsweekRepository: TsWeekRepository) {}
 
     /**
     * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
     * @param filterTsweekDto
     */
-    async getTsweek(filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
+    async getTsweek(filterTsweekDto: FilterTsweekDto): Promise<TsWeek[]> {
       return this.tsweekRepository.getTsweeks(filterTsweekDto);
     }
 
-    async getTsweekById(id: number):Promise<Tsweek> {
+    async getTsweekById(id: number):Promise<TsWeek> {
       return this.tsweekRepository.getTsweekById(id);
     }
 
-    async createTsweek(createTsweekDto: CreateTsweekDto): Promise<void> {
-      await this.tsweekRepository.createTsweek(createTsweekDto);
+    async createTsWeek(): Promise<void> {
+      await this.tsweekRepository.createTsWeek();
     }
+
+    async
 }
 
 
