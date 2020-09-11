@@ -17,7 +17,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsString } from 'class-validator';
 
-export class UpdateTsweeklyDto {
+export class UpdateTsWeeklyDto {
 
   @ApiProperty()
   @IsString()

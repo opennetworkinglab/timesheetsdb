@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-import { ApiProperty } from '@nestjs/swagger';
-import { Column } from 'typeorm';
-import { IsString } from 'class-validator';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { TsUser } from './tsuser.entity';
 
-export class FilterTsuserDto {
+export const GetTsUser = createParamDecorator((data, ctx: ExecutionContext): TsUser => {
 
-  @IsString()
-  supervisoremail: string
+  const req = ctx.switchToHttp().getRequest();
+  return req.user;
+});
 
-  @IsString()
-  darpaallocationpct: string
-}

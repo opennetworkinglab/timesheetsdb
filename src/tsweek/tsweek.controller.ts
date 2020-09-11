@@ -15,33 +15,31 @@
  */
 
 import { Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { TsweekService } from './tsweek.service';
-import { Tsweek } from './tsweek.entity';
+import { TsWeekService } from './tsweek.service';
+import { TsWeek } from './tsweek.entity';
 import { FilterTsweekDto } from './dto/filter-tsweek.dto';
-import { ApiResponse } from '@nestjs/swagger';
-import { CreateTsweekDto } from './dto/create-tsweek.dto';
 
 @Controller('tsweek')
-export class TsweekController {
+export class TsWeekController {
 
-  constructor(private tsweekService: TsweekService) {}
+  constructor(private tsWeekService: TsWeekService) {}
 
   /**
    * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
    * @param filterTsweekDto
    */
   @Get()
-  getTsweek(@Query() filterTsweekDto: FilterTsweekDto): Promise<Tsweek[]> {
-    return this.tsweekService.getTsweek(filterTsweekDto);
+  getTsweek(@Query() filterTsweekDto: FilterTsweekDto): Promise<TsWeek[]> {
+    return this.tsWeekService.getTsweek(filterTsweekDto);
   }
 
   @Get(':id')
-  async getTsweekById(@Param('id') id):Promise<Tsweek> {
-    return this.tsweekService.getTsweekById(id);
+  async getTsweekById(@Param('id') id):Promise<TsWeek> {
+    return this.tsWeekService.getTsweekById(id);
   }
 
   @Post()
-  createTsweek(createTsweekDto: CreateTsweekDto): Promise<void> {
-    return this.tsweekService.createTsweek(createTsweekDto);
+  createTsWeek(): Promise<void> {
+    return this.tsWeekService.createTsWeek();
   }
 }

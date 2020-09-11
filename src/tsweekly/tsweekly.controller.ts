@@ -1,53 +1,74 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
-import { TsweeklyService } from './tsweekly.service';
-import { FilterTsweeklyDto } from './dto/filter-tsweekly.dto';
-import { Tsweekly } from './tsweekly.entity';
-import { CreateTsweeklyDto } from './dto/create-tsweekly.dto';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { TsWeeklyService } from './tsweekly.service';
+import { TsWeekly } from './tsweekly.entity';
+import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
 import { EmailValidationPipe } from '../pipes/email-validation.pipe';
-import { UpdateTsweeklyDto } from './dto/update-tsweekly.dto';
+import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { GetTsUser } from '../auth/get-tsuser.decorator';
+import { TsUser } from '../auth/tsuser.entity';
+import { UpdateResult } from 'typeorm';
 
 @Controller('tsweekly')
-export class TsweeklyController {
+@UseGuards(AuthGuard())
+export class TsWeeklyController {
 
-  constructor(private tsweeklyService: TsweeklyService) {}
-
-  /**
-   * Returns a Promise of an array of Tsweekly based on filter. One to many Tsweekly can be returned.
-   * @param filterTsweeklyDto
-   */
-  @Get()
-  getTsweekly(@Query() filterTsweeklyDto: FilterTsweeklyDto): Promise<Tsweekly[]> {
-    return this.tsweeklyService.getTsweekly(filterTsweeklyDto);
-  }
-
-  @Get(':emailId')
-  getTsweeklyById(@Param('emailId') emailId): Promise<Tsweekly[]> {
-    return this.tsweeklyService.getTsweeklyById(emailId);
-  }
+  constructor(private tsWeeklyService: TsWeeklyService) {}
 
   @Post()
-  createTsweekly(@Body('email', EmailValidationPipe) email,
-                 @Body() createTsweeklyDto: CreateTsweeklyDto): Promise<void> {
-    return this.tsweeklyService.createTsweekly(createTsweeklyDto);
+  createTsWeekly(@GetTsUser() tsUser: TsUser,
+                 @Body() createTsWeeklyDto: CreateTsWeeklyDto,
+  ): Promise<void> {
+    return this.tsWeeklyService.createTsWeekly(tsUser, createTsWeeklyDto);
   }
 
-  @Patch(':emailId/:weekId')
-  UpdateTsweeklyUser(@Param('emailId') emailId,
+  @Get()
+  getTsWeekly(@GetTsUser() tsUser: TsUser): Promise<TsWeekly[]> {
+    return this.tsWeeklyService.getTsWeekly(tsUser);
+  }
+
+  @Patch(':weekId')
+  UpdateTsWeeklyUser(@GetTsUser() tsUser: TsUser,
                      @Param('weekId') weekId,
-                     @Body() updateTsweeklyDto: UpdateTsweeklyDto,
-                     @Body('username') username,
-                     @Body('userSigned1') userSigned1) { // Will be removed. In as can't pass date object in postman
-
-    return this.tsweeklyService.updateTsweeklyUser(username, emailId, weekId, updateTsweeklyDto, userSigned1);
+                     @Body() updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
+    return this.tsWeeklyService.updateTsWeeklyUser(tsUser, weekId, updateTsWeeklyDto);
   }
 
-  @Patch(':emailId/:weekId/adminsign')
-  UpdateTsweeklyAdmin(@Param('emailId') emailId,
+  @Patch(':emailId/:weekId/')
+  UpdateTsWeeklyAdmin(@GetTsUser() tsUser: TsUser,
+                      @Param('emailId') emailId,
                       @Param('weekId') weekId,
-                      @Body() updateTsweeklyDto: UpdateTsweeklyDto,
-                      @Body('username') username,
-                      @Body('userSigned1') userSigned1) { // @Param
-    return this.tsweeklyService.updateTsweeklyAdmin(username, emailId, weekId, updateTsweeklyDto, userSigned1);
+                      @Body() updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
+    return this.tsWeeklyService.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
   }
+
+  // @Get(':emailId')
+  // getTsweeklyById(@Param('emailId') emailId): Promise<TsWeekly[]> {
+  //   return this.tsWeeklyService.getTsweeklyById(emailId);
+  // }
+  //
+  // @Post()
+  // createTsweekly(@Body('email', EmailValidationPipe) email,
+  //                @Body() createTsweeklyDto: CreateTsweeklyDto): Promise<void> {
+  //   return this.tsWeeklyService.createTsweekly(createTsweeklyDto);
+  // }
+  //
+  // @Patch(':emailId/:weekId')
+  // UpdateTsweeklyUser(@Param('emailId') emailId,
+  //                    @Param('weekId') weekId,
+  //                    @Body() updateTsweeklyDto: UpdateTsweeklyDto,
+  //                    @Body('username') username,
+  //                    @Body('userSigned1') userSigned1) { // Will be removed. In as can't pass date object in postman
+  //
+  //   return this.tsWeeklyService.updateTsweeklyUser(username, emailId, weekId, updateTsweeklyDto, userSigned1);
+  // }
+  //
+  // @Patch(':emailId/:weekId/adminsign')
+  // UpdateTsweeklyAdmin(@Param('emailId') emailId,
+  //                     @Param('weekId') weekId,
+  //                     @Body() updateTsweeklyDto: UpdateTsweeklyDto,
+  //                     @Body('username') username,
+  //                     @Body('userSigned1') userSigned1) { // @Param
+  //   return this.tsWeeklyService.updateTsweeklyAdmin(username, emailId, weekId, updateTsweeklyDto, userSigned1);
+  // }
 }

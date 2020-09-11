@@ -12,9 +12,9 @@ export class EmailValidationPipe implements PipeTransform{
   }
 
   private isValid (email: string){
-    console.log(email);
+
     const validArr = email.split('@');
-    console.log(validArr)
+
     if(validArr[1].localeCompare('opennetworking.org') === 0){
       return true;
     }

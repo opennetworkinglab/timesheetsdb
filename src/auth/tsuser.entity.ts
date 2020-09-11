@@ -14,55 +14,44 @@
  * limitations under the License.
  */
 
+import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
-const MIN_MINS = 0;
-const MAX_MINS = 720;
+import { TsWeekly } from '../tsweekly/tsweekly.entity';
 
-export class CreateTsDayDto {
+@Entity('tsuser')
+@Unique('tsweek_fullname_uk', ['firstName', 'lastName'])
+export class TsUser extends BaseEntity {
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  @PrimaryColumn()
   email: string
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsDate()
-  day: Date
+  @Column({ name: 'firstname' })
+  firstName: string
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  weekId: number
+  @Column({ name: 'lastname' })
+  lastName: string
 
   @ApiProperty()
-  @IsInt()
-  @Min(MIN_MINS)
-  @Max(MAX_MINS)
-  darpaMins: number
+  @Column({ name: 'supervisoremail' })
+  supervisorEmail: string
 
   @ApiProperty()
-  @IsInt()
-  @Min(MIN_MINS)
-  @Max(MAX_MINS)
-  nonDarpaMins: number
+  @Column({ name: 'darpaallocationpct' })
+  darpaAllocationPct: string
 
   @ApiProperty()
-  @IsInt()
-  @Min(MIN_MINS)
-  @Max(MAX_MINS)
-  sickMins: number
+  @Column({ name: 'issupervisor', default: false })
+  isSupervisor: boolean
 
   @ApiProperty()
-  @IsInt()
-  @Min(MIN_MINS)
-  @Max(MAX_MINS)
-  ptoMins: number
+  @Column({ name: 'isactive', default: true })
+  isActive: boolean
 
   @ApiProperty()
-  @IsInt()
-  @Min(MIN_MINS)
-  @Max(MAX_MINS)
-  holidayMins: number
+  @OneToMany(type => TsWeekly, tsWeekly => tsWeekly.tsUser, { eager: true })
+  tsWeeklys: TsWeekly[]
+
 }

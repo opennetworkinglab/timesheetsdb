@@ -15,17 +15,16 @@
  */
 
 import { Module } from '@nestjs/common';
-import { TsweekController } from './tsweek.controller';
-import { TsweekService } from './tsweek.service';
+import { TsWeekController } from './tsweek.controller';
+import { TsWeekService } from './tsweek.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TsweekRepository } from './tsweek.repository';
-import { TsuserRepository } from '../tsuser/tsuser.repository';
+import { TsWeekRepository } from './tsweek.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TsweekRepository])
+    TypeOrmModule.forFeature([TsWeekRepository])
   ],
-  controllers: [TsweekController],
-  providers: [TsweekService]
+  controllers: [TsWeekController],
+  providers: [TsWeekService]
 })
 export class TsweekModule {}

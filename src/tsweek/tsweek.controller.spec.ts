@@ -15,17 +15,17 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { TsweekController } from './tsweek.controller';
+import { TsWeekController } from './tsweek.controller';
 
 describe('TsweekController', () => {
-  let controller: TsweekController;
+  let controller: TsWeekController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [TsweekController],
+      controllers: [TsWeekController],
     }).compile();
 
-    controller = module.get<TsweekController>(TsweekController);
+    controller = module.get<TsWeekController>(TsWeekController);
   });
 
   it('should be defined', () => {

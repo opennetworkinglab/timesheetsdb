@@ -16,16 +16,16 @@
 
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Tsuser } from '../tsuser/tsuser.entity';
-import { Tsweek } from '../tsweek/tsweek.entity';
+import { TsUser } from '../auth/tsuser.entity';
+import { TsWeek } from '../tsweek/tsweek.entity';
 
 @Entity('tsdays')
 @Index(['email', 'day'], { unique: true })
-export class Tsday extends BaseEntity {
+export class TsDay extends BaseEntity {
 
   @ApiProperty()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToOne(type => Tsuser)
+  @ManyToOne(type => TsUser)
   @JoinColumn({ name: 'email'})
   @PrimaryColumn()
   email: string
@@ -36,28 +36,28 @@ export class Tsday extends BaseEntity {
 
   @ApiProperty()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToOne(type => Tsweek)
-  @JoinColumn({ name: 'weekid'})
-  @Column()
-  weekid: number
+  @ManyToOne(type => TsWeek)
+  @JoinColumn({ name: 'weekid' })
+  @Column( { name: 'weekid' })
+  weekId: number
 
   @ApiProperty()
-  @Column()
-  darpamins: number
+  @Column({ name: 'darpamins' })
+  darpaMins: number
 
   @ApiProperty()
-  @Column()
-  nondarpamins: number
+  @Column({ name: 'nondarpamins' })
+  nonDarpaMins: number
 
   @ApiProperty()
-  @Column()
-  sickmins: number
+  @Column({ name: 'sickmins' })
+  sickMins: number
 
   @ApiProperty()
-  @Column()
-  ptomins: number
+  @Column({ name: 'ptomins' })
+  ptoMins: number
 
   @ApiProperty()
-  @Column()
-  holidaymins: number
+  @Column({ name: 'holidaymins' })
+  holidayMins: number
 }

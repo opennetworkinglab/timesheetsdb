@@ -15,29 +15,43 @@
  */
 
 import { EntityRepository, Repository, UpdateResult } from 'typeorm';
-import { Tsweekly } from './tsweekly.entity';
-import { FilterTsweeklyDto } from './dto/filter-tsweekly.dto';
-import { CreateTsweeklyDto } from './dto/create-tsweekly.dto';
+import { TsWeekly } from './tsweekly.entity';
+import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
 
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { UpdateTsweeklyDto } from './dto/update-tsweekly.dto';
+import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
+import { TsUser } from '../auth/tsuser.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDate } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TsUserRepository } from '../auth/tsuser.repository';
 
-@EntityRepository(Tsweekly)
-export class TsweeklyRepository extends Repository<Tsweekly> {
+@EntityRepository(TsWeekly)
+export class TsWeeklyRepository extends Repository<TsWeekly> {
 
-  /**
-   * Returns a Promise of an array of Tsweekly based on filter. One to many Tsweekly can be returned.
-   * @param filterTsweeklyDto
-   */
-  async getTsweekly(filterTsweeklyDto: FilterTsweeklyDto): Promise<Tsweekly[]> {
+  async createTsWeekly(tsUser: TsUser, createTsWeeklyDto: CreateTsWeeklyDto): Promise<void> {
 
-    const { email } = filterTsweeklyDto;
+    const { weekId } = createTsWeeklyDto;
+
+    const tsWeekly = new TsWeekly();
+    tsWeekly.weekId = weekId;
+    tsWeekly.tsUser = tsUser;
+
+    try {
+
+      await tsWeekly.save();
+
+    }catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getTsWeekly(tsUser: TsUser): Promise<TsWeekly[]> {
 
     const query = this.createQueryBuilder('tsweekly');
 
-    if (email) {
-      query.andWhere('tsweekly.email = :email', { email });
-    }
+    query.where('tsweekly.tsuseremail = :tsuseremail', { tsuseremail: tsUser.email});
+
 
     // Go through and convert blob
     // blobToFile ( ... );
@@ -45,60 +59,113 @@ export class TsweeklyRepository extends Repository<Tsweekly> {
     return await query.getMany();
   }
 
-  async getTsweeklyById(emailId: string): Promise<Tsweekly[]> {
+  async updateTsWeeklyUser(tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
 
-    const found = await this.find({ email: emailId });
+    const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
-    if (!found) {
-      throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
+    // check admin has signed
+    if(tsWeeklySigned.adminSigned){
+      throw new BadRequestException("Admin has signed");
     }
 
-    return found;
-  }
+    let { document, preview, userSigned } = updateTsWeeklyDto;
 
-  async createTsweekly(createTsweeklyDto : CreateTsweeklyDto): Promise<void> {
-
-    const { email, weekid, document, preview } = createTsweeklyDto;
-
-    try {
-
-      const tsweekly = new Tsweekly();
-      tsweekly.email = email;
-      tsweekly.weekid = weekid;
-      tsweekly.document = document;
-      tsweekly.preview = preview;
-      // tsweekly.userSigned = new Date();
-      // tsweekly.adminSigned = new Date();
-      await tsweekly.save();
-
-    }catch (err) {
-      throw new HttpException(err.code, HttpStatus.INTERNAL_SERVER_ERROR);
+    // check user has requested to sign and if its already been signed
+    if(userSigned && tsWeeklySigned.userSigned){
+      throw new BadRequestException("Already signed");
     }
-  }
 
-  async updateTsweeklyUser(emailId: string, weekId: number, updateTsweeklyDto: UpdateTsweeklyDto): Promise<UpdateResult> {
+    // check user has requested to unsign and if it is not signed
+    if(!userSigned && !tsWeeklySigned.userSigned){
+      throw new BadRequestException("Has not been signed");
+    }
 
-    const { document, preview, userSigned } = updateTsweeklyDto;
+    if(userSigned) {
 
-    return await this.update({
-      email: emailId,
-      weekid: weekId
-    }, {
-      document: document,
-      preview: preview,
-      userSigned: userSigned
+      if (!document) {
+        document = tsWeeklySigned.document;
+      }
+
+      if (!preview) {
+        preview = tsWeeklySigned.preview;
+      }
+
+      userSigned = new Date();
+    }
+    else{
+
+      // save document to backup
+      document = null;
+
+      preview = null;
+
+      userSigned = null;
+
+    }
+
+    return await this.update(
+      {
+        tsUser: tsUser,
+        weekId: weekId
+      }, {
+        document: document,
+        preview: preview,
+        userSigned: userSigned
     });
   }
 
-  async updateTsweeklyAdmin(emailId: string, weekId: number, updateTsweeklyDto: UpdateTsweeklyDto) {
+  async updateTsWeeklyAdmin(tsUserAdmin: TsUser, emailId: string, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
 
-    const { adminSigned } = updateTsweeklyDto;
+    if(!tsUserAdmin.isSupervisor){
+      throw new UnauthorizedException();
+    }
 
-    return await this.update({
-      email: emailId,
-      weekid: weekId
-    },{
-      adminSigned: adminSigned
-    });
+    const getUser = new TsUser();
+    getUser.email = emailId;
+
+    const isUserSupervisor = await this.findOne({ where: { tsUser: emailId, weekId: weekId } });
+
+    if(String(isUserSupervisor.tsUser) !== tsUserAdmin.email && !isUserSupervisor.userSigned){
+      throw new UnauthorizedException();
+    }
+
+    let { adminSigned } = updateTsWeeklyDto;
+
+    // check admin has requested to sign and if its already been signed
+    if(adminSigned && isUserSupervisor.adminSigned){
+      throw new BadRequestException("Already signed");
+    }
+
+    // check admin has requested to unsign and if it is not signed
+    if(!adminSigned && !isUserSupervisor.adminSigned){
+      throw new BadRequestException("Has not been signed");
+    }
+
+    if(adminSigned){
+      adminSigned = new Date();
+    }
+    else {
+      adminSigned = null;
+    }
+
+
+    return await this.update(
+      {
+        tsUser: isUserSupervisor.tsUser,
+        weekId: weekId
+      }, {
+        adminSigned: adminSigned
+      });
   }
+
+  // async getTsweeklyById(emailId: string): Promise<TsWeekly[]> {
+  //
+  //   const found = await this.find({ email: emailId });
+  //
+  //   if (!found) {
+  //     throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
+  //   }
+  //
+  //   return found;
+  // }
 }

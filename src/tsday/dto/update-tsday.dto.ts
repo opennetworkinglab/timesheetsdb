@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { IsInt, Max, Min } from 'class-validator';
 
 export class UpdateTsdayDto {
 
