@@ -26,6 +26,7 @@ import { IsDate } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TsUserRepository } from '../auth/tsuser.repository';
 
+
 @EntityRepository(TsWeekly)
 export class TsWeeklyRepository extends Repository<TsWeekly> {
 
@@ -57,6 +58,8 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     // blobToFile ( ... );
 
     return await query.getMany();
+
+
   }
 
   async updateTsWeeklyUser(tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
@@ -100,7 +103,6 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       preview = null;
 
       userSigned = null;
-
     }
 
     return await this.update(

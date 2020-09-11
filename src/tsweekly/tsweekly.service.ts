@@ -24,6 +24,7 @@ import { UpdateResult } from 'typeorm';
 import { TsUserRepository } from '../auth/tsuser.repository';
 import { TsUser } from '../auth/tsuser.entity';
 
+
 @Injectable()
 export class TsWeeklyService {
 

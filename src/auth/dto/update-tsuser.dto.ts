@@ -15,18 +15,27 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
+<<<<<<< HEAD:src/auth/dto/update-tsuser.dto.ts
 import { IsNotEmpty, IsString } from 'class-validator';
+=======
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+>>>>>>> master:src/tsuser/dto/create-user.dto.ts
 
 export class UpdateTsUserDto {
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+<<<<<<< HEAD:src/auth/dto/update-tsuser.dto.ts
   supervisorEmail: string
+=======
+  email: string;
+>>>>>>> master:src/tsuser/dto/create-user.dto.ts
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+<<<<<<< HEAD:src/auth/dto/update-tsuser.dto.ts
   darpaAllocationPct: string
 
   @ApiProperty()
@@ -36,4 +45,27 @@ export class UpdateTsUserDto {
 
   @ApiProperty()
   isActive: boolean
+=======
+  firstname: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  lastname: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  supervisoremail: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  darpaallocationpct: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  // @IsBoolean()
+  issupervisor: boolean
+>>>>>>> master:src/tsuser/dto/create-user.dto.ts
 }

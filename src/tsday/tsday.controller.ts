@@ -57,4 +57,10 @@ export class TsdayController {
   //                 @Body() updateTsdayDto: UpdateTsdayDto) {
   //   return this.tsdayService.updateTsdayMins(username, emailId, new Date(dayId), updateTsdayDto);
   // }
+
+  @Patch(':emailId/:dayId')
+  // Pass day in by body? Can use filter
+  updateTsdayMins(@Param('emailId') emailId, @Param('dayId') dayId, @Body() updateTsdayDto: UpdateTsdayDto) {
+    return this.tsdayService.updateTsdayMins(emailId, new Date(dayId), updateTsdayDto);
+  }
 }

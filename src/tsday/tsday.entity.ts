@@ -41,6 +41,7 @@ export class TsDay extends BaseEntity {
   @Column( { name: 'weekid' })
   weekId: number
 
+
   @ApiProperty()
   @Column({ name: 'darpamins' })
   darpaMins: number

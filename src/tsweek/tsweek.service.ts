@@ -41,9 +41,8 @@ export class TsWeekService {
 
     async createTsWeek(): Promise<void> {
       await this.tsweekRepository.createTsWeek();
-    }
 
-    async
+    }
 }
 
 

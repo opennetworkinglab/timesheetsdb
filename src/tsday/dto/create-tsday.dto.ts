@@ -36,11 +36,13 @@ export class CreateTsDayDto {
   @IsInt()
   weekId: number
 
+
   @ApiProperty()
   @IsInt()
   @Min(MIN_MINS)
   @Max(MAX_MINS)
   darpaMins: number
+
 
   @ApiProperty()
   @IsInt()
@@ -65,4 +67,3 @@ export class CreateTsDayDto {
   @Min(MIN_MINS)
   @Max(MAX_MINS)
   holidayMins: number
-}

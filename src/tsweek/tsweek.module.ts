@@ -20,6 +20,7 @@ import { TsWeekService } from './tsweek.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsWeekRepository } from './tsweek.repository';
 
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([TsWeekRepository])

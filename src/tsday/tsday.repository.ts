@@ -21,6 +21,7 @@ import { FilterTsDayDto } from './dto/filter-tsday.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateTsdayDto } from './dto/update-tsday.dto';
 
+
 @EntityRepository(TsDay)
 export class TsDayRepository extends Repository<TsDay> {
 

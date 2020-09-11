@@ -1,0 +1,33 @@
+sudo: false
+
+language: node_js
+node_js:
+    - "12"
+
+services:
+    - docker
+
+notifications:
+    email: false
+
+branches:
+    only:
+        - master
+
+cache:
+    directories:
+        - ./node_modules
+        - ./dist
+
+before_script:
+    - pushd .. && git clone https://github.com/onosproject/build-tools.git && popd
+
+install:
+    - npm install -g @nestjs/cli
+
+jobs:
+    include:
+        - stage: tests
+          script:
+              - make build license_check
+

@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
+<<<<<<< HEAD:src/auth/get-tsuser.decorator.ts
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { TsUser } from './tsuser.entity';
+=======
+import { ApiProperty } from '@nestjs/swagger';
+import { Column } from 'typeorm';
+import { IsString } from 'class-validator';
+>>>>>>> master:src/tsuser/dto/filter-user.dto.ts
 
 export const GetTsUser = createParamDecorator((data, ctx: ExecutionContext): TsUser => {
 
+<<<<<<< HEAD:src/auth/get-tsuser.decorator.ts
   const req = ctx.switchToHttp().getRequest();
   return req.user;
 });
 
+=======
+  @IsString()
+  supervisoremail: string
+
+  @IsString()
+  darpaallocationpct: string
+}
+>>>>>>> master:src/tsuser/dto/filter-user.dto.ts

@@ -18,6 +18,7 @@ import { Module } from '@nestjs/common';
 import { TsWeeklyController } from './tsweekly.controller';
 import { TsWeeklyService } from './tsweekly.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+<<<<<<< HEAD
 import { TsWeeklyRepository } from './tsweekly.repository';
 import { TsUserRepository } from '../auth/tsuser.repository';
 import { PassportModule } from '@nestjs/passport';
@@ -27,6 +28,15 @@ import { AuthModule } from '../auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([TsWeeklyRepository, TsUserRepository]),
     AuthModule,
+=======
+import { TsweeklyRepository } from './tsweekly.repository';
+import { TsuserRepository } from '../tsuser/tsuser.repository';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([TsweeklyRepository]),
+    TypeOrmModule.forFeature([TsuserRepository])
+>>>>>>> master
   ],
   controllers: [TsWeeklyController],
   providers: [TsWeeklyService]

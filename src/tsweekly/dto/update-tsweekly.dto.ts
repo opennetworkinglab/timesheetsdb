@@ -20,6 +20,7 @@ import { IsDate, IsString } from 'class-validator';
 export class UpdateTsWeeklyDto {
 
   @ApiProperty()
+
   @IsString()
   document: string
 
@@ -35,3 +36,4 @@ export class UpdateTsWeeklyDto {
   adminSigned: Date
 
 }
+

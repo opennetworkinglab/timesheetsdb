@@ -16,4 +16,8 @@
 
 export interface JwtPayloadInterface {
   email: string
+
+  //usersigned ??
+
+  //adminsigned ??
 }
