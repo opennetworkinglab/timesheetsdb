@@ -45,6 +45,10 @@ export class AuthService {
     return this.tsUserRepository.updateTsUser(tsUser, emailId, updateTsUserDto);
   }
 
+  async getTsUsers(tsUser: TsUser): Promise<TsUser[]> {
+    return this.tsUserRepository.getTsusers(tsUser);
+  }
+
   // TEMP
   async tempSignUp(createTsUserDto: CreateTsUserDto): Promise<void> {
     return this.tsUserRepository.tempCreateTsUser(createTsUserDto);

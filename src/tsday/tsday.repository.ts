@@ -14,47 +14,73 @@
  * limitations under the License.
  */
 
-import { EntityRepository, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
 import { TsDay } from './tsday.entity';
 import { CreateTsDayDto } from './dto/create-tsday.dto';
-import { FilterTsDayDto } from './dto/filter-tsday.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateTsdayDto } from './dto/update-tsday.dto';
+import { TsUser } from '../auth/tsuser.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TsWeekRepository } from '../tsweek/tsweek.repository';
+import { TsWeek } from '../tsweek/tsweek.entity';
 
 @EntityRepository(TsDay)
 export class TsDayRepository extends Repository<TsDay> {
 
-  async getTsDays(): Promise<TsDay[]> {
+  constructor(@InjectRepository(TsWeekRepository) private tsWeekRepository: TsWeekRepository) {
+    super();
+  }
+
+  /**
+   * Get days in blocks of 7 based of of weekId
+   * @param tsUser
+   * @param weekId
+   */
+  async getTsDays(tsUser: TsUser, weekId: number): Promise<TsDay[]> {
+
+    return this.find({
+      where: { weekId: weekId,
+      tsUser: tsUser
+      }});
 
     return await this.find();
   }
 
-  async getTsdayById(emailId: string): Promise<TsDay[]> {
+  /**
+   * Creates days in blocks of 7 based on weekId
+   * @param tsUser
+   * @param createTsDayDto
+   */
+  async createTsDays(tsUser: TsUser, createTsDayDto: CreateTsDayDto): Promise<void> {
 
-    const found = await this.find({ email: emailId });
+    const { weekId } = createTsDayDto;
 
-    if (!found) {
-      throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
+    const startDate = await getConnection().getRepository(TsWeek)
+      .createQueryBuilder("tsWeek")
+      .where("tsWeek.id = :id", { id: weekId })
+      .getOne();
+
+    /*
+    Day is calculated by getting the start date from tsWeek. Creates the next 7 days. This will be one tsWeekly
+     */
+    const day = startDate.begin.getDate();
+    const month = startDate.begin.getMonth();
+    const year = startDate.begin.getFullYear();
+
+    for (let i = 0; i < 7; i++){
+
+      const tsDay = new TsDay();
+      tsDay.tsUser = tsUser
+      tsDay.day = new Date(year, month, (day + i));
+      tsDay.weekId = weekId;
+      tsDay.darpaMins = 0;
+      tsDay.nonDarpaMins = 0;
+      tsDay.sickMins = 0;
+      tsDay.ptoMins = 0;
+      tsDay.holidayMins = 0;
+
+      await tsDay.save();
     }
-
-    return found;
-  }
-
-  async createTsDay(createTsDayDto: CreateTsDayDto): Promise<void> {
-
-    const { email, day, weekId, darpaMins, nonDarpaMins, sickMins, ptoMins, holidayMins } = createTsDayDto;
-
-    const tsDay = new TsDay();
-    tsDay.email = email
-    tsDay.day = new Date('2020-9-8'); // will be day
-    tsDay.weekId = weekId;
-    tsDay.darpaMins = darpaMins;
-    tsDay.nonDarpaMins = nonDarpaMins;
-    tsDay.sickMins = sickMins;
-    tsDay.ptoMins = ptoMins;
-    tsDay.holidayMins = holidayMins;
-
-    await tsDay.save();
   }
 
   // async updateTsdayMins(emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {

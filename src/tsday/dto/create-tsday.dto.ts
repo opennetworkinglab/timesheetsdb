@@ -23,16 +23,6 @@ export class CreateTsDayDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
-  email: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsDate()
-  day: Date
-
-  @ApiProperty()
-  @IsNotEmpty()
   @IsInt()
   weekId: number
 

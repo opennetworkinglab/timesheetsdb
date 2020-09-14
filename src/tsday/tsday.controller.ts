@@ -15,38 +15,35 @@
  */
 
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { TsdayService } from './tsday.service';
-import { FilterTsDayDto } from './dto/filter-tsday.dto';
+import { TsDayService } from './tsday.service';
 import { TsDay } from './tsday.entity';
 import { CreateTsDayDto } from './dto/create-tsday.dto';
 import { EmailValidationPipe } from '../pipes/email-validation.pipe';
 import { UpdateTsdayDto } from './dto/update-tsday.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetTsUser } from '../auth/get-tsuser.decorator';
+import { TsUser } from '../auth/tsuser.entity';
 
 @Controller('tsday')
 @UseGuards(AuthGuard())
-export class TsdayController {
+export class TsDayController {
 
-  constructor(private tsdayService: TsdayService) {}
+  constructor(private tsDayService: TsDayService) {}
 
-  /**
-   * Returns a Promise of an array of Tsday based on filter. One to many Tsday can be returned.
-   * @param filterTsdayDto
-   */
-  @Get()// Pass id as param??
-  getTsdays(@Query() filterTsdayDto: FilterTsDayDto): Promise<TsDay[]> {
-    return this.tsdayService.getTsdays(filterTsdayDto);
+  @Get()
+  getTsDays(@GetTsUser() tsUser: TsUser, @Body('weekId') weekId): Promise<TsDay[]> {
+    return this.tsDayService.getTsDays(tsUser, weekId);
   }
 
-  @Get(':emailId')
-  getTsdayById(@Param('emailId') emailId): Promise<TsDay[]> {
-    return this.tsdayService.getTsdayById(emailId);
-  }
+  // @Get(':emailId')
+  // getTsdayById(@Param('emailId') emailId): Promise<TsDay[]> {
+  //   return this.tsDayService.getTsdayById(emailId);
+  // }
 
   @Post()
-  createTsday(@Body('email', EmailValidationPipe) email,
-              @Body() createTsdayDto: CreateTsDayDto): Promise<void> {
-    return this.tsdayService.createTsday(createTsdayDto);
+  createTsDay(@GetTsUser() tsUser: TsUser,
+              @Body() createTsDayDto: CreateTsDayDto): Promise<void> {
+    return this.tsDayService.createTsDay(tsUser, createTsDayDto);
   }
 
   // @Patch(':emailId/:dayId')
@@ -55,6 +52,6 @@ export class TsdayController {
   //                 @Param('dayId') dayId,
   //                 @Body('username') username,
   //                 @Body() updateTsdayDto: UpdateTsdayDto) {
-  //   return this.tsdayService.updateTsdayMins(username, emailId, new Date(dayId), updateTsdayDto);
+  //   return this.tsDayService.updateTsdayMins(username, emailId, new Date(dayId), updateTsdayDto);
   // }
 }

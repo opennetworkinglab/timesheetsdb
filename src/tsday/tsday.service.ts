@@ -17,39 +17,35 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TsDayRepository } from './tsday.repository';
-import { FilterTsDayDto } from './dto/filter-tsday.dto';
 import { TsDay } from './tsday.entity';
 import { CreateTsDayDto } from './dto/create-tsday.dto';
 import { UpdateTsdayDto } from './dto/update-tsday.dto';
 import { UpdateResult } from 'typeorm';
+import { TsUser } from '../auth/tsuser.entity';
 
 @Injectable()
-export class TsdayService {
+export class TsDayService {
 
   constructor(
     @InjectRepository(TsDayRepository)
-    private tsdayRepository: TsDayRepository) {}
+    private tsDayRepository: TsDayRepository) {}
 
-  /**
-   * Returns a Promise of an array of Tsday based on filter. One to many Tsday can be returned.
-   * @param filterTsdayDto
-   */
-  async getTsdays(filterTsdayDto: FilterTsDayDto): Promise<TsDay[]> {
-    return this.tsdayRepository.getTsDays();
+  async getTsDays(tsUser: TsUser, weekId: number): Promise<TsDay[]> {
+    return this.tsDayRepository.getTsDays(tsUser, weekId);
   }
 
-  async getTsdayById(emailId: string): Promise<TsDay[]> {
-    return this.tsdayRepository.getTsdayById(emailId);
-  }
+  // async getTsdayById(emailId: string): Promise<TsDay[]> {
+  //   return this.tsDayRepository.getTsdayById(emailId);
+  // }
 
-  async createTsday(createTsdayDto: CreateTsDayDto): Promise<void> {
-    return this.tsdayRepository.createTsDay(createTsdayDto);
+  async createTsDay(tsUser: TsUser, createTsDayDto: CreateTsDayDto): Promise<void> {
+    return this.tsDayRepository.createTsDays(tsUser, createTsDayDto);
   }
 
   // async updateTsdayMins(username: string, emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
   //
   //
-  //   const authorised = await this.tsdayRepository.findOne({
+  //   const authorised = await this.tsDayRepository.findOne({
   //     select: ['email', 'darpaMins', 'nonDarpaMins', 'sickMins', 'ptoMins', 'holidayMins'],
   //     where: {email: emailId }
   //   })
@@ -80,6 +76,6 @@ export class TsdayService {
   //     updateTsdayDto.holidaymins = authorised.holidayMins;
   //   }
   //
-  //   return this.tsdayRepository.updateTsdayMins(emailId, dayId, updateTsdayDto);
+  //   return this.tsDayRepository.updateTsdayMins(emailId, dayId, updateTsdayDto);
   // }
 }
