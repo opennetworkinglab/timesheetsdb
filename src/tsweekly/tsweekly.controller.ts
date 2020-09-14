@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { TsWeeklyService } from './tsweekly.service';
 import { TsWeekly } from './tsweekly.entity';
 import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
-import { EmailValidationPipe } from '../pipes/email-validation.pipe';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetTsUser } from '../auth/get-tsuser.decorator';

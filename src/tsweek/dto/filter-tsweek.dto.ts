@@ -16,11 +16,11 @@
 
 import { ApiProperty } from '@nestjs/swagger';
 
-export class FilterTsweekDto {
+export class FilterTsWeekDto {
 
   @ApiProperty()
   year: number
 
   @ApiProperty()
-  weekno: number
+  weekNo: number
 }

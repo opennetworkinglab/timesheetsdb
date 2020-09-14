@@ -16,19 +16,15 @@
 
 import { EntityRepository, Repository } from 'typeorm';
 import { TsWeek } from './tsweek.entity';
-import { FilterTsweekDto } from './dto/filter-tsweek.dto';
+import { FilterTsWeekDto } from './dto/filter-tsweek.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 @EntityRepository(TsWeek)
 export class TsWeekRepository extends Repository<TsWeek> {
 
-  /**
-   * Returns a Promise of an array of Tsweek based on filter. One to many Tsweek can be returned.
-   * @param filterTsweekDto
-   */
-  async getTsweeks(filterTsweekDto: FilterTsweekDto): Promise<TsWeek[]> {
+  async getTsWeeks(filterTsWeekDto: FilterTsWeekDto): Promise<TsWeek[]> {
 
-    const { year, weekno } = filterTsweekDto;
+    const { year, weekNo } = filterTsWeekDto;
 
     const query = this.createQueryBuilder('tsweek');
 
@@ -36,15 +32,15 @@ export class TsWeekRepository extends Repository<TsWeek> {
       query.andWhere('tsweek.year = :year', { year });
     }
 
-    if (weekno) {
-      query.andWhere('tsweek.weekno = :weekno', { weekno });
+    if (weekNo) {
+      query.andWhere('tsweek.weekno = :weekno', { weekNo: weekNo });
     }
 
     // Gets all the weeks or weeks based on filters
     return await query.getMany();
   }
 
-  async getTsweekById(id: number):Promise<TsWeek> {
+  async getTsWeekById(id: number):Promise<TsWeek> {
 
     const found = await this.findOne({ id: id });
 

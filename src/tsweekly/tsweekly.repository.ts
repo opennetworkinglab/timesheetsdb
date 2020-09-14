@@ -21,10 +21,6 @@ import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
 import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDate } from 'class-validator';
-import { InjectRepository } from '@nestjs/typeorm';
-import { TsUserRepository } from '../auth/tsuser.repository';
 
 @EntityRepository(TsWeekly)
 export class TsWeeklyRepository extends Repository<TsWeekly> {
