@@ -18,7 +18,7 @@ import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, Unique } from 'ty
 import { ApiProperty } from '@nestjs/swagger';
 import { TsWeekly } from '../tsweekly/tsweekly.entity';
 
-@Entity('tsuser')
+@Entity('tsusers')
 @Unique('tsweek_fullname_uk', ['firstName', 'lastName'])
 export class TsUser extends BaseEntity {
 
@@ -27,27 +27,27 @@ export class TsUser extends BaseEntity {
   email: string
 
   @ApiProperty()
-  @Column({ name: 'firstname' })
+  @Column({ name: 'first_name' })
   firstName: string
 
   @ApiProperty()
-  @Column({ name: 'lastname' })
+  @Column({ name: 'last_name' })
   lastName: string
 
   @ApiProperty()
-  @Column({ name: 'supervisoremail' })
+  @Column({ name: 'supervisor_email' })
   supervisorEmail: string
 
   @ApiProperty()
-  @Column({ name: 'darpaallocationpct' })
+  @Column({ name: 'darpa_allocation_pct' })
   darpaAllocationPct: string
 
   @ApiProperty()
-  @Column({ name: 'issupervisor', default: false })
+  @Column({ name: 'is_supervisor', default: false })
   isSupervisor: boolean
 
   @ApiProperty()
-  @Column({ name: 'isactive', default: true })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean
 
   @ApiProperty()

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('tsweeks') // Database table name
@@ -32,11 +32,11 @@ export class TsWeek extends BaseEntity {
   year: number
 
   @ApiProperty()
-  @Column({ name: 'weekno' })
+  @Column({ name: 'week_no' })
   weekNo: number
 
   @ApiProperty()
-  @Column({ name: 'monthno' })
+  @Column({ name: 'month_no' })
   monthNo: number
 
   @ApiProperty()

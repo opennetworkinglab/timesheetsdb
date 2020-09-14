@@ -20,7 +20,6 @@ import { TsWeeklyService } from './tsweekly.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsWeeklyRepository } from './tsweekly.repository';
 import { TsUserRepository } from '../auth/tsuser.repository';
-import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({

@@ -20,12 +20,12 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
  * Config for database connetion.
  */
 export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'mariadb',
+  type: 'postgres',
   host: 'localhost',
-  port: 3306,
-  username: 'vrud',
-  password: 'temppass',
-  database: 'timesheetstest',
+  port: 5432,
+  username: 'postgres',
+  password: 'postgres',
+  database: 'timesheets',
   entities: [__dirname + '/../**/*.entity.{js,ts}'],
   synchronize: true,
 }

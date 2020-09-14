@@ -37,27 +37,27 @@ export class TsDay extends BaseEntity {
   @ApiProperty()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @ManyToOne(type => TsWeek)
-  @JoinColumn({ name: 'weekid' })
-  @Column( { name: 'weekid' })
+  @JoinColumn({ name: 'week_id' })
+  @Column( { name: 'week_id' })
   weekId: number
 
   @ApiProperty()
-  @Column({ name: 'darpamins' })
+  @Column({ name: 'darpa_mins' })
   darpaMins: number
 
   @ApiProperty()
-  @Column({ name: 'nondarpamins' })
+  @Column({ name: 'non_darpa_mins' })
   nonDarpaMins: number
 
   @ApiProperty()
-  @Column({ name: 'sickmins' })
+  @Column({ name: 'sick_mins' })
   sickMins: number
 
   @ApiProperty()
-  @Column({ name: 'ptomins' })
+  @Column({ name: 'pto_mins' })
   ptoMins: number
 
   @ApiProperty()
-  @Column({ name: 'holidaymins' })
+  @Column({ name: 'holiday_mins' })
   holidayMins: number
 }

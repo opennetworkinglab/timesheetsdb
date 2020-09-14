@@ -23,17 +23,16 @@ import { TsWeek } from '../tsweek/tsweek.entity';
 @Index(['tsUser', 'weekId'], { unique: true })
 export class TsWeekly extends BaseEntity {
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToOne(type => TsUser, tsUser => tsUser.tsWeeklys, { eager: false })
-  @JoinColumn({ name: 'tsuseremail' })
-  @PrimaryColumn({ name: 'tsuseremail', type: 'varchar' })
+  @ApiProperty()
+  @ManyToOne(() => TsUser, tsUser => tsUser.tsWeeklys, { eager: false })
+  @JoinColumn({ name: 'ts_user_email' })
+  @PrimaryColumn({ name: 'ts_user_email', type: 'varchar' })
   tsUser: TsUser
 
   @ApiProperty()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToOne(type => TsWeek)
-  @JoinColumn({ name: 'weekid' })
-  @PrimaryColumn({ name: 'weekid' })
+  @ManyToOne(() => TsWeek)
+  @JoinColumn({ name: 'week_id' })
+  @PrimaryColumn({ name: 'week_id' })
   weekId: number
 
   @ApiProperty()
@@ -45,10 +44,10 @@ export class TsWeekly extends BaseEntity {
   preview: string
 
   @ApiProperty()
-  @Column({ name: 'usersigned', nullable: true })
+  @Column({ name: 'user_signed', nullable: true })
   userSigned: Date
 
   @ApiProperty()
-  @Column({ name: 'adminsigned', nullable: true })
+  @Column({ name: 'admin_signed', nullable: true })
   adminSigned: Date
 }

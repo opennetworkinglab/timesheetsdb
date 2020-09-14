@@ -17,7 +17,7 @@
 import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { TsWeekService } from './tsweek.service';
 import { TsWeek } from './tsweek.entity';
-import { FilterTsweekDto } from './dto/filter-tsweek.dto';
+import { FilterTsWeekDto } from './dto/filter-tsweek.dto';
 
 @Controller('tsweek')
 export class TsWeekController {
@@ -29,13 +29,13 @@ export class TsWeekController {
    * @param filterTsweekDto
    */
   @Get()
-  getTsweek(@Query() filterTsweekDto: FilterTsweekDto): Promise<TsWeek[]> {
-    return this.tsWeekService.getTsweek(filterTsweekDto);
+  getTsweek(@Query() filterTsweekDto: FilterTsWeekDto): Promise<TsWeek[]> {
+    return this.tsWeekService.getTsWeek(filterTsweekDto);
   }
 
   @Get(':id')
   async getTsweekById(@Param('id') id):Promise<TsWeek> {
-    return this.tsWeekService.getTsweekById(id);
+    return this.tsWeekService.getTsWeekById(id);
   }
 
   @Post()
