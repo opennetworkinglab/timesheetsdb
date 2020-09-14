@@ -1,41 +1,42 @@
-INSERT INTO tsusers (email, fullname, createdAt, updatedAt)
-VALUES ('sean@opennetworking.org', 'Sean Condon', NOW(), NOW()),
-       ('bill@opennetworking.org', 'Bill Snow', NOW(), NOW()),
-       ('ain@opennetworking.org', 'Ain Indermitte', NOW(), NOW());
+INSERT INTO tsusers (email, first_name, last_name, supervisor_email, darpa_allocation_pct, is_supervisor, is_active)
+VALUES ('sean@opennetworking.org', 'Sean', 'Condon', 'ain@opennetworking.org', 100, false, true),
+       ('bill@opennetworking.org', 'Bill', 'Snow', 'ain@opennetworking.org', 50, true, true),
+       ('ain@opennetworking.org', 'Ain', 'Indermitte', 'bill@opennetworking.org', 100, true, true),
+       ('valdar@opennetworking.org', 'Valdar', 'Rudman', 'ain@opennetworking.org', 0, false, false);
 
 -- TsWeeks is populated by the application
 
-INSERT INTO tsdays (email, day, weekid, worked_mins, holiday_min, createdAt, updatedAt)
-VALUES ('sean@opennetworking.org', '2020-06-01', (SELECT id FROM tsweeks WHERE begin <= '2020-06-01' AND end > '2020-06-01'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-02', (SELECT id FROM tsweeks WHERE begin <= '2020-06-02' AND end >= '2020-06-02'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-03', (SELECT id FROM tsweeks WHERE begin <= '2020-06-03' AND end >= '2020-06-03'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-04', (SELECT id FROM tsweeks WHERE begin <= '2020-06-04' AND end >= '2020-06-04'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-05', (SELECT id FROM tsweeks WHERE begin <= '2020-06-05' AND end >= '2020-06-05'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-08', (SELECT id FROM tsweeks WHERE begin <= '2020-06-08' AND end >= '2020-06-08'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-09', (SELECT id FROM tsweeks WHERE begin <= '2020-06-09' AND end >= '2020-06-09'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-10', (SELECT id FROM tsweeks WHERE begin <= '2020-06-10' AND end >= '2020-06-10'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-11', (SELECT id FROM tsweeks WHERE begin <= '2020-06-11' AND end >= '2020-06-11'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-12', (SELECT id FROM tsweeks WHERE begin <= '2020-06-12' AND end >= '2020-06-12'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-15', (SELECT id FROM tsweeks WHERE begin <= '2020-06-15' AND end >= '2020-06-15'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-16', (SELECT id FROM tsweeks WHERE begin <= '2020-06-16' AND end >= '2020-06-16'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-17', (SELECT id FROM tsweeks WHERE begin <= '2020-06-17' AND end >= '2020-06-17'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-18', (SELECT id FROM tsweeks WHERE begin <= '2020-06-18' AND end >= '2020-06-18'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-19', (SELECT id FROM tsweeks WHERE begin <= '2020-06-19' AND end >= '2020-06-19'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-22', (SELECT id FROM tsweeks WHERE begin <= '2020-06-22' AND end >= '2020-06-22'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-23', (SELECT id FROM tsweeks WHERE begin <= '2020-06-23' AND end >= '2020-06-23'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-24', (SELECT id FROM tsweeks WHERE begin <= '2020-06-24' AND end >= '2020-06-24'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-25', (SELECT id FROM tsweeks WHERE begin <= '2020-06-25' AND end >= '2020-06-25'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-26', (SELECT id FROM tsweeks WHERE begin <= '2020-06-26' AND end >= '2020-06-26'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-29', (SELECT id FROM tsweeks WHERE begin <= '2020-06-29' AND end >= '2020-06-29'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-06-30', (SELECT id FROM tsweeks WHERE begin <= '2020-06-30' AND end >= '2020-06-30'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-07-01', (SELECT id FROM tsweeks WHERE begin <= '2020-07-01' AND end >= '2020-07-01'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-07-02', (SELECT id FROM tsweeks WHERE begin <= '2020-07-02' AND end >= '2020-07-02'), 0, 480, NOW(), NOW()),
-('sean@opennetworking.org', '2020-07-03', (SELECT id FROM tsweeks WHERE begin <= '2020-07-03' AND end >= '2020-07-03'), 0, 480, NOW(), NOW()),
-('sean@opennetworking.org', '2020-07-06', (SELECT id FROM tsweeks WHERE begin <= '2020-07-06' AND end >= '2020-07-06'), 480, 0, NOW(), NOW()),
-('sean@opennetworking.org', '2020-07-07', (SELECT id FROM tsweeks WHERE begin <= '2020-07-07' AND end >= '2020-07-07'), 480, 0, NOW(), NOW());
+INSERT INTO tsdays (email, day, week_id, darpa_mins, non_darpa_mins, sick_mins, holiday_mins, pto_mins)
+VALUES ('sean@opennetworking.org', '2020-08-31', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-01', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-02', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-03', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-04', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-07', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-07' AND '2020-09-08'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-08', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-07' AND '2020-09-08'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-09', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-07' AND '2020-09-08'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-10', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-07' AND '2020-09-08'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-11', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-07' AND '2020-09-08'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-14', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-14' AND '2020-09-15'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-15', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-14' AND '2020-09-15'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-16', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-14' AND '2020-09-15'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-17', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-14' AND '2020-09-15'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-18', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-14' AND '2020-09-15'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-21', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-21' AND '2020-09-22'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-22', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-21' AND '2020-09-22'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-23', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-21' AND '2020-09-22'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-24', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-21' AND '2020-09-22'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-25', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-21' AND '2020-09-22'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-28', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-28' AND '2020-09-29'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-29', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-28' AND '2020-09-29'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-09-30', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-28' AND '2020-09-29'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-10-01', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-28' AND '2020-09-29'), 0, 480, 0, 0, 0),
+('sean@opennetworking.org', '2020-10-02', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-28' AND '2020-09-29'), 0, 480, 0, 0, 0),
+('sean@opennetworking.org', '2020-10-05', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-10-05' AND '2020-10-06'),480, 0, 0, 0, 0),
+('sean@opennetworking.org', '2020-10-06', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-10-05' AND '2020-10-06'),480, 0, 0, 0, 0);
 
-INSERT INTO tsweeklies (email, weekid, createdAt, updatedAt)
-VALUES ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-01'), NOW(), NOW()),
-       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-08'), NOW(), NOW()),
-       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-15'), NOW(), NOW()),
-       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin = '2020-06-22'), NOW(), NOW());
+INSERT INTO tsweekly (ts_user_email, week_id, user_signed, admin_signed, preview, document)
+VALUES ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'), '2020-09-10T12:00:00', '2020-09-11T10:00:00', 'preview url1', 'document url1'),
+       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-07' AND '2020-09-08'), '2020-09-17T11:00:00', null, 'preview url2', 'document url2'),
+       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-14' AND '2020-09-15'), '2020-09-21T11:08:00', null, 'preview url3', 'document url3'),
+       ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-21' AND '2020-09-22'), '2020-09-28T11:10:00', null, 'preview url4', 'document url4');
