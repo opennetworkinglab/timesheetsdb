@@ -27,15 +27,13 @@ export class TsUserRepository extends Repository<TsUser> {
 
     const { email, firstName, lastName, supervisorEmail, darpaAllocationPct, isSupervisor } = createTsUserDto;
 
-    const isSupervisorString = String(isSupervisor);
-
     const newTsUser = new TsUser();
     newTsUser.email = email;
     newTsUser.firstName = firstName;
     newTsUser.lastName = lastName;
     newTsUser.supervisorEmail = supervisorEmail;
     newTsUser.darpaAllocationPct = darpaAllocationPct;
-    newTsUser.isSupervisor = (isSupervisorString === 'true');
+    newTsUser.isSupervisor = isSupervisor;
 
     await newTsUser.save();
   }
@@ -112,35 +110,15 @@ export class TsUserRepository extends Repository<TsUser> {
     return user.email;
   }
 
-  /**
-   * Returns a Promise of an array of Tsuser based on filter. One to many Tsuser can be returned.
-   * @param filterTsweekDto
-   */
-  // async getTsusers(filterTsweekDto: FilterTsuserDto): Promise<TsUser[]> {
-  //
-  //   const { supervisoremail, darpaallocationpct } = filterTsweekDto;
-  //
-  //   const query = this.createQueryBuilder('tsuser');
-  //
-  //   if (supervisoremail) {
-  //     query.andWhere('tsuser.supervisoremail = :supervisoremail', { supervisoremail });
-  //   }
-  //
-  //   if (darpaallocationpct) {
-  //     query.andWhere('tsuser.darpaallocationpct = :darpaallocationpct', { darpaallocationpct });
-  //   }
-  //
-  //   return await query.getMany();
-  // }
-  //
-  // async getTsuserById(emailId: string):Promise<TsUser> {
-  //
-  //   const found =  await this.findOne({ email: emailId });
-  //
-  //   if (!found) {
-  //     throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
-  //   }
-  //
-  //   return found;
-  // }
+  async getTsUsers(tsUser: TsUser): Promise<TsUser[]> {
+
+    if(!tsUser.isSupervisor){
+      throw new UnauthorizedException();
+    }
+
+    return this.find({
+      select: ['email', 'firstName', 'lastName', 'isSupervisor', 'isActive'],
+      where: { supervisorEmail: tsUser.email }
+    })
+  }
 }

@@ -40,10 +40,10 @@ export class TsWeek extends BaseEntity {
   monthNo: number
 
   @ApiProperty()
-  @Column({ name: 'begin' })
+  @Column({ type: 'timestamptz', name: 'begin' })
   begin: Date
 
   @ApiProperty()
-  @Column({ name: 'end' })
+  @Column({ type: 'timestamptz', name: 'end' })
   end: Date
 }

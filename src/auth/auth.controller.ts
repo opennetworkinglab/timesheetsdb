@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Param, Patch, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { EmailValidationPipe } from '../pipes/email-validation.pipe';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { EmailValidationPipe } from './pipes/email-validation.pipe';
 import { CreateTsUserDto } from './dto/create-tsuser.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -32,6 +32,7 @@ export class AuthController {
   @Post('createuser')
   @UseGuards(AuthGuard())
   createTsUser(@GetTsUser() tsUser: TsUser,
+               @Body('email', EmailValidationPipe)
                @Body() createTsuserDto:  CreateTsUserDto): Promise<void> {
 
     return this.authService.createTsUser(tsUser, createTsuserDto);
@@ -53,5 +54,11 @@ export class AuthController {
                @Param('emailId') emailId,
                @Body() updateTsUserDto: UpdateTsUserDto): Promise<UpdateResult> {
     return this.authService.updateTsUser(tsUser, emailId, updateTsUserDto);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard())
+  getTsUser(@GetTsUser() tsUser: TsUser): Promise<TsUser[]> {
+    return this.authService.getTsUsers(tsUser);
   }
 }

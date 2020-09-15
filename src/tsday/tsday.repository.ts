@@ -14,39 +14,42 @@
  * limitations under the License.
  */
 
-import { EntityRepository, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
 import { TsDay } from './tsday.entity';
 import { CreateTsDayDto } from './dto/create-tsday.dto';
-import { FilterTsDayDto } from './dto/filter-tsday.dto';
+import { TsUser } from '../auth/tsuser.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TsWeekRepository } from '../tsweek/tsweek.repository';
+import { TsWeek } from '../tsweek/tsweek.entity';
+import { UpdateTsDayDto } from './dto/update-tsday.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { UpdateTsdayDto } from './dto/update-tsday.dto';
 
 @EntityRepository(TsDay)
 export class TsDayRepository extends Repository<TsDay> {
 
-  async getTsDays(): Promise<TsDay[]> {
-
-    return await this.find();
+  constructor(@InjectRepository(TsWeekRepository) private tsWeekRepository: TsWeekRepository) {
+    super();
   }
 
-  async getTsdayById(emailId: string): Promise<TsDay[]> {
+  async createTsDay(tsUser: TsUser, createTsDayDto: CreateTsDayDto): Promise<void> {
 
-    const found = await this.find({ email: emailId });
+    const { day, weekId, darpaMins, nonDarpaMins, sickMins, ptoMins, holidayMins } = createTsDayDto;
 
-    if (!found) {
-      throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
-    }
+    const startDate = await getConnection().getRepository(TsWeek)
+      .createQueryBuilder("tsWeek")
+      .where("tsWeek.id = :id", { id: weekId })
+      .getOne();
 
-    return found;
-  }
-
-  async createTsDay(createTsDayDto: CreateTsDayDto): Promise<void> {
-
-    const { email, day, weekId, darpaMins, nonDarpaMins, sickMins, ptoMins, holidayMins } = createTsDayDto;
+    /*
+    Day is calculated by getting the start date from tsWeek.
+     */
+    const updatedDay = startDate.begin.getDate() + Number(day);
+    const month = startDate.begin.getMonth();
+    const year = startDate.begin.getFullYear();
 
     const tsDay = new TsDay();
-    tsDay.email = email
-    tsDay.day = new Date('2020-9-8'); // will be day
+    tsDay.tsUser = tsUser
+    tsDay.day = new Date(year, month, updatedDay);
     tsDay.weekId = weekId;
     tsDay.darpaMins = darpaMins;
     tsDay.nonDarpaMins = nonDarpaMins;
@@ -57,14 +60,36 @@ export class TsDayRepository extends Repository<TsDay> {
     await tsDay.save();
   }
 
-  // async updateTsdayMins(emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
-  //
-  //   const { darpamins, nondarpamins, sickmins, ptomins, holidaymins } = updateTsdayDto;
-  //
-  //   return await this.update({ email: emailId, day: dayId }, { darpaMins: darpamins,
-  //                                                                                nonDarpaMins: nondarpamins,
-  //                                                                                sickMins: sickmins,
-  //                                                                                ptoMins: ptomins,
-  //                                                                                holidayMins: holidaymins });
-  // }
+  /**
+   * Get days in blocks of 7 based of of weekId
+   * @param tsUser
+   * @param weekId
+   */
+  async getTsDays(tsUser: TsUser, weekId: number): Promise<TsDay[]> {
+
+    return this.find({
+      where: { weekId: weekId,
+      tsUser: tsUser
+      }});
+
+  }
+
+  async updateTsDay(tsUser: TsUser, dayId: Date, updateTsDayDto: UpdateTsDayDto ): Promise<UpdateResult> {
+
+
+    const { darpaMins, nonDarpaMins, sickMins, ptoMins, holidayMins } = updateTsDayDto;
+
+    try {
+      return await this.update({ tsUser: tsUser, day: dayId }, {
+        darpaMins: darpaMins,
+        nonDarpaMins: nonDarpaMins,
+        sickMins: sickMins,
+        ptoMins: ptoMins,
+        holidayMins: holidayMins
+      });
+    }
+    catch (err){
+      new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

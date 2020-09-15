@@ -17,6 +17,7 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { TsWeekly } from '../tsweekly/tsweekly.entity';
+import { TsDay } from '../tsday/tsday.entity';
 
 @Entity('tsusers')
 @Unique('tsweek_fullname_uk', ['firstName', 'lastName'])
@@ -51,7 +52,10 @@ export class TsUser extends BaseEntity {
   isActive: boolean
 
   @ApiProperty()
-  @OneToMany(type => TsWeekly, tsWeekly => tsWeekly.tsUser, { eager: true })
+  @OneToMany(() => TsWeekly, tsWeekly => tsWeekly.tsUser, { eager: true })
   tsWeeklys: TsWeekly[]
 
+  @ApiProperty()
+  @OneToMany(() => TsDay, tsDay => tsDay.tsUser, { eager: true })
+  tsDays: TsDay[]
 }

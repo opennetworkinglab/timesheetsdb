@@ -57,15 +57,19 @@ export class TsWeekRepository extends Repository<TsWeek> {
     const startdate = 1588550400000; // Mon 4th may 2020
     const initweek = 18;
 
-    // Populating tsweeks table
+    // Populating tsweeks table 34
     for (let w = 1; w <= 34; w++) {
+
       const d = new Date(startdate + w * weekms);
+
       const tsWeek = new TsWeek();
       tsWeek.year = d.getFullYear();
       tsWeek.weekNo = initweek + w;
       tsWeek.monthNo = d.getMonth();
       tsWeek.begin = new Date(d.getTime());
-      tsWeek.end = new Date(d.getTime() + weekms - 1000);
+      console.log(new Date(d.getTime()));
+      tsWeek.end = new Date(d.getTime() + weekms - 86400000);
+
       await tsWeek.save();
     }
   }

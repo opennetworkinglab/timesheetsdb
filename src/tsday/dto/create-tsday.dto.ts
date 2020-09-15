@@ -15,7 +15,7 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
 const MIN_MINS = 0;
 const MAX_MINS = 720;
 
@@ -23,13 +23,8 @@ export class CreateTsDayDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
-  email: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsDate()
-  day: Date
+  @IsInt()
+  day: number
 
   @ApiProperty()
   @IsNotEmpty()

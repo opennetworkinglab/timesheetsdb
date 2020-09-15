@@ -32,6 +32,7 @@
     "class-validator": "^0.12.2",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
+    "pdf-lib": "^1.11.0",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

@@ -19,15 +19,16 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsweekModule } from './tsweek/tsweek.module';
 import { TsWeeklyModule } from './tsweekly/tsweekly.module';
-import { TsdayModule } from './tsday/tsday.module';
+import { TsDayModule } from './tsday/tsday.module';
 import { AuthModule } from './auth/auth.module';
+import { TsWeekController } from './tsweek/tsweek.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
     TsweekModule,
     TsWeeklyModule,
-    TsdayModule,
+    TsDayModule,
     AuthModule,
   ],
 })

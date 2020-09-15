@@ -18,25 +18,24 @@ import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn
 import { ApiProperty } from '@nestjs/swagger';
 import { TsUser } from '../auth/tsuser.entity';
 import { TsWeek } from '../tsweek/tsweek.entity';
+import { type } from 'os';
 
 @Entity('tsdays')
-@Index(['email', 'day'], { unique: true })
+@Index(['tsUser', 'day'], { unique: true })
 export class TsDay extends BaseEntity {
 
   @ApiProperty()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToOne(type => TsUser)
-  @JoinColumn({ name: 'email'})
-  @PrimaryColumn()
-  email: string
+  @ManyToOne(() => TsUser, tsUser => tsUser.tsDays, { eager: false })
+  @JoinColumn({ name: 'ts_user_email'})
+  @PrimaryColumn({ name: 'ts_user_email', type: 'varchar' })
+  tsUser: TsUser
 
   @ApiProperty()
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'date'})
   day: Date
 
   @ApiProperty()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToOne(type => TsWeek)
+  @ManyToOne(() => TsWeek)
   @JoinColumn({ name: 'week_id' })
   @Column( { name: 'week_id' })
   weekId: number
