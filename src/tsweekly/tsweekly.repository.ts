@@ -22,6 +22,8 @@ import { BadRequestException, HttpException, HttpStatus, UnauthorizedException }
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
 
+
+
 @EntityRepository(TsWeekly)
 export class TsWeeklyRepository extends Repository<TsWeekly> {
 
@@ -47,7 +49,6 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     const query = this.createQueryBuilder('tsweekly');
 
     query.where('tsweekly.tsuseremail = :tsuseremail', { tsuseremail: tsUser.email});
-
 
     // Go through and convert blob
     // blobToFile ( ... );

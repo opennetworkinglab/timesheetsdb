@@ -18,11 +18,12 @@ import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@ne
 import { TsDayService } from './tsday.service';
 import { TsDay } from './tsday.entity';
 import { CreateTsDayDto } from './dto/create-tsday.dto';
-import { EmailValidationPipe } from '../pipes/email-validation.pipe';
-import { UpdateTsdayDto } from './dto/update-tsday.dto';
+import { EmailValidationPipe } from '../auth/pipes/email-validation.pipe';
+import { UpdateTsDayDto } from './dto/update-tsday.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetTsUser } from '../auth/get-tsuser.decorator';
 import { TsUser } from '../auth/tsuser.entity';
+import { UpdateResult } from 'typeorm';
 
 @Controller('tsday')
 @UseGuards(AuthGuard())
@@ -35,23 +36,15 @@ export class TsDayController {
     return this.tsDayService.getTsDays(tsUser, weekId);
   }
 
-  // @Get(':emailId')
-  // getTsdayById(@Param('emailId') emailId): Promise<TsDay[]> {
-  //   return this.tsDayService.getTsdayById(emailId);
-  // }
-
   @Post()
   createTsDay(@GetTsUser() tsUser: TsUser,
               @Body() createTsDayDto: CreateTsDayDto): Promise<void> {
     return this.tsDayService.createTsDay(tsUser, createTsDayDto);
   }
 
-  // @Patch(':emailId/:dayId')
-  // // token to be passed
-  // updateTsdayMins(@Param('emailId') emailId,
-  //                 @Param('dayId') dayId,
-  //                 @Body('username') username,
-  //                 @Body() updateTsdayDto: UpdateTsdayDto) {
-  //   return this.tsDayService.updateTsdayMins(username, emailId, new Date(dayId), updateTsdayDto);
-  // }
+  @Patch(':dayId')
+  // token to be passed
+  async updateTsDay(@GetTsUser() tsUser: TsUser, @Param('dayId')dayId: Date, @Body() updateTsDayDto: UpdateTsDayDto ): Promise<UpdateResult> {
+    return this.tsDayService.updateTsDay(tsUser, dayId, updateTsDayDto);
+  }
 }

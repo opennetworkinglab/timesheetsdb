@@ -46,7 +46,7 @@ export class AuthService {
   }
 
   async getTsUsers(tsUser: TsUser): Promise<TsUser[]> {
-    return this.tsUserRepository.getTsusers(tsUser);
+    return this.tsUserRepository.getTsUsers(tsUser);
   }
 
   // TEMP

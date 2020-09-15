@@ -27,15 +27,13 @@ export class TsUserRepository extends Repository<TsUser> {
 
     const { email, firstName, lastName, supervisorEmail, darpaAllocationPct, isSupervisor } = createTsUserDto;
 
-    const isSupervisorString = String(isSupervisor);
-
     const newTsUser = new TsUser();
     newTsUser.email = email;
     newTsUser.firstName = firstName;
     newTsUser.lastName = lastName;
     newTsUser.supervisorEmail = supervisorEmail;
     newTsUser.darpaAllocationPct = darpaAllocationPct;
-    newTsUser.isSupervisor = (isSupervisorString === 'true');
+    newTsUser.isSupervisor = isSupervisor;
 
     await newTsUser.save();
   }
@@ -112,7 +110,7 @@ export class TsUserRepository extends Repository<TsUser> {
     return user.email;
   }
 
-  async getTsusers(tsUser: TsUser): Promise<TsUser[]> {
+  async getTsUsers(tsUser: TsUser): Promise<TsUser[]> {
 
     if(!tsUser.isSupervisor){
       throw new UnauthorizedException();
@@ -123,15 +121,4 @@ export class TsUserRepository extends Repository<TsUser> {
       where: { supervisorEmail: tsUser.email }
     })
   }
-
-  // async getTsuserById(emailId: string):Promise<TsUser> {
-  //
-  //   const found =  await this.findOne({ email: emailId });
-  //
-  //   if (!found) {
-  //     throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
-  //   }
-  //
-  //   return found;
-  // }
 }

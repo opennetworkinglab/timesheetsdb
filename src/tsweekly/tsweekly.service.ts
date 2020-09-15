@@ -30,30 +30,13 @@ export class TsWeeklyService {
     @InjectRepository(TsWeeklyRepository)
     private tsWeeklyRepository: TsWeeklyRepository) {}
 
-  async createTsWeekly(tsUser: TsUser, createTsweeklyDto: CreateTsWeeklyDto): Promise<void> {
-      return this.tsWeeklyRepository.createTsWeekly(tsUser, createTsweeklyDto);
+  async createTsWeekly(tsUser: TsUser, createTsWeeklyDto: CreateTsWeeklyDto): Promise<void> {
+      return this.tsWeeklyRepository.createTsWeekly(tsUser, createTsWeeklyDto);
   }
 
   async getTsWeekly(tsUser: TsUser): Promise<TsWeekly[]> {
     return this.tsWeeklyRepository.getTsWeekly(tsUser);
   }
-
-  // async getTsweeklyById(emailId: string): Promise<TsWeekly[]> {
-  //   return this.tsWeeklyRepository.getTsweeklyById(emailId);
-  // }
-  //
-  // async createTsweekly(createTsweeklyDto: CreateTsweeklyDto): Promise<void> {
-  //   return this.tsWeeklyRepository.createTsWeekly(createTsweeklyDto);
-  // }
-  //
-  // /**
-  //  * Updates the tsweekly (document/ preview/ usersigned) based on the email and weekid. Checks that the caller has authorization to do so.
-  //  * @param username
-  //  * @param emailId
-  //  * @param weekId
-  //  * @param updateTsweeklyDto
-  //  * @param userSigned1
-  //  */
 
   async updateTsWeeklyUser(tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
     return await this.tsWeeklyRepository.updateTsWeeklyUser(tsUser, weekId, updateTsWeeklyDto);

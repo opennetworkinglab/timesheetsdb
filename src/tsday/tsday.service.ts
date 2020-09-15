@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {  Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TsDayRepository } from './tsday.repository';
 import { TsDay } from './tsday.entity';
 import { CreateTsDayDto } from './dto/create-tsday.dto';
-import { UpdateTsdayDto } from './dto/update-tsday.dto';
+import { UpdateTsDayDto } from './dto/update-tsday.dto';
 import { UpdateResult } from 'typeorm';
 import { TsUser } from '../auth/tsuser.entity';
 
@@ -39,43 +39,10 @@ export class TsDayService {
   // }
 
   async createTsDay(tsUser: TsUser, createTsDayDto: CreateTsDayDto): Promise<void> {
-    return this.tsDayRepository.createTsDays(tsUser, createTsDayDto);
+    return this.tsDayRepository.createTsDay(tsUser, createTsDayDto);
   }
 
-  // async updateTsdayMins(username: string, emailId: string, dayId: Date, updateTsdayDto: UpdateTsdayDto): Promise<UpdateResult> {
-  //
-  //
-  //   const authorised = await this.tsDayRepository.findOne({
-  //     select: ['email', 'darpaMins', 'nonDarpaMins', 'sickMins', 'ptoMins', 'holidayMins'],
-  //     where: {email: emailId }
-  //   })
-  //
-  //   if(authorised.email !== username){
-  //     throw new HttpException("Not authorised to make changes", HttpStatus.UNAUTHORIZED);
-  //   }
-  //
-  //   const { darpamins, nondarpamins, sickmins, ptomins, holidaymins } = updateTsdayDto;
-  //
-  //   if(!darpamins){
-  //     updateTsdayDto.darpamins = authorised.darpaMins;
-  //   }
-  //
-  //   if(!nondarpamins) {
-  //     updateTsdayDto.nondarpamins = authorised.nonDarpaMins;
-  //   }
-  //
-  //   if(!sickmins) {
-  //     updateTsdayDto.sickmins = authorised.sickMins
-  //   }
-  //
-  //   if(!ptomins) {
-  //     updateTsdayDto.ptomins = authorised.ptoMins;
-  //   }
-  //
-  //   if(!holidaymins) {
-  //     updateTsdayDto.holidaymins = authorised.holidayMins;
-  //   }
-  //
-  //   return this.tsDayRepository.updateTsdayMins(emailId, dayId, updateTsdayDto);
-  // }
+  async updateTsDay(tsUser: TsUser, dayId: Date, updateTsDayDto: UpdateTsDayDto ): Promise<UpdateResult> {
+    return await this.tsDayRepository.updateTsDay(tsUser, dayId, updateTsDayDto)
+  }
 }
