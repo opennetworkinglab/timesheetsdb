@@ -42,13 +42,15 @@ export class CreateTsUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  darpaAllocationPct: string
+  darpaAllocationPct: number
 
   @ApiProperty()
   @IsNotEmpty()
-  // @IsBoolean()
+  @IsBoolean()
   isSupervisor: boolean
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
   isActive: boolean
 }

@@ -41,22 +41,22 @@ export class TsDay extends BaseEntity {
   weekId: number
 
   @ApiProperty()
-  @Column({ name: 'darpa_mins' })
+  @Column({ name: 'darpa_mins', nullable: true })
   darpaMins: number
 
   @ApiProperty()
-  @Column({ name: 'non_darpa_mins' })
+  @Column({ name: 'non_darpa_mins', nullable: true })
   nonDarpaMins: number
 
   @ApiProperty()
-  @Column({ name: 'sick_mins' })
+  @Column({ name: 'sick_mins', nullable: true })
   sickMins: number
 
   @ApiProperty()
-  @Column({ name: 'pto_mins' })
+  @Column({ name: 'pto_mins', nullable: true })
   ptoMins: number
 
   @ApiProperty()
-  @Column({ name: 'holiday_mins' })
+  @Column({ name: 'holiday_mins', nullable: true })
   holidayMins: number
 }

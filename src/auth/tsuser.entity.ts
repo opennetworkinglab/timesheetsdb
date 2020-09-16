@@ -41,7 +41,7 @@ export class TsUser extends BaseEntity {
 
   @ApiProperty()
   @Column({ name: 'darpa_allocation_pct' })
-  darpaAllocationPct: string
+  darpaAllocationPct: number
 
   @ApiProperty()
   @Column({ name: 'is_supervisor', default: false })

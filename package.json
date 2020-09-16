@@ -30,6 +30,9 @@
     "@nestjs/typeorm": "^7.1.4",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
+    "fs": "0.0.1-security",
+    "i": "^0.3.6",
+    "npm": "^6.14.8",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "pdf-lib": "^1.11.0",
@@ -38,7 +41,8 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
     "swagger-ui-express": "^4.1.4",
-    "typeorm": "^0.2.26"
+    "typeorm": "^0.2.26",
+    "util": "^0.12.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",

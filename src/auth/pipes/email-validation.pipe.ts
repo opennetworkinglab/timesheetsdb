@@ -20,14 +20,14 @@ export class EmailValidationPipe implements PipeTransform{
 
   transform(value: string): any {
 
-    if (!this.isValid(value)){
+    if (!EmailValidationPipe.isValid(value)){
       throw new BadRequestException(`email ${value}is not of opennetworking domain`);
     }
 
     return value
   }
 
-  private isValid (email: string){
+  private static isValid (email: string){
 
     const validArr = email.split('@');
 

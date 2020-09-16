@@ -20,6 +20,7 @@ import { CreateTsUserDto } from './dto/create-tsuser.dto';
 import { HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UpdateTsUserDto } from './dto/update-tsuser.dto';
 
+// noinspection DuplicatedCode
 @EntityRepository(TsUser)
 export class TsUserRepository extends Repository<TsUser> {
 

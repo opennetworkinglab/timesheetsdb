@@ -15,12 +15,17 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Max, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
 
 const MIN_MINS = 0;
 const MAX_MINS = 720;
 
 export class UpdateTsDayDto {
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  weekId: number
 
   @ApiProperty()
   @IsInt()

@@ -15,7 +15,7 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateTsUserDto {
 
@@ -27,13 +27,15 @@ export class UpdateTsUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  darpaAllocationPct: string
+  darpaAllocationPct: number
 
   @ApiProperty()
   @IsNotEmpty()
-    // @IsBoolean()
+  @IsBoolean()
   isSupervisor: boolean
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
   isActive: boolean
 }

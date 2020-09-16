@@ -44,10 +44,10 @@ export class TsWeekly extends BaseEntity {
   preview: string
 
   @ApiProperty()
-  @Column({ type: 'date', name: 'user_signed', nullable: true })
+  @Column({ type: 'timestamp', name: 'user_signed', nullable: true })
   userSigned: Date
 
   @ApiProperty()
-  @Column({ type: 'date', name: 'admin_signed', nullable: true })
+  @Column({ type: 'timestamp', name: 'admin_signed', nullable: true })
   adminSigned: Date
 }

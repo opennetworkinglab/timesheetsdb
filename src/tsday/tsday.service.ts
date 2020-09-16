@@ -18,7 +18,6 @@ import {  Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TsDayRepository } from './tsday.repository';
 import { TsDay } from './tsday.entity';
-import { CreateTsDayDto } from './dto/create-tsday.dto';
 import { UpdateTsDayDto } from './dto/update-tsday.dto';
 import { UpdateResult } from 'typeorm';
 import { TsUser } from '../auth/tsuser.entity';
@@ -37,10 +36,6 @@ export class TsDayService {
   // async getTsdayById(emailId: string): Promise<TsDay[]> {
   //   return this.tsDayRepository.getTsdayById(emailId);
   // }
-
-  async createTsDay(tsUser: TsUser, createTsDayDto: CreateTsDayDto): Promise<void> {
-    return this.tsDayRepository.createTsDay(tsUser, createTsDayDto);
-  }
 
   async updateTsDay(tsUser: TsUser, dayId: Date, updateTsDayDto: UpdateTsDayDto ): Promise<UpdateResult> {
     return await this.tsDayRepository.updateTsDay(tsUser, dayId, updateTsDayDto)
