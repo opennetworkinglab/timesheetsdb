@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { TsWeekService } from './tsweek.service';
 import { TsWeek } from './tsweek.entity';
 import { FilterTsWeekDto } from './dto/filter-tsweek.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('tsweek')
+@UseGuards(AuthGuard())
 export class TsWeekController {
 
   constructor(private tsWeekService: TsWeekService) {}

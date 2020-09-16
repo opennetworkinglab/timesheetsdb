@@ -19,7 +19,6 @@ import { TsDayController } from './tsday.controller';
 import { TsDayService } from './tsday.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsDayRepository } from './tsday.repository';
-import { TsUserRepository } from '../auth/tsuser.repository';
 import { AuthModule } from '../auth/auth.module';
 import { TsWeekRepository } from '../tsweek/tsweek.repository';
 

@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { TsDayService } from './tsday.service';
 import { TsDay } from './tsday.entity';
-import { CreateTsDayDto } from './dto/create-tsday.dto';
-import { EmailValidationPipe } from '../auth/pipes/email-validation.pipe';
 import { UpdateTsDayDto } from './dto/update-tsday.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetTsUser } from '../auth/get-tsuser.decorator';
@@ -36,14 +34,8 @@ export class TsDayController {
     return this.tsDayService.getTsDays(tsUser, weekId);
   }
 
-  @Post()
-  createTsDay(@GetTsUser() tsUser: TsUser,
-              @Body() createTsDayDto: CreateTsDayDto): Promise<void> {
-    return this.tsDayService.createTsDay(tsUser, createTsDayDto);
-  }
 
-  @Patch(':dayId')
-  // token to be passed
+  @Patch(':emailId/:dayId')
   async updateTsDay(@GetTsUser() tsUser: TsUser, @Param('dayId')dayId: Date, @Body() updateTsDayDto: UpdateTsDayDto ): Promise<UpdateResult> {
     return this.tsDayService.updateTsDay(tsUser, dayId, updateTsDayDto);
   }

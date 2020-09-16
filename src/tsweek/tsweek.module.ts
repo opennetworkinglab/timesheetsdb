@@ -19,10 +19,12 @@ import { TsWeekController } from './tsweek.controller';
 import { TsWeekService } from './tsweek.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsWeekRepository } from './tsweek.repository';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TsWeekRepository])
+    TypeOrmModule.forFeature([TsWeekRepository]),
+    AuthModule
   ],
   controllers: [TsWeekController],
   providers: [TsWeekService]

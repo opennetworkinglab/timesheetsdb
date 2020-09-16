@@ -68,22 +68,4 @@ export class TsWeeklyController {
   //   return this.tsWeeklyService.createTsweekly(createTsweeklyDto);
   // }
   //
-  // @Patch(':emailId/:weekId')
-  // UpdateTsweeklyUser(@Param('emailId') emailId,
-  //                    @Param('weekId') weekId,
-  //                    @Body() updateTsweeklyDto: UpdateTsweeklyDto,
-  //                    @Body('username') username,
-  //                    @Body('userSigned1') userSigned1) { // Will be removed. In as can't pass date object in postman
-  //
-  //   return this.tsWeeklyService.updateTsweeklyUser(username, emailId, weekId, updateTsweeklyDto, userSigned1);
-  // }
-  //
-  // @Patch(':emailId/:weekId/adminsign')
-  // UpdateTsweeklyAdmin(@Param('emailId') emailId,
-  //                     @Param('weekId') weekId,
-  //                     @Body() updateTsweeklyDto: UpdateTsweeklyDto,
-  //                     @Body('username') username,
-  //                     @Body('userSigned1') userSigned1) { // @Param
-  //   return this.tsWeeklyService.updateTsweeklyAdmin(username, emailId, weekId, updateTsweeklyDto, userSigned1);
-  // }
 }

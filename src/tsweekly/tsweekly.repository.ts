@@ -22,8 +22,6 @@ import { BadRequestException, HttpException, HttpStatus, UnauthorizedException }
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
 
-
-
 @EntityRepository(TsWeekly)
 export class TsWeeklyRepository extends Repository<TsWeekly> {
 
@@ -60,6 +58,8 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
+    let signed;
+
     // check admin has signed
     if(tsWeeklySigned.adminSigned){
       throw new BadRequestException("Admin has signed");
@@ -87,7 +87,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
         preview = tsWeeklySigned.preview;
       }
 
-      userSigned = new Date();
+      signed = new Date();
     }
     else{
 
@@ -107,7 +107,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       }, {
         document: document,
         preview: preview,
-        userSigned: userSigned
+        userSigned: signed
     });
   }
 
@@ -117,6 +117,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       throw new UnauthorizedException();
     }
 
+    let signed;
     const getUser = new TsUser();
     getUser.email = emailId;
 
@@ -126,7 +127,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       throw new UnauthorizedException();
     }
 
-    let { adminSigned } = updateTsWeeklyDto;
+    const { adminSigned } = updateTsWeeklyDto;
 
     // check admin has requested to sign and if its already been signed
     if(adminSigned && isUserSupervisor.adminSigned){
@@ -139,10 +140,10 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     }
 
     if(adminSigned){
-      adminSigned = new Date();
+      signed = new Date();
     }
     else {
-      adminSigned = null;
+      signed = null;
     }
 
 
@@ -151,18 +152,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
         tsUser: isUserSupervisor.tsUser,
         weekId: weekId
       }, {
-        adminSigned: adminSigned
+        adminSigned: signed
       });
   }
-
-  // async getTsweeklyById(emailId: string): Promise<TsWeekly[]> {
-  //
-  //   const found = await this.find({ email: emailId });
-  //
-  //   if (!found) {
-  //     throw new HttpException('Not in table', HttpStatus.BAD_REQUEST);
-  //   }
-  //
-  //   return found;
-  // }
 }
