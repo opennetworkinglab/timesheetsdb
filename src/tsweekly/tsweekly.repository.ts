@@ -17,7 +17,6 @@
 import { EntityRepository, Repository, UpdateResult } from 'typeorm';
 import { TsWeekly } from './tsweekly.entity';
 import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
-
 import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
@@ -145,7 +144,6 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     else {
       signed = null;
     }
-
 
     return await this.update(
       {

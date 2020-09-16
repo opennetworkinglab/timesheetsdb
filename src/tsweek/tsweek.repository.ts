@@ -68,7 +68,6 @@ export class TsWeekRepository extends Repository<TsWeek> {
       tsWeek.monthNo = d.getMonth();
       tsWeek.begin = new Date(d.getTime());
       tsWeek.end = new Date(d.getTime() + weekms - 1000);
-
       await tsWeek.save();
     }
   }

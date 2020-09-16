@@ -17,6 +17,7 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { TsDayService } from './tsday.service';
 import { TsDay } from './tsday.entity';
+
 import { UpdateTsDayDto } from './dto/update-tsday.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetTsUser } from '../auth/get-tsuser.decorator';
@@ -33,7 +34,6 @@ export class TsDayController {
   getTsDays(@GetTsUser() tsUser: TsUser, @Body('weekId') weekId): Promise<TsDay[]> {
     return this.tsDayService.getTsDays(tsUser, weekId);
   }
-
 
   @Patch(':emailId/:dayId')
   async updateTsDay(@GetTsUser() tsUser: TsUser, @Param('dayId')dayId: Date, @Body() updateTsDayDto: UpdateTsDayDto ): Promise<UpdateResult> {
