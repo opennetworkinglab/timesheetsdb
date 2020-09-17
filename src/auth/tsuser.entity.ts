@@ -56,6 +56,6 @@ export class TsUser extends BaseEntity {
   tsWeeklys: TsWeekly[]
 
   @ApiProperty()
-  @OneToMany(() => TsDay, tsDay => tsDay.tsUser, { eager: true })
+  @OneToMany(() => TsDay, tsDay => tsDay.tsUser, { eager: false })
   tsDays: TsDay[]
 }
