@@ -25,7 +25,7 @@ import { type } from 'os';
 export class TsDay extends BaseEntity {
 
   @ApiProperty()
-  @ManyToOne(() => TsUser, tsUser => tsUser.tsDays, { eager: false })
+  @ManyToOne(() => TsUser, tsUser => tsUser.tsDays, { eager: true })
   @JoinColumn({ name: 'ts_user_email'})
   @PrimaryColumn({ name: 'ts_user_email', type: 'varchar' })
   tsUser: TsUser

@@ -21,10 +21,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsWeeklyRepository } from './tsweekly.repository';
 import { TsUserRepository } from '../auth/tsuser.repository';
 import { AuthModule } from '../auth/auth.module';
+import { TsDayRepository } from '../tsday/tsday.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TsWeeklyRepository, TsUserRepository]),
+    TypeOrmModule.forFeature([TsWeeklyRepository, TsUserRepository, TsDayRepository]),
     AuthModule,
   ],
   controllers: [TsWeeklyController],
