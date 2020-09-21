@@ -128,6 +128,7 @@ export class TsWeeklyService {
     // Serialize the PDFDocument to bytes (a Uint8Array)
     const pdfBytes = await pdfDoc.save();
     // const pdfBytes = await pdfDoc.saveAsBase64();
+
     // writeFileSync('ss.pdf', pdfBytes); // writing the file locally
   }
 
