@@ -20,8 +20,6 @@ import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
 import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
-import { readFileSync, writeFile, writeFileSync } from 'fs';
 import { fromBase64, fromPath } from 'pdf2pic';
 import { TsWeeklyService } from './tsweekly.service';
 import { TsDay } from '../tsday/tsday.entity';
@@ -50,6 +48,8 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
   async getTsWeekly(tsUser: TsUser): Promise<TsWeekly[]> {
 
 
+    this.find({ where: { tsUser: tsUser}});
+
     const query = this.createQueryBuilder('tsweekly');
 
     query.where('tsweekly.tsuseremail = :tsuseremail', { tsuseremail: tsUser.email});
@@ -65,11 +65,11 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
     // TEST PDF
-    // const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
-    //
-    // const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
-    //
-    // const stuff = await TsWeeklyService.createPdf(days, week);
+    const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
+
+    const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
+
+    const stuff = await TsWeeklyService.createPdf(days, week);
 
     return;
 
