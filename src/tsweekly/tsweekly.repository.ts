@@ -20,9 +20,6 @@ import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
 import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
-import { readFileSync, writeFile, writeFileSync } from 'fs';
-import { fromBase64, fromPath } from 'pdf2pic';
 import { TsWeeklyService } from './tsweekly.service';
 import { TsDay } from '../tsday/tsday.entity';
 import { TsWeek } from '../tsweek/tsweek.entity';
@@ -49,6 +46,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
   async getTsWeekly(tsUser: TsUser): Promise<TsWeekly[]> {
 
+    this.find({ where: { tsUser: tsUser}});
 
     const query = this.createQueryBuilder('tsweekly');
 
@@ -65,11 +63,11 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
     // TEST PDF
-    // const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
-    //
-    // const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
-    //
-    // const stuff = await TsWeeklyService.createPdf(days, week);
+    const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
+
+    const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
+
+    const stuff = await TsWeeklyService.createPdf(days, week);
 
     return;
 
@@ -164,43 +162,5 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       }, {
         adminSigned: signed
       });
-  }
-
-
-  async test (){
-
-    // CREATE PDF
-    // POPULATE WITH TSDAYS ON A GIVEN TSWEEK
-
-    // TEMPLATE -> FONT - SIZE - TYPE
-    //          -> General Text
-    //          -> send to docusign.
-
-    // const existingPdfBytes = readFileSync('2pac.pdf');
-    //
-    // const pdfDoc = await PDFDocument.load(existingPdfBytes);
-    //
-    // const pages = pdfDoc.getPages();
-    // const firstPage = pages[0];
-
-
-    // writeFileSync('2pac.pdf', pdfBytes);
-
-    // const options = {
-    //   density: 300,
-    //   savename: "untitled",
-    //   format: "png",
-    //   width: 3508,
-    //   height: 2480
-    // };
-
-    // const storeAsImage = await fromBase64(pdfBytes, options);
-
-    // console.log(storeAsImage);
-    //
-    // const u = await storeAsImage(1);
-    //
-    // console.log(u);
-
   }
 }
