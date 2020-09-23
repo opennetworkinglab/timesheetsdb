@@ -20,6 +20,7 @@ import { TsWeek } from './tsweek.entity';
 import { FilterTsWeekDto } from './dto/filter-tsweek.dto';
 import { AuthGuard } from '@nestjs/passport';
 
+
 @Controller('tsweek')
 @UseGuards(AuthGuard())
 export class TsWeekController {
@@ -44,4 +45,5 @@ export class TsWeekController {
   createTsWeek(): Promise<void> {
     return this.tsWeekService.createTsWeek();
   }
+
 }

@@ -23,10 +23,14 @@ import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { UpdateResult } from 'typeorm';
 import { TsUser } from '../auth/tsuser.entity';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from 'fs';
 import { TsDay } from '../tsday/tsday.entity';
 import { TsWeek } from '../tsweek/tsweek.entity';
-import { PdfPageEditor } from '../tsweek/pdf/pdf-page-editor';
+import { PdfPageEditor } from './pdf/pdf-page-editor';
+import * as jwt from 'jsonwebtoken';
+import { payload } from '../config/docusign.config';
+import axios from 'axios';
+import { signingViaEmail } from './docusign/send-email-sign';
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
@@ -62,7 +66,8 @@ export class TsWeeklyService {
   async updateTsWeeklyAdmin(tsUser: TsUser, emailId: string, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
     return this.tsWeeklyRepository.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
   }
-  static async createPdf(days: TsDay[], week: TsWeek){
+
+  public static async createPdf(days: TsDay[], week: TsWeek){
 
     const pdfDoc = await PDFDocument.create()
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
@@ -124,12 +129,30 @@ export class TsWeeklyService {
 
     }
     pdfPageEditor.populateCells(cellValues, timesRomanFont, 12, rgb(0, 0.53, 0.71))
+    pdfPageEditor.addSign(form);
 
     // Serialize the PDFDocument to bytes (a Uint8Array)
     const pdfBytes = await pdfDoc.save();
     // const pdfBytes = await pdfDoc.saveAsBase64();
 
-    // writeFileSync('ss.pdf', pdfBytes); // writing the file locally
+    writeFileSync('ss.pdf', pdfBytes); // writing the file locally
+  }
+
+  public static async sendEmail(signerEmail: string, signerName: string, ccEmail: string, ccName: string){
+
+    const privateKey = readFileSync('private.key');
+
+    const jwtToken = jwt.sign(payload, privateKey, {
+      algorithm: 'RS256',
+    });
+
+    const token = await axios.post("https://account-d.docusign.com/oauth/token", {
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        assertion: jwtToken
+      }
+    );
+
+    await signingViaEmail.controller(token.data.access_token, signerEmail, signerName, ccEmail, ccName);
   }
 
   private static dateFormat(date: string): string{

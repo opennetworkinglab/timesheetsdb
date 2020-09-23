@@ -46,7 +46,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
   async getTsWeekly(tsUser: TsUser): Promise<TsWeekly[]> {
 
-    this.find({ where: { tsUser: tsUser}});
+    await this.find({ where: { tsUser: tsUser } });
 
     const query = this.createQueryBuilder('tsweekly');
 
@@ -62,13 +62,17 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
-    // TEST PDF
+    // Testing
     const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
-
+    //
     const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
 
-    const stuff = await TsWeeklyService.createPdf(days, week);
-
+    // Testing
+    const stuff = TsWeeklyService.createPdf(days, week);
+    const admin = await getConnection().getRepository(TsUser).findOne({ where: { email: tsUser.supervisorEmail }})
+    // console.log(admin);
+    await TsWeeklyService.sendEmail(tsUser.email, tsUser.firstName + " " + tsUser.lastName, "cosmicleaper@gmail.com", admin.firstName + " " + admin.lastName);
+    //
     return;
 
     let signed;
@@ -92,9 +96,15 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
     if(userSigned) {
 
+      const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
+
       const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
 
-      // const stuff = await TsWeeklyService.createPdf(days);
+      const admin = await getConnection().getRepository(TsUser).findOne({ where: { email: tsUser.supervisorEmail }})
+
+      // const stuff = await TsWeeklyService.createPdf(days, week);
+
+      await TsWeeklyService.sendEmail(tsUser.email, tsUser.firstName + " " + tsUser.lastName, admin.email, admin.firstName + " " + admin.lastName);
 
       signed = new Date();
     }
