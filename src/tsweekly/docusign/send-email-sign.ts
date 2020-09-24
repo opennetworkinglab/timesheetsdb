@@ -15,7 +15,6 @@
  */
 
 import { accountId, basePath } from '../../config/docusign.config';
-import * as fs from 'fs';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const docusign = require('docusign-esign');
@@ -61,8 +60,8 @@ signingViaEmail.worker = async (args) => {
 
   const results = await envelopesApi.createEnvelope(
     args.accountId, {
-    envelopeDefinition: envelope
-  });
+      envelopeDefinition: envelope
+    });
   const envelopeId = results.envelopeId;
 
   console.log(`Envelope was created. EnvelopeId ${envelopeId}`);
@@ -82,10 +81,9 @@ function makeEnvelope(args){
   env.emailSubject = 'Please sign this document set';
 
   // add the documents
-  const doc1 = new docusign.Document(),
-    doc1b64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
+  const doc1 = new docusign.Document();
 
-  doc1.documentBase64 = doc1b64;
+  doc1.documentBase64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
   doc1.name = 'Time sheet acknowledgement';
   doc1.fileExtension = 'html';
   doc1.documentId = '1';
@@ -117,9 +115,9 @@ function makeEnvelope(args){
   // signHere2 tab will be used in both document 2 and 3 since they
   // use the same anchor string for their "signer 1" tabs.
   const signHere1 = docusign.SignHere.constructFromObject({
-      anchorString: '**signature_1**',
-      anchorYOffset: '10', anchorUnits: 'pixels',
-      anchorXOffset: '20'});
+    anchorString: '**signature_1**',
+    anchorYOffset: '10', anchorUnits: 'pixels',
+    anchorXOffset: '20'});
 
   const signHere2 = docusign.SignHere.constructFromObject({
     anchorString: '**signature_2**',
@@ -127,20 +125,17 @@ function makeEnvelope(args){
     anchorXOffset: '20'});
 
   // Tabs are set per recipient / signer
-  const signer1Tabs = docusign.Tabs.constructFromObject({
+  signer1.tabs = docusign.Tabs.constructFromObject({
     signHereTabs: [signHere1]});
-  signer1.tabs = signer1Tabs;
 
-  const signer2Tabs = docusign.Tabs.constructFromObject({
+  signer2.tabs = docusign.Tabs.constructFromObject({
     signHereTabs: [signHere2]});
-  signer2.tabs = signer2Tabs;
 
   // Add the recipients to the envelope object
   // Second signer will receive email to sign after the first one has signed
-  const recipients = docusign.Recipients.constructFromObject({
+  env.recipients = docusign.Recipients.constructFromObject({
     signers: [signer1, signer2],
   });
-  env.recipients = recipients;
 
   // Request that the envelope be sent by setting |status| to "sent".
   // To request that the envelope be created as a draft, set to "created"
@@ -177,7 +172,7 @@ function htmlPage(args) {
         <p style="margin-top:0; margin-bottom:0;">Email: ${args.signerEmail}</p>
         <p style="margin-top:0; margin-bottom:0;">Copy to: ${args.ccName}, ${args.ccEmail}</p>
         
-        <table style="width: 100%; font-family:sans-serif;text-align: center;border-spacing:2px;border-color:grey;line-height:1.5;" summary="Employee Pay Sheet">
+        <table style="width: 100%; font-family:sans-serif;text-align: center;border-spacing:2px;border-color:grey;line-height:1.5;">
         
         <thead style="vertical-align: middle;">
             <tr>
@@ -208,142 +203,142 @@ function htmlPage(args) {
             
             <tr>
               <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Darpa HR001120C0107</td>
-              <td id="dm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][0]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][0]}
                 <span style="color:white;"></span>
               </td>
-              <td id="dt" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][0]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][0]}
               </td>
-              <td id="dw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][0]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][0]}
                   <span style="color:white;"></span>
               </td>
-              <td id="dth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][0]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][0]}
               </td>
-              <td id="df" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][0]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][0]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ds" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][0]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][0]}
               </td>
-              <td id="dsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][0]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][0]}
                 <span style="color:white;"></span>
               </td>
-              <td id="dtu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][0]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][0]}
               </td>
             </tr>
             
             <tr>
               <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Non Darpa</td>
-              <td id="ndm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][1]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][1]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ndt" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][1]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][1]}
               </td>
-              <td id="ndw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][1]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][1]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ndth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][1]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][1]}
               </td>
-              <td id="ndf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][1]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][1]}
                 <span style="color:white;"></span>
               </td>
-              <td id="nds" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][1]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][1]}
               </td>
-              <td id="ndsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][1]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][1]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ndtu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][0]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][0]}
               </td>
             </tr>
             
             <tr>
               <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Sick</td>
-              <td id="sm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][2]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][2]}
                 <span style="color:white;"></span>
               </td>
-              <td id="st" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][2]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][2]}
               </td>
-              <td id="sw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][2]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][2]}
                 <span style="color:white;"></span>
               </td>
-              <td id="sth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][2]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][2]}
               </td>
-              <td id="sf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][2]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][2]}
                 <span style="color:white;"></span>
               </td>
-              <td id="sd" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][2]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][2]}
               </td>
-              <td id="ssu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][2]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][2]}
                 <span style="color:white;"></span>
               </td>
-              <td id="stu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][2]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][2]}
               </td>
             </tr>
             
             <tr>
               <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">PTO</td>
-              <td id="ptom" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][3]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][3]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ptot" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][3]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][3]}
               </td>
-              <td id="ptow" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][3]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][3]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ptoth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][3]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][3]}
               </td>
-              <td id="ptof" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][3]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][3]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ptos" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][3]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][3]}
               </td>
-              <td id="ptosu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][3]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][3]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ptotu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][3]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][3]}
               </td>
             </tr>
             
             <tr>
               <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Holiday</td>
-              <td id="hm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][4]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][4]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ht" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][4]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][4]}
               </td>
-              <td id="hw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][4]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][4]}
                 <span style="color:white;"></span>
               </td>
-              <td id="htu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][4]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][4]}
               </td>
-              <td id="hf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][4]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][4]}
                 <span style="color:white;"></span>
               </td>
-              <td id="hs" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][4]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][4]}
               </td>
-              <td id="hsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][4]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][4]}
                 <span style="color:white;"></span>
               </td>
-              <td id="htu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][4]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][4]}
               </td>
             </tr>
             
             <tr>
               <td style="padding: 9px 8px 0; border-bottom: 2px solid #6678b1;">Total</td>
-              <td id="hm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][0]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][0]}
                 <span style="color:white;"></span>
               </td>
-              <td id="ht" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][1]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][1]}
               </td>
-              <td id="hw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][2]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][2]}
                 <span style="color:white;"></span>
               </td>
-              <td id="htu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][3]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][3]}
               </td>
-              <td id="hf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][4]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][4]}
                 <span style="color:white;"></span>
               </td>
-              <td id="hs" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][5]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][5]}
               </td>
-              <td id="hsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][6]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][6]}
                 <span style="color:white;"></span>
             </tr>
         </tbody>

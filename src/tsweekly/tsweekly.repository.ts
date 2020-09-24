@@ -84,7 +84,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     //
     // const envelopeId = await TsWeeklyService.sendEmail(args);
     // console.log(envelopeId.envelopeId)
-    return ;
+    // return ;
 
     let signed;
 
