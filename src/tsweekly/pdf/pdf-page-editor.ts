@@ -349,5 +349,13 @@ export class PdfPageEditor {
     }
   }
 
-
+  public addSign(form){
+    const textField = form.createTextField('**signature_1**')
+    textField.addToPage(this.page, {
+      x: 60,
+      y: 60,
+      width: 100,
+      height: 100,
+    })
+  }
 }

@@ -23,10 +23,14 @@ import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { UpdateResult } from 'typeorm';
 import { TsUser } from '../auth/tsuser.entity';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from 'fs';
 import { TsDay } from '../tsday/tsday.entity';
 import { TsWeek } from '../tsweek/tsweek.entity';
-import { PdfPageEditor } from '../tsweek/pdf/pdf-page-editor';
+import { PdfPageEditor } from './pdf/pdf-page-editor';
+import * as jwt from 'jsonwebtoken';
+import { payload } from '../config/docusign.config';
+import axios from 'axios';
+import { signingViaEmail } from './docusign/send-email-sign';
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
@@ -62,7 +66,8 @@ export class TsWeeklyService {
   async updateTsWeeklyAdmin(tsUser: TsUser, emailId: string, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
     return this.tsWeeklyRepository.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
   }
-  static async createPdf(days: TsDay[], week: TsWeek){
+
+  public static async createPdf(days: TsDay[], week: TsWeek){
 
     const pdfDoc = await PDFDocument.create()
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
@@ -121,15 +126,61 @@ export class TsWeeklyService {
 
         cellValues[i][j] = cellValues[i][j].toString();
       }
-
     }
     pdfPageEditor.populateCells(cellValues, timesRomanFont, 12, rgb(0, 0.53, 0.71))
+    pdfPageEditor.addSign(form);
 
     // Serialize the PDFDocument to bytes (a Uint8Array)
     const pdfBytes = await pdfDoc.save();
     // const pdfBytes = await pdfDoc.saveAsBase64();
 
-    // writeFileSync('ss.pdf', pdfBytes); // writing the file locally
+    writeFileSync('ss.pdf', pdfBytes); // writing the file locally
+  }
+
+  public static async sendEmail(args){
+
+    const privateKey = readFileSync('private.key');
+
+    const jwtToken = jwt.sign(payload, privateKey, {
+      algorithm: 'RS256',
+    });
+
+    const token = await axios.post("https://account-d.docusign.com/oauth/token", {
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        assertion: jwtToken
+      }
+    );
+
+    const cellValues = [];
+    for(let i = 0; i < 7; i++){
+
+      cellValues[i] = [];
+
+      cellValues[i][0] = args.days[i].darpaMins / 60
+      cellValues[i][1] = args.days[i].nonDarpaMins / 60;
+      cellValues[i][2] = args.days[i].sickMins / 60
+      cellValues[i][3] = args.days[i].ptoMins / 60
+      cellValues[i][4] = args.days[i].holidayMins / 60
+      cellValues[i][5] = (args.days[i].darpaMins / 60) + (args.days[i].nonDarpaMins / 60) + (args.days[i].sickMins / 60) + (args.days[i].ptoMins / 60) + (args.days[i].holidayMins / 60);
+    }
+    cellValues[7] = [];
+    for(let i = 0; i < 6; i++){
+
+      cellValues[7][i] = cellValues[0][i] + cellValues[1][i] + cellValues[2][i] + cellValues[3][i] +
+        cellValues[4][i] + cellValues[5][i] + cellValues[6][i];
+    }
+    for(let i = 0; i < cellValues.length; i++){
+      for(let j = 0; j < cellValues[i].length; j++){
+
+        cellValues[i][j] = cellValues[i][j].toString();
+      }
+    }
+
+    args.htmlArgs.hours = cellValues;
+    args.htmlArgs.week.begin = TsWeeklyService.dateFormat(args.htmlArgs.week.begin);
+    args.htmlArgs.week.end = TsWeeklyService.dateFormat(args.htmlArgs.week.end);
+
+     return await signingViaEmail.controller(token.data.access_token, args);
   }
 
   private static dateFormat(date: string): string{
