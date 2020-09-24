@@ -15,12 +15,12 @@
  */
 
 
-import { Color, PDFFont, PDFForm, PDFPage } from 'pdf-lib';
+import { Color, PDFFont, PDFPage } from 'pdf-lib';
 
 export class PdfPageEditor {
 
   // Page details
-  private page;
+  private readonly page;
   private readonly height;
   private readonly width;
 
@@ -33,9 +33,6 @@ export class PdfPageEditor {
   private columns = [];
   private rows = [];
 
-  // Form
-  private userSign;
-  private adminSign;
 
   constructor(page: PDFPage) {
 
@@ -45,10 +42,6 @@ export class PdfPageEditor {
     this.height = height;
     this.width = width;
 
-  }
-
-  public getTableBottom(){
-    return this.tableStartX + this.tableHeight;
   }
 
   public  addText(startX: number, startY: number, font: PDFFont, fontSize: number, color: Color, text: string){

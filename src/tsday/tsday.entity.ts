@@ -18,7 +18,6 @@ import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn
 import { ApiProperty } from '@nestjs/swagger';
 import { TsUser } from '../auth/tsuser.entity';
 import { TsWeek } from '../tsweek/tsweek.entity';
-import { type } from 'os';
 
 @Entity('tsdays')
 @Index(['tsUser', 'day'], { unique: true })
