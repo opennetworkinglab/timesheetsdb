@@ -63,17 +63,28 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
     // Testing
-    const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
+    // const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
+    // const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
+    // const admin = await getConnection().getRepository(TsUser).findOne({ where: { email: tsUser.supervisorEmail }})
     //
-    const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
-
-    // Testing
-    const stuff = TsWeeklyService.createPdf(days, week);
-    const admin = await getConnection().getRepository(TsUser).findOne({ where: { email: tsUser.supervisorEmail }})
-    // console.log(admin);
-    await TsWeeklyService.sendEmail(tsUser.email, tsUser.firstName + " " + tsUser.lastName, "cosmicleaper@gmail.com", admin.firstName + " " + admin.lastName);
+    // const htmlArgs = {
+    //   submitterEmail: tsUser.email,
+    //   submitterName: tsUser.firstName + " " + tsUser.lastName,
+    //   supervisorEmail: admin.email,
+    //   supervisorName: admin.firstName + " " + admin.lastName,
+    //   week: week,
+    //   hours: null
+    //   },
+    //   args = {
+    //     days: days,
+    //     htmlArgs: htmlArgs
+    //   }
     //
-    return;
+    // // const stuff = TsWeeklyService.createPdf(days, week);
+    //
+    // const envelopeId = await TsWeeklyService.sendEmail(args);
+    // console.log(envelopeId.envelopeId)
+    return ;
 
     let signed;
 
@@ -97,16 +108,27 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     if(userSigned) {
 
       const week = await getConnection().getRepository(TsWeek).findOne({ where: { id: weekId }})
-
       const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
-
       const admin = await getConnection().getRepository(TsUser).findOne({ where: { email: tsUser.supervisorEmail }})
+
+      const htmlArgs = {
+        signerEmail: tsUser.email,
+        signerName: tsUser.firstName + " " + tsUser.lastName,
+        supervisorEmail: admin.email,
+        supervisorName: admin.firstName + " " + admin.lastName,
+        days: days,
+        week: week,
+        hours: null
+        },
+        args = {
+          days: days,
+          htmlArgs: htmlArgs
+        }
 
       // const stuff = await TsWeeklyService.createPdf(days, week);
 
-      await TsWeeklyService.sendEmail(tsUser.email, tsUser.firstName + " " + tsUser.lastName, admin.email, admin.firstName + " " + admin.lastName);
-
-      signed = new Date();
+      const envelopeId = await TsWeeklyService.sendEmail(args);
+      signed = envelopeId.envelopeId.envolopeId.envelopeId;
     }
     else{
 

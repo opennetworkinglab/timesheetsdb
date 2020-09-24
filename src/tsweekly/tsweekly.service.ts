@@ -126,7 +126,6 @@ export class TsWeeklyService {
 
         cellValues[i][j] = cellValues[i][j].toString();
       }
-
     }
     pdfPageEditor.populateCells(cellValues, timesRomanFont, 12, rgb(0, 0.53, 0.71))
     pdfPageEditor.addSign(form);
@@ -138,7 +137,7 @@ export class TsWeeklyService {
     writeFileSync('ss.pdf', pdfBytes); // writing the file locally
   }
 
-  public static async sendEmail(signerEmail: string, signerName: string, ccEmail: string, ccName: string){
+  public static async sendEmail(args){
 
     const privateKey = readFileSync('private.key');
 
@@ -152,7 +151,36 @@ export class TsWeeklyService {
       }
     );
 
-    await signingViaEmail.controller(token.data.access_token, signerEmail, signerName, ccEmail, ccName);
+    const cellValues = [];
+    for(let i = 0; i < 7; i++){
+
+      cellValues[i] = [];
+
+      cellValues[i][0] = args.days[i].darpaMins / 60
+      cellValues[i][1] = args.days[i].nonDarpaMins / 60;
+      cellValues[i][2] = args.days[i].sickMins / 60
+      cellValues[i][3] = args.days[i].ptoMins / 60
+      cellValues[i][4] = args.days[i].holidayMins / 60
+      cellValues[i][5] = (args.days[i].darpaMins / 60) + (args.days[i].nonDarpaMins / 60) + (args.days[i].sickMins / 60) + (args.days[i].ptoMins / 60) + (args.days[i].holidayMins / 60);
+    }
+    cellValues[7] = [];
+    for(let i = 0; i < 6; i++){
+
+      cellValues[7][i] = cellValues[0][i] + cellValues[1][i] + cellValues[2][i] + cellValues[3][i] +
+        cellValues[4][i] + cellValues[5][i] + cellValues[6][i];
+    }
+    for(let i = 0; i < cellValues.length; i++){
+      for(let j = 0; j < cellValues[i].length; j++){
+
+        cellValues[i][j] = cellValues[i][j].toString();
+      }
+    }
+
+    args.htmlArgs.hours = cellValues;
+    args.htmlArgs.week.begin = TsWeeklyService.dateFormat(args.htmlArgs.week.begin);
+    args.htmlArgs.week.end = TsWeeklyService.dateFormat(args.htmlArgs.week.end);
+
+     return await signingViaEmail.controller(token.data.access_token, args);
   }
 
   private static dateFormat(date: string): string{

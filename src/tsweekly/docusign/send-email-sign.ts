@@ -22,27 +22,27 @@ const docusign = require('docusign-esign');
 
 export const signingViaEmail = exports;
 
-signingViaEmail.controller = async (token: string, signerEmail: string, signerName: string, ccEmail: string, ccName: string) => {
+signingViaEmail.controller = async (token: string, args) => {
 
   // Call the worker method
   const envelopeArgs = {
-      signerEmail: signerEmail,
-      signerName: signerName,
-      ccEmail: ccEmail,
-      ccName: ccName,
-      status: "sent"
+      signerEmail: args.signerEmail,
+      signerName: args.signerName,
+      ccEmail: args.ccEmail,
+      ccName: args.ccName,
+      status: "sent",
+      htmlArgs: args.htmlArgs
     },
-    args = {
+    workerArgs = {
       accessToken: token,
       basePath: basePath,
       accountId: accountId,
-      envelopeArgs: envelopeArgs
+      envelopeArgs: envelopeArgs,
     }
-  let results = null;
 
   try {
-    results = await signingViaEmail.worker(args)
-    console.log(results);
+    return await signingViaEmail.worker(workerArgs)
+
 
   } catch (error) {
     console.log(error);
@@ -70,20 +70,12 @@ signingViaEmail.worker = async (args) => {
 }
 
 function makeEnvelope(args){
-  // document 1 (html) has tag **signature_1**
-  // document 2 (docx) has tag /sn1/
-  // document 3 (pdf) has tag /sn1/
-  //
+
   // The envelope has two recipients.
   // recipient 1 - signer
   // recipient 2 - cc
   // The envelope will be sent first to the signer.
   // After it is signed, a copy is sent to the cc person.
-
-
-  // read files from a local directory
-  // The reads could raise an exception if the file is not available!
-  const doc3PdfBytes = fs.readFileSync('ss.pdf');
 
   // Create the envelope definition
   const env = new docusign.EnvelopeDefinition();
@@ -91,41 +83,31 @@ function makeEnvelope(args){
 
   // add the documents
   const doc1 = new docusign.Document(),
-    doc1b64 = Buffer.from(document1(args)).toString('base64'),
-    doc3b64 = Buffer.from(doc3PdfBytes).toString('base64');
+    doc1b64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
 
   doc1.documentBase64 = doc1b64;
-  doc1.name = 'Order acknowledgement'; // can be different from actual file name
-  doc1.fileExtension = 'html'; // Source data format. Signed docs are always pdf.
-  doc1.documentId = '1'; // a label used to reference the doc
+  doc1.name = 'Time sheet acknowledgement';
+  doc1.fileExtension = 'html';
+  doc1.documentId = '1';
 
-  const doc3 = new docusign.Document.constructFromObject({
-    documentBase64: doc3b64,
-    name: 'Lorem Ipsum', // can be different from actual file name
-    fileExtension: 'pdf',
-    documentId: '3'});
-
-  // The order in the docs array determines the order in the envelope
-  env.documents = [doc1, doc3];
+  env.documents = [doc1];
 
   // create a signer recipient to sign the document, identified by name and email
   // We're setting the parameters via the object constructor
   const signer1 = docusign.Signer.constructFromObject({
-    email: args.signerEmail,
-    name: args.signerName,
+    email: args.htmlArgs.submitterEmail,
+    name: args.htmlArgs.submitterName,
     recipientId: '1',
     routingOrder: '1'});
+
+  const signer2 = docusign.Signer.constructFromObject({
+    email: args.htmlArgs.supervisorEmail,
+    name: args.htmlArgs.supervisorName,
+    recipientId: '2',
+    routingOrder: '2'});
   // routingOrder (lower means earlier) determines the order of deliveries
   // to the recipients. Parallel routing order is supported by using the
   // same integer as the order for two or more recipients.
-
-  // create a cc recipient to receive a copy of the documents, identified by name and email
-  // We're setting the parameters via setters
-  const cc1 = new docusign.CarbonCopy();
-  cc1.email = args.ccEmail;
-  cc1.name = args.ccName;
-  cc1.routingOrder = '2';
-  cc1.recipientId = '2';
 
   // Create signHere fields (also known as tabs) on the documents,
   // We're using anchor (autoPlace) positioning
@@ -137,22 +119,27 @@ function makeEnvelope(args){
   const signHere1 = docusign.SignHere.constructFromObject({
       anchorString: '**signature_1**',
       anchorYOffset: '10', anchorUnits: 'pixels',
-      anchorXOffset: '20'}),
-    signHere2 = docusign.SignHere.constructFromObject({
-      anchorString: '/sn1/',
-      anchorYOffset: '10', anchorUnits: 'pixels',
-      anchorXOffset: '20'})
-  ;
+      anchorXOffset: '20'});
+
+  const signHere2 = docusign.SignHere.constructFromObject({
+    anchorString: '**signature_2**',
+    anchorYOffset: '10', anchorUnits: 'pixels',
+    anchorXOffset: '20'});
 
   // Tabs are set per recipient / signer
   const signer1Tabs = docusign.Tabs.constructFromObject({
-    signHereTabs: [signHere1, signHere2]});
+    signHereTabs: [signHere1]});
   signer1.tabs = signer1Tabs;
 
+  const signer2Tabs = docusign.Tabs.constructFromObject({
+    signHereTabs: [signHere2]});
+  signer2.tabs = signer2Tabs;
+
   // Add the recipients to the envelope object
+  // Second signer will receive email to sign after the first one has signed
   const recipients = docusign.Recipients.constructFromObject({
-    signers: [signer1],
-    carbonCopies: [cc1]});
+    signers: [signer1, signer2],
+  });
   env.recipients = recipients;
 
   // Request that the envelope be sent by setting |status| to "sent".
@@ -163,7 +150,7 @@ function makeEnvelope(args){
 }
 
 /**
- * Creates document 1
+ * Creates html document
  * @function
  * @private
  * @param {Object} args parameters for the envelope:
@@ -171,75 +158,200 @@ function makeEnvelope(args){
  * @returns {string} A document in HTML format
  */
 
-function document1(args) {
+function htmlPage(args) {
+
   return `
     <!DOCTYPE html>
     <html lang="en">
         <head>
           <meta charset="UTF-8"><title></title>
         </head>
+        
         <body style="font-family:sans-serif;margin-left:2em;">
         <h1 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
-            color: darkblue;margin-bottom: 0;">World Wide Corp</h1>
+            color: darkblue;margin-bottom: 0;">${args.signerName}: ${args.signerEmail}</h1>
         <h2 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
           margin-top: 0;margin-bottom: 3.5em;font-size: 1em;
-          color: darkblue;">Order Processing Division - 2</h2>
-        <h4>Ordered by ${args.signerName}</h4>
+          color: darkblue;">Timesheet Week no: ${args.week.weekNo}</h2>
+        <h4>Week: ${args.week.begin} - ${args.week.end}</h4>
         <p style="margin-top:0; margin-bottom:0;">Email: ${args.signerEmail}</p>
         <p style="margin-top:0; margin-bottom:0;">Copy to: ${args.ccName}, ${args.ccEmail}</p>
-        <table style="width:100%; font-family:sans-serif;text-align:center;border-spacing:2px;border-color:grey;line-height:1.5;" summary="timesheet">
+        
+        <table style="width: 100%; font-family:sans-serif;text-align: center;border-spacing:2px;border-color:grey;line-height:1.5;" summary="Employee Pay Sheet">
+        
         <thead style="vertical-align: middle;">
             <tr>
-                <th scope="col" style="align-content: center;font-size:1.1em;border-bottom: 2px solid #6678b1;">Hours</th>
-            </tr>
-            <tr>
-              <th scope="col" style="text-align: center; padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;"></th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Mon</th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Tue</th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Wed</th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Thu</th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Fri</th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Sat</th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Sun</th>
-              <th scope="col" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Total</th>
+              <th scope="col" colspan="9" style="padding: 9px 20px 0;font-size:1.1em;border-bottom: 2px solid #6678b1;">Hours</th>
             </tr>
         </thead>
+        
         <tbody>
             <tr>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Darpa HR001120C0107</td>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">
-                    <span style="color:white;">/l1q/</span>
-                </td>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">0.25</td>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">
-                    $<span style="color:white;">/l1e/</span>
-                </td>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;"></td>
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">Mon
+                <span style="color:white;"></span>
+              </td>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Tue</td>
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">Wed
+                <span style="color:white;"></span>
+              </td>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Thu</td>
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">Fri
+                <span style="color:white;"></span>
+              </td>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Sat</td>
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">Sun
+                <span style="color:white;"></span>
+              </td>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Total</td>
             </tr>
+            
             <tr>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Non Darpa</td>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">
-                    <span style="color:white;">/l2q/</span>
-                </td>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">0.75</td>
-                <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">
-                    $<span style="color:white;">/l2e/</span>
-                </td>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Darpa HR001120C0107</td>
+              <td id="dm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][0]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="dt" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][0]}
+              </td>
+              <td id="dw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][0]}
+                  <span style="color:white;"></span>
+              </td>
+              <td id="dth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][0]}
+              </td>
+              <td id="df" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][0]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ds" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][0]}
+              </td>
+              <td id="dsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][0]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="dtu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][0]}
+              </td>
             </tr>
-<!--            <tr>-->
-<!--                <td colspan="3" -->
-<!--                    style="font-weight: bold;font-size:1.1em;text-align: right;padding: 9px 8px 0;border-bottom: 5px solid #667;">Total:</td>-->
-<!--                <td style="font-weight: bold;font-size:1.1em;padding: 9px 8px 0;border-bottom: 5px solid #667;">-->
-<!--                    $<span style="color:white;">/l3t/</span>-->
-<!--                </td>-->
-<!--            </tr>-->
+            
+            <tr>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Non Darpa</td>
+              <td id="ndm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][1]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ndt" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][1]}
+              </td>
+              <td id="ndw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][1]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ndth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][1]}
+              </td>
+              <td id="ndf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][1]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="nds" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][1]}
+              </td>
+              <td id="ndsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][1]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ndtu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][0]}
+              </td>
+            </tr>
+            
+            <tr>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Sick</td>
+              <td id="sm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][2]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="st" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][2]}
+              </td>
+              <td id="sw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][2]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="sth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][2]}
+              </td>
+              <td id="sf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][2]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="sd" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][2]}
+              </td>
+              <td id="ssu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][2]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="stu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][2]}
+              </td>
+            </tr>
+            
+            <tr>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">PTO</td>
+              <td id="ptom" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][3]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ptot" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][3]}
+              </td>
+              <td id="ptow" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][3]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ptoth" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][3]}
+              </td>
+              <td id="ptof" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][3]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ptos" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][3]}
+              </td>
+              <td id="ptosu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][3]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ptotu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][3]}
+              </td>
+            </tr>
+            
+            <tr>
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">Holiday</td>
+              <td id="hm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[0][4]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ht" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[1][4]}
+              </td>
+              <td id="hw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[2][4]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="htu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[3][4]}
+              </td>
+              <td id="hf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[4][4]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="hs" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[5][4]}
+              </td>
+              <td id="hsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][4]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="htu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][4]}
+              </td>
+            </tr>
+            
+            <tr>
+              <td style="padding: 9px 8px 0; border-bottom: 2px solid #6678b1;">Total</td>
+              <td id="hm" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][0]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="ht" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][1]}
+              </td>
+              <td id="hw" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][2]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="htu" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][3]}
+              </td>
+              <td id="hf" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][4]}
+                <span style="color:white;"></span>
+              </td>
+              <td id="hs" style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][5]}
+              </td>
+              <td id="hsu" style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][6]}
+                <span style="color:white;"></span>
+            </tr>
         </tbody>
     </table>
-        <p style="margin-top:3em;">
-  Candy bonbon pastry jujubes lollipop wafer biscuit biscuit. Topping brownie sesame snaps sweet roll pie. Croissant danish biscuit soufflé caramels jujubes jelly. Dragée danish caramels lemon drops dragée. Gummi bears cupcake biscuit tiramisu sugar plum pastry. Dragée gummies applicake pudding liquorice. Donut jujubes oat cake jelly-o. Dessert bear claw chocolate cake gummies lollipop sugar plum ice cream gummies cheesecake.
-        </p>
+    
         <!-- Note the anchor tag for the signature field is in white. -->
-        <h3 style="margin-top:3em;">Agreed: <span style="color:white;">**signature_1**/</span></h3>
-        <h3 style="margin-top: 3em; margin-right: 30em;">Agreed: <span style="color:white;">**signature_2**/</span></h3>
+        <h3 style="margin-top:3em;">Submitter: <span style="color:white;">**signature_1**</span></h3>
+        <h3 style="margin-top: 6em;">Supervisor: <span style="color:white;">**signature_2**</span></h3>
         </body>
     </html>
   `
