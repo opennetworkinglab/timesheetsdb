@@ -46,16 +46,11 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
   async getTsWeekly(tsUser: TsUser): Promise<TsWeekly[]> {
 
-    await this.find({ where: { tsUser: tsUser } });
-
-    const query = this.createQueryBuilder('tsweekly');
-
-    query.where('tsweekly.tsuseremail = :tsuseremail', { tsuseremail: tsUser.email});
+    return await this.find({ where: { tsUser: tsUser } });
 
     // Go through and convert blob
     // blobToFile ( ... );
 
-    return await query.getMany();
   }
 
   async updateTsWeeklyUser(tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {

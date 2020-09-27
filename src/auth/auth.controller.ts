@@ -23,11 +23,12 @@ import { GetTsUser } from './get-tsuser.decorator';
 import { TsUser } from './tsuser.entity';
 import { UpdateResult } from 'typeorm';
 import { UpdateTsUserDto } from './dto/update-tsuser.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private config: ConfigService) {}
 
   @Post('createuser')
   @UseGuards(AuthGuard())
