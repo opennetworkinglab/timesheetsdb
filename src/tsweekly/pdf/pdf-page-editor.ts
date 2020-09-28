@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import { Color, PDFFont, PDFPage } from 'pdf-lib';
 
 export class PdfPageEditor {

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// IGNORE FILE
+
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export default () => ({

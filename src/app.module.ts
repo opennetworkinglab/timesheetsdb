@@ -21,14 +21,11 @@ import { TsweekModule } from './tsweek/tsweek.module';
 import { TsWeeklyModule } from './tsweekly/tsweekly.module';
 import { TsDayModule } from './tsday/tsday.module';
 import { AuthModule } from './auth/auth.module';
-import typeorm from './config/typeorm.config';
-import { typeOrmConfig } from './config/typeorm.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TsUser } from './auth/tsuser.entity';
 import { TsDay } from './tsday/tsday.entity';
 import { TsWeek } from './tsweek/tsweek.entity';
 import { TsWeekly } from './tsweekly/tsweekly.entity';
-import { join } from 'path';
 
 
 @Module({

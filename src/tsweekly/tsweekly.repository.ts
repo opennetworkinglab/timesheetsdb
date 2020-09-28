@@ -20,9 +20,9 @@ import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
 import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
-import { TsWeeklyService } from './tsweekly.service';
 import { TsDay } from '../tsday/tsday.entity';
 import { TsWeek } from '../tsweek/tsweek.entity';
+import { signingViaEmail } from './docusign/send-email-sign';
 
 @EntityRepository(TsWeekly)
 export class TsWeeklyRepository extends Repository<TsWeekly> {
@@ -53,7 +53,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
   }
 
-  async updateTsWeeklyUser(tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
+  async updateTsWeeklyUser(token, tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
 
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
@@ -72,13 +72,14 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     //   },
     //   args = {
     //     days: days,
+    //     token: token,
     //     htmlArgs: htmlArgs
     //   }
     //
     // // const stuff = TsWeeklyService.createPdf(days, week);
     //
-    // const envelopeId = await TsWeeklyService.sendEmail(args);
-    // console.log(envelopeId.envelopeId)
+    // const envelopeId = await this.sendEmail(args);
+    //
     // return ;
 
     let signed;
@@ -122,7 +123,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
       // const stuff = await TsWeeklyService.createPdf(days, week);
 
-      const envelopeId = await TsWeeklyService.sendEmail(args);
+      const envelopeId = await this.sendEmail(args);
       signed = envelopeId.envelopeId.envolopeId.envelopeId;
     }
     else{
@@ -189,5 +190,47 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       }, {
         adminSigned: signed
       });
+  }
+
+  async sendEmail(args){
+
+    const cellValues = [];
+    for(let i = 0; i < 7; i++){
+
+      cellValues[i] = [];
+
+      cellValues[i][0] = args.days[i].darpaMins / 60
+      cellValues[i][1] = args.days[i].nonDarpaMins / 60;
+      cellValues[i][2] = args.days[i].sickMins / 60
+      cellValues[i][3] = args.days[i].ptoMins / 60
+      cellValues[i][4] = args.days[i].holidayMins / 60
+      cellValues[i][5] = (args.days[i].darpaMins / 60) + (args.days[i].nonDarpaMins / 60) + (args.days[i].sickMins / 60) + (args.days[i].ptoMins / 60) + (args.days[i].holidayMins / 60);
+    }
+    cellValues[7] = [];
+    for(let i = 0; i < 6; i++){
+
+      cellValues[7][i] = cellValues[0][i] + cellValues[1][i] + cellValues[2][i] + cellValues[3][i] +
+        cellValues[4][i] + cellValues[5][i] + cellValues[6][i];
+    }
+    for(let i = 0; i < cellValues.length; i++){
+      for(let j = 0; j < cellValues[i].length; j++){
+
+        cellValues[i][j] = cellValues[i][j].toString();
+      }
+    }
+
+    args.htmlArgs.hours = cellValues;
+    args.htmlArgs.week.begin = TsWeeklyRepository.dateFormat(args.htmlArgs.week.begin);
+    args.htmlArgs.week.end = TsWeeklyRepository.dateFormat(args.htmlArgs.week.end);
+
+    return await signingViaEmail.controller(args.token.data.access_token, args);
+  }
+
+  private static dateFormat(date: string): string{
+
+    const dateArr = date.split("-");
+
+    // month/day/year
+    return dateArr[1] + "/" + dateArr[2] + "/" +dateArr[0] ;
   }
 }
