@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import { Color, PDFFont, PDFPage } from 'pdf-lib';
 
 export class PdfPageEditor {
@@ -44,7 +43,7 @@ export class PdfPageEditor {
 
   }
 
-  public  addText(startX: number, startY: number, font: PDFFont, fontSize: number, color: Color, text: string){
+  public addText(startX: number, startY: number, font: PDFFont, fontSize: number, color: Color, text: string){
 
     this.page.drawText(text, {
       x: startX,

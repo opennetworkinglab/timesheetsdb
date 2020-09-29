@@ -15,16 +15,43 @@
  */
 
 import { Module } from '@nestjs/common';
-import { typeOrmConfig } from './config/typeorm.config';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TsweekModule } from './tsweek/tsweek.module';
 import { TsWeeklyModule } from './tsweekly/tsweekly.module';
 import { TsDayModule } from './tsday/tsday.module';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TsUser } from './auth/tsuser.entity';
+import { TsDay } from './tsday/tsday.entity';
+import { TsWeek } from './tsweek/tsweek.entity';
+import { TsWeekly } from './tsweekly/tsweekly.entity';
+
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(typeOrmConfig),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    // TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',// as 'postgres',
+        host: configService.get('DATABASE_HOST', 'localhost'),
+        port: configService.get<number>('DATABASE_PORT', 5432),
+        username: configService.get('DATABASE_USER', 'postgres'),
+        password: configService.get('DATABASE_PASS', 'postgres'),
+        database: 'timesheets',
+        entities: [TsUser, TsDay, TsWeek, TsWeekly],
+        // entities: [join(__dirname + '/../**/*.entity.{js,ts}')],
+        synchronize: true,
+      }),
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     TsweekModule,
     TsWeeklyModule,
     TsDayModule,

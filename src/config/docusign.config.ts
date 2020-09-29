@@ -14,6 +14,33 @@
  * limitations under the License.
  */
 
+
+
+
+// IGNORE FILE
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+@Injectable()
+export class DocusignConfigService {
+
+  constructor(private configService: ConfigService) {
+  }
+
+  getPayload(){
+
+    // return  {
+    //   "iss": this.configService.get<string>('ISS'),
+    //   "sub": this.configService.get<string>('SUB'),
+    //   "name": this.configService.get<string>('NAME'),
+    //   "aud": this.configService.get<string>('AUD'),
+    //   "iat": Math.floor(new Date().getTime() / 1000),
+    //   "exp": Math.floor((new Date().getTime() + 1000000) / 1000),
+    //   "scope": this.configService.get<string>('SCOPE')
+    // }
+  }
+}
+
 export const basePath = "https://demo.docusign.net/restapi";
 export const accountId = "8bd1f442-916a-4872-9323-2ab3934a7438";
 export const payload = {

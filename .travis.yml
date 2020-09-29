@@ -29,5 +29,5 @@ jobs:
     include:
         - stage: tests
           script:
-              - make build license_check
+              - make build license_check lint
 

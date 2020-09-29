@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { TsWeeklyService } from './tsweekly.service';
 import { TsWeekly } from './tsweekly.entity';
-import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetTsUser } from '../auth/get-tsuser.decorator';
 import { TsUser } from '../auth/tsuser.entity';
 import { UpdateResult } from 'typeorm';
-
-import * as  jwt from 'jsonwebtoken';
-import { readFileSync } from 'fs';
-
-import axios from 'axios';
-import { signingViaEmail } from './docusign/send-email-sign';
-import { payload } from '../config/docusign.config';
 
 @Controller('tsweekly')
 @UseGuards(AuthGuard())
@@ -37,12 +29,12 @@ export class TsWeeklyController {
 
   constructor(private tsWeeklyService: TsWeeklyService) {}
 
-  @Post()
-  createTsWeekly(@GetTsUser() tsUser: TsUser,
-                 @Body() createTsWeeklyDto: CreateTsWeeklyDto,
-  ): Promise<void> {
-    return this.tsWeeklyService.createTsWeekly(tsUser, createTsWeeklyDto);
-  }
+  // @Post()
+  // createTsWeekly(@GetTsUser() tsUser: TsUser,
+  //                @Body() createTsWeeklyDto: CreateTsWeeklyDto,
+  // ): Promise<void> {
+  //   return this.tsWeeklyService.createTsWeekly(tsUser, createTsWeeklyDto);
+  // }
 
   @Get()
   getTsWeekly(@GetTsUser() tsUser: TsUser): Promise<TsWeekly[]> {
@@ -63,25 +55,6 @@ export class TsWeeklyController {
                       @Body() updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
     return this.tsWeeklyService.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
   }
-
-  @Get('/test')
-  async getTest() {
-
-    const privateKey = readFileSync('private.key');
-
-    const jwtToken = jwt.sign(payload, privateKey, {
-      algorithm: 'RS256',
-    });
-
-    const token = await axios.post("https://account-d.docusign.com/oauth/token", {
-        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: jwtToken
-      }
-    );
-
-    await signingViaEmail.controller(token.data.access_token, "cosmicleaper@gmail.com", "Pol Lop", "cosmicleaper@gmail.com", "John Smith");
-  }
-
 
   // @Get(':emailId')
   // getTsweeklyById(@Param('emailId') emailId): Promise<TsWeekly[]> {
