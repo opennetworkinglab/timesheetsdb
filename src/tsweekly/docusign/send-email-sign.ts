@@ -66,6 +66,19 @@ function makeEnvelope(args){
   const env = new docusign.EnvelopeDefinition();
   env.emailSubject = 'Please sign this document set';
 
+  // add 1 day reminder
+  const notification = new docusign.Notification();
+  notification.useAccountDefaults = 'false';
+
+  const reminders = new docusign.Reminders();
+  reminders.reminderEnabled = 'true';
+  reminders.reminderDelay = '1';
+  reminders.reminderFrequency = '1';
+
+  notification.reminders = reminders;
+  env.notification = notification;
+
+
   const doc1 = new docusign.Document();
   doc1.documentBase64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
   doc1.name = "args.documentName"; // TODO :  ADD NAME
