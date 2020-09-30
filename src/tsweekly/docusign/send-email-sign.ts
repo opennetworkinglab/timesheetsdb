@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const docusign = require('docusign-esign');
 
@@ -70,36 +68,25 @@ function makeEnvelope(args){
 
   const doc1 = new docusign.Document();
   doc1.documentBase64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
-  doc1.name = args.documentName; // TODO :  ADD NAME
+  doc1.name = "args.documentName"; // TODO :  ADD NAME
   doc1.fileExtension = 'html';
   doc1.documentId = '1';
 
   env.documents = [doc1];
 
-  // create a signer recipient to sign the document, identified by name and email
-  // We're setting the parameters via the object constructor
   const signer1 = docusign.Signer.constructFromObject({
     email: args.htmlArgs.submitterEmail,
     name: args.htmlArgs.submitterName,
     recipientId: '1',
     routingOrder: '1'});
 
+  // Signer 2 is the supervisor. Gets sent the document after signer 1 signs
   const signer2 = docusign.Signer.constructFromObject({
     email: args.htmlArgs.supervisorEmail,
     name: args.htmlArgs.supervisorName,
     recipientId: '2',
     routingOrder: '2'});
-  // routingOrder (lower means earlier) determines the order of deliveries
-  // to the recipients. Parallel routing order is supported by using the
-  // same integer as the order for two or more recipients.
 
-  // Create signHere fields (also known as tabs) on the documents,
-  // We're using anchor (autoPlace) positioning
-  //
-  // The DocuSign platform searches throughout your envelope's
-  // documents for matching anchor strings. So the
-  // signHere2 tab will be used in both document 2 and 3 since they
-  // use the same anchor string for their "signer 1" tabs.
   const signHere1 = docusign.SignHere.constructFromObject({
     anchorString: '**signature_1**',
     anchorYOffset: '10', anchorUnits: 'pixels',
@@ -117,14 +104,9 @@ function makeEnvelope(args){
   signer2.tabs = docusign.Tabs.constructFromObject({
     signHereTabs: [signHere2]});
 
-  // Add the recipients to the envelope object
-  // Second signer will receive email to sign after the first one has signed
   env.recipients = docusign.Recipients.constructFromObject({
     signers: [signer1, signer2],
   });
-
-  // Request that the envelope be sent by setting |status| to "sent".
-  // To request that the envelope be created as a draft, set to "created"
   env.status = args.status;
 
   return env;
@@ -135,7 +117,6 @@ function makeEnvelope(args){
  * @function
  * @private
  * @param {Object} args parameters for the envelope:
- *   <tt>signerEmail</tt>, <tt>signerName</tt>, <tt>ccEmail</tt>, <tt>ccName</tt>
  * @returns {string} A document in HTML format
  */
 
@@ -234,7 +215,7 @@ function htmlPage(args) {
               <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[6][1]}
                 <span style="color:white;"></span>
               </td>
-              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][0]}
+              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][1]}
               </td>
             </tr>
             
@@ -312,30 +293,32 @@ function htmlPage(args) {
             
             <tr>
               <td style="padding: 9px 8px 0; border-bottom: 2px solid #6678b1;">Total</td>
-              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][0]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[0][5]}
                 <span style="color:white;"></span>
               </td>
-              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][1]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[1][5]}
               </td>
-              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][2]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[2][5]}
                 <span style="color:white;"></span>
               </td>
-              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][3]}
-              </td>
-              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][4]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[3][5]}
+              </td
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[4][5]}
                 <span style="color:white;"></span>
               </td>
-              <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${args.hours[7][5]}
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[5][5]}
               </td>
-              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 1px solid #6678b1;">${args.hours[7][6]}
-                <span style="color:white;"></span>
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[6][5]}
+                <span style="color:white;"></span></td>
+              <td style="text-align: center; padding: 9px 8px 0;border-bottom: 2px solid #6678b1;">${args.hours[7][5]}
+              </td>
             </tr>
         </tbody>
     </table>
     
         <!-- Note the anchor tag for the signature field is in white. -->
         <h3 style="margin-top:3em;">Submitter: <span style="color:white;">**signature_1**</span></h3>
-        <h3 style="margin-top: 6em;">Supervisor: <span style="color:white;">**signature_2**</span></h3>
+        <h3 style="margin-top: 3em;">Supervisor: <span style="color:white;">**signature_2**</span></h3>
         </body>
     </html>
   `

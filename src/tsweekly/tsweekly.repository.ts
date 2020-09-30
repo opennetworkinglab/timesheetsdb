@@ -16,8 +16,7 @@
 
 import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
 import { TsWeekly } from './tsweekly.entity';
-import { CreateTsWeeklyDto } from './dto/create-tsweekly.dto';
-import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
 import { TsDay } from '../tsday/tsday.entity';
@@ -27,9 +26,9 @@ import { signingViaEmail } from './docusign/send-email-sign';
 @EntityRepository(TsWeekly)
 export class TsWeeklyRepository extends Repository<TsWeekly> {
 
-  async createTsWeekly(tsUser: TsUser, createTsWeeklyDto: CreateTsWeeklyDto): Promise<void> {
+  async createTsWeekly(tsUser: TsUser, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<void> {
 
-    const { weekId } = createTsWeeklyDto;
+    const { weekId } = updateTsWeeklyDto;
 
     const tsWeekly = new TsWeekly();
     tsWeekly.weekId = weekId;
@@ -53,20 +52,14 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
   }
 
-  async updateTsWeeklyAdmin1() {
-
-
-
-    // return await this.update(
-    //   {
-    //     tsUser: isUserSupervisor.tsUser,
-    //     weekId: weekId
-    //   }, {
-    //     adminSigned: signed
-    //   });
-  }
-
   async updateTsWeeklyUser(token, basePath, accountId, tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
+
+    const exists = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
+
+    if(!exists){
+      updateTsWeeklyDto.weekId = weekId;
+      await this.createTsWeekly(tsUser, updateTsWeeklyDto);
+    }
 
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
@@ -94,7 +87,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     //
     // // const stuff = TsWeeklyService.createPdf(days, week);
     //
-    // const envelopeId = await this.sendEmail(args);
+    // const envelopeId = await TsWeeklyRepository.sendEmail(args);
     //
     // return ;
 
@@ -142,8 +135,9 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
           htmlArgs: htmlArgs,
         }
 
-      const envelopeId = await this.sendEmail(args);
-      signed = envelopeId.envelopeId.envolopeId.envelopeId;
+      const envelopeId = await TsWeeklyRepository.sendEmail(args);
+
+      signed = envelopeId.envelopeId;
 
       // TODO: GENERATE PREVIEW AND SAVE AS BLOB
 
@@ -167,7 +161,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
   }
 
   async updateTsWeeklyAdmin(envelopID: string, url: string): Promise<UpdateResult>  {
-
+    console.log(envelopID);
     return await this.update(
       {
         userSigned: envelopID
@@ -177,7 +171,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       });
   }
 
-  async sendEmail(args){
+  private static async sendEmail(args){
 
     // 2D-array holding the values of time spent on each project. As well the totals. Time in decimal
     const cellValues = [];

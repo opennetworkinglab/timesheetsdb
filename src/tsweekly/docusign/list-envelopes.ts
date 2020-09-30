@@ -16,8 +16,6 @@
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const docusign = require('docusign-esign');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const moment = require('moment');
 
 export const listEnvelopes = exports;
 let lastQueryDate = new Date();
@@ -30,7 +28,7 @@ listEnvelopes.worker = async (args) => {
 
   const envelopesApi = new docusign.EnvelopesApi(dsApiClient)
 
-  const options = { fromDate: moment().subtract(30, 'days').format(), fromToStatus:  'Completed'};
+  const options = { fromDate: lastQueryDate, fromToStatus:  'Completed'};
   lastQueryDate = new Date()
 
   return await envelopesApi.listStatusChanges(args.accountId, options);

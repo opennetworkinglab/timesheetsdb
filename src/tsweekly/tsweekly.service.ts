@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateResult } from 'typeorm';
 import { TsWeeklyRepository } from './tsweekly.repository';
@@ -63,6 +63,7 @@ export class TsWeeklyService {
 
   async updateTsWeeklyAdmin() {
 
+    const updates = 0;
     const token = await this.getDocusignToken();
     const basePath = this.configService.get<string>('DOCUSIGN_BASE_PATH');
     const accountId = this.configService.get<string>('DOCUSIGN_ACCOUNT_ID');
@@ -78,7 +79,11 @@ export class TsWeeklyService {
 
     const envelopes = await listEnvelopes.worker(args);
 
-    for (let i = 0; i < envelopes.resultSetSize; i++) {//envelopes.resultSetSize
+    if(Number(envelopes.resultSetSize) == 0){
+      throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
+    }
+
+    for (let i = 0; i < Number(envelopes.resultSetSize); i++) {//envelopes.resultSetSize
 
       args.envelopeId = envelopes.envelopes[i].envelopeId;
 
@@ -116,64 +121,12 @@ export class TsWeeklyService {
       // TODO: GENERATE PREVIEW
 
      const result = await this.tsWeeklyRepository.updateTsWeeklyAdmin(args.envelopeId, url);
-    }
-  }
 
-  // async checkSupervisorSigned() {
-  //
-  //   const token = await this.getDocusignToken();
-  //   const basePath = this.configService.get<string>('DOCUSIGN_BASE_PATH');
-  //   const accountId = this.configService.get<string>('DOCUSIGN_ACCOUNT_ID');
-  //
-  //   const args = {
-  //     basePath: basePath,
-  //     accessToken: token.data.access_token,
-  //     accountId: accountId,
-  //     envelopeId: null,
-  //     documentId: null,
-  //     envelopeDocuments: null
-  //   }
-  //
-  //   const envelopes = await listEnvelopes.worker(args);
-  //
-  //   for(let i = 0; i < 1; i++){//envelopes.resultSetSize
-  //
-  //     args.envelopeId = envelopes.envelopes[1].envelopeId;
-  //
-  //     const documents = await listEnvelopeDocuments.worker(args);
-  //
-  //     args.documentId = documents.envelopeDocuments[0].documentId;
-  //     args.envelopeDocuments = documents.envelopeDocuments;// -- array of {documentId, name, type}
-  //
-  //     const pdfDocument = await downloadDocument.worker(args);
-  //     console.log(pdfDocument.docName);
-  //     // writeFileSync('tes.pdf', new Buffer(pdfDocument.fileBytes, 'binary'));
-  //
-  //   }
-  //
-  //   return;
-  //
-  //   const envelopes = await listEnvelopes.worker(getEnvelopeArgs);
-  //
-  //
-  //   // GET envelopes from docusign - MIGHT BE ABLE TO GET JUST THE ONES NOT SIGNED BY SUPERVISOR
-  //   // LOOP
-  //     // SELECT tsuser and usersigned WHERE usersigned == envelopeId
-  //     // Generate Preview - BLOB
-  //     // save pdf to google drive - get file ID / Path location
-  //     // Update database with BLOB and ID / Path location
-  //
-  //   const args = {
-  //     name: 'World_Wide_Corp_lorem.pdf',
-  //     parents: ['1P1NdO2n-inmQz5WDBgoq5vA4SO11z__n'],
-  //     body: createReadStream('World_Wide_Corp_lorem.pdf')
-  //   }
-  //
-  //   const credentials = readFileSync('credentials.json');
-  //   const oAuth2Client = await gDriveAuth.authorize(JSON.parse(credentials.toString('utf8')));
-  //   const fileId  = await gDriveUpload.uploadFile(oAuth2Client, args);
-  //
-  // }
+     // TODO: LOOK AT RESULT / INCREMENT UPDATES
+    }
+
+    throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
+  }
 
   // public static async createPdf(days: TsDay[], week: TsWeek){
   //
