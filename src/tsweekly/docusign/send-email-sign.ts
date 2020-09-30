@@ -14,34 +14,29 @@
  * limitations under the License.
  */
 
-import { accountId, basePath } from '../../config/docusign.config';
+
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const docusign = require('docusign-esign');
 
 export const signingViaEmail = exports;
 
-signingViaEmail.controller = async (token: string, args) => {
+signingViaEmail.controller = async (args) => {
 
-  // Call the worker method
   const envelopeArgs = {
-      signerEmail: args.signerEmail,
-      signerName: args.signerName,
-      ccEmail: args.ccEmail,
-      ccName: args.ccName,
+      documentName: args.documentName,
       status: "sent",
       htmlArgs: args.htmlArgs
     },
     workerArgs = {
-      accessToken: token,
-      basePath: basePath,
-      accountId: accountId,
+      accessToken: args.accessToken,
+      basePath: args.basePath,
+      accountId: args.accountId,
       envelopeArgs: envelopeArgs,
     }
 
   try {
     return await signingViaEmail.worker(workerArgs)
-
 
   } catch (error) {
     console.log(error);
@@ -70,21 +65,12 @@ signingViaEmail.worker = async (args) => {
 
 function makeEnvelope(args){
 
-  // The envelope has two recipients.
-  // recipient 1 - signer
-  // recipient 2 - cc
-  // The envelope will be sent first to the signer.
-  // After it is signed, a copy is sent to the cc person.
-
-  // Create the envelope definition
   const env = new docusign.EnvelopeDefinition();
   env.emailSubject = 'Please sign this document set';
 
-  // add the documents
   const doc1 = new docusign.Document();
-
   doc1.documentBase64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
-  doc1.name = 'Time sheet acknowledgement';
+  doc1.name = args.documentName; // TODO :  ADD NAME
   doc1.fileExtension = 'html';
   doc1.documentId = '1';
 
@@ -163,14 +149,17 @@ function htmlPage(args) {
         </head>
         
         <body style="font-family:sans-serif;margin-left:2em;">
+        
         <h1 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
-            color: darkblue;margin-bottom: 0;">${args.signerName}: ${args.signerEmail}</h1>
+            color: darkblue;margin-bottom: 0;">${args.submitterName}: ${args.submitterEmail}</h1>
+            
         <h2 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
           margin-top: 0;margin-bottom: 3.5em;font-size: 1em;
           color: darkblue;">Timesheet Week no: ${args.week.weekNo}</h2>
+          
         <h4>Week: ${args.week.begin} - ${args.week.end}</h4>
-        <p style="margin-top:0; margin-bottom:0;">Email: ${args.signerEmail}</p>
-        <p style="margin-top:0; margin-bottom:0;">Copy to: ${args.ccName}, ${args.ccEmail}</p>
+        
+        <p style="margin-top:0; margin-bottom:0;">Supervisor: ${args.supervisorName}, ${args.supervisorEmail}</p>
         
         <table style="width: 100%; font-family:sans-serif;text-align: center;border-spacing:2px;border-color:grey;line-height:1.5;">
         

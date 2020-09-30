@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { TsWeeklyService } from './tsweekly.service';
 import { TsWeekly } from './tsweekly.entity';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
@@ -41,6 +41,12 @@ export class TsWeeklyController {
     return this.tsWeeklyService.getTsWeekly(tsUser);
   }
 
+  @Post('supervisorandupdate')
+  checkSupervisorSignedAndUpdate(){
+
+    this.tsWeeklyService.updateTsWeeklyAdmin()
+  }
+
   @Patch(':weekId')
   UpdateTsWeeklyUser(@GetTsUser() tsUser: TsUser,
                      @Param('weekId') weekId,
@@ -48,13 +54,13 @@ export class TsWeeklyController {
     return this.tsWeeklyService.updateTsWeeklyUser(tsUser, weekId, updateTsWeeklyDto);
   }
 
-  @Patch(':emailId/:weekId/')
-  UpdateTsWeeklyAdmin(@GetTsUser() tsUser: TsUser,
-                      @Param('emailId') emailId,
-                      @Param('weekId') weekId,
-                      @Body() updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
-    return this.tsWeeklyService.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
-  }
+  // @Patch(':emailId/:weekId/') // no auth
+  // UpdateTsWeeklyAdmin(@GetTsUser() tsUser: TsUser,
+  //                     @Param('emailId') emailId,
+  //                     @Param('weekId') weekId,
+  //                     @Body() updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
+  //   return this.tsWeeklyService.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
+  // }
 
   // @Get(':emailId')
   // getTsweeklyById(@Param('emailId') emailId): Promise<TsWeekly[]> {

@@ -53,7 +53,20 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
   }
 
-  async updateTsWeeklyUser(token, tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
+  async updateTsWeeklyAdmin1() {
+
+
+
+    // return await this.update(
+    //   {
+    //     tsUser: isUserSupervisor.tsUser,
+    //     weekId: weekId
+    //   }, {
+    //     adminSigned: signed
+    //   });
+  }
+
+  async updateTsWeeklyUser(token, basePath, accountId, tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
 
     const tsWeeklySigned = await this.findOne({ where: { tsUser: tsUser, weekId: weekId } })
 
@@ -63,17 +76,20 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     // const admin = await getConnection().getRepository(TsUser).findOne({ where: { email: tsUser.supervisorEmail }})
     //
     // const htmlArgs = {
-    //   submitterEmail: tsUser.email,
-    //   submitterName: tsUser.firstName + " " + tsUser.lastName,
-    //   supervisorEmail: admin.email,
-    //   supervisorName: admin.firstName + " " + admin.lastName,
-    //   week: week,
-    //   hours: null
+    //     submitterEmail: tsUser.email,
+    //     submitterName: tsUser.firstName + " " + tsUser.lastName,
+    //     supervisorEmail: admin.email,
+    //     supervisorName: admin.firstName + " " + admin.lastName,
+    //     days: days,
+    //     week: week,
+    //     hours: null
     //   },
     //   args = {
     //     days: days,
-    //     token: token,
-    //     htmlArgs: htmlArgs
+    //     basePath: basePath,
+    //     accountId: accountId,
+    //     accessToken: token,
+    //     htmlArgs: htmlArgs,
     //   }
     //
     // // const stuff = TsWeeklyService.createPdf(days, week);
@@ -89,7 +105,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       throw new BadRequestException("Admin has signed");
     }
 
-    let { document, preview, userSigned } = updateTsWeeklyDto;
+    let { preview, userSigned } = updateTsWeeklyDto;
 
     // check user has requested to sign and if its already been signed
     if(userSigned && tsWeeklySigned.userSigned){
@@ -107,9 +123,10 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       const days = await getConnection().getRepository(TsDay).find({ where: { tsUser: tsUser, weekId: weekId }})
       const admin = await getConnection().getRepository(TsUser).findOne({ where: { email: tsUser.supervisorEmail }})
 
+      // args for document generation. The document to be signed
       const htmlArgs = {
-        signerEmail: tsUser.email,
-        signerName: tsUser.firstName + " " + tsUser.lastName,
+        submitterEmail: tsUser.email,
+        submitterName: tsUser.firstName + " " + tsUser.lastName,
         supervisorEmail: admin.email,
         supervisorName: admin.firstName + " " + admin.lastName,
         days: days,
@@ -117,19 +134,21 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
         hours: null
         },
         args = {
+          documentName: tsUser.firstName + " " + tsUser.lastName + "_" + TsWeeklyRepository.dateFormat(week.begin) + "-" + TsWeeklyRepository.dateFormat(week.end),
           days: days,
-          htmlArgs: htmlArgs
+          basePath: basePath,
+          accountId: accountId,
+          accessToken: token,
+          htmlArgs: htmlArgs,
         }
-
-      // const stuff = await TsWeeklyService.createPdf(days, week);
 
       const envelopeId = await this.sendEmail(args);
       signed = envelopeId.envelopeId.envolopeId.envelopeId;
+
+      // TODO: GENERATE PREVIEW AND SAVE AS BLOB
+
     }
     else{
-
-      // save document to backup
-      document = null;
 
       preview = null;
 
@@ -142,58 +161,25 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
         tsUser: tsUser,
         weekId: weekId
       }, {
-        document: document,
         preview: preview,
         userSigned: signed
     });
   }
 
-  async updateTsWeeklyAdmin(tsUserAdmin: TsUser, emailId: string, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
-
-    if(!tsUserAdmin.isSupervisor){
-      throw new UnauthorizedException();
-    }
-
-    let signed;
-    const getUser = new TsUser();
-    getUser.email = emailId;
-
-    const isUserSupervisor = await this.findOne({ where: { tsUser: emailId, weekId: weekId } });
-
-    if(String(isUserSupervisor.tsUser) !== tsUserAdmin.email && !isUserSupervisor.userSigned){
-      throw new UnauthorizedException();
-    }
-
-    const { adminSigned } = updateTsWeeklyDto;
-
-    // check admin has requested to sign and if its already been signed
-    if(adminSigned && isUserSupervisor.adminSigned){
-      throw new BadRequestException("Already signed");
-    }
-
-    // check admin has requested to unsign and if it is not signed
-    if(!adminSigned && !isUserSupervisor.adminSigned){
-      throw new BadRequestException("Has not been signed");
-    }
-
-    if(adminSigned){
-      signed = new Date();
-    }
-    else {
-      signed = null;
-    }
+  async updateTsWeeklyAdmin(envelopID: string, url: string): Promise<UpdateResult>  {
 
     return await this.update(
       {
-        tsUser: isUserSupervisor.tsUser,
-        weekId: weekId
+        userSigned: envelopID
       }, {
-        adminSigned: signed
+        document: url,
+        adminSigned: true
       });
   }
 
   async sendEmail(args){
 
+    // 2D-array holding the values of time spent on each project. As well the totals. Time in decimal
     const cellValues = [];
     for(let i = 0; i < 7; i++){
 
@@ -206,12 +192,14 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
       cellValues[i][4] = args.days[i].holidayMins / 60
       cellValues[i][5] = (args.days[i].darpaMins / 60) + (args.days[i].nonDarpaMins / 60) + (args.days[i].sickMins / 60) + (args.days[i].ptoMins / 60) + (args.days[i].holidayMins / 60);
     }
+    // project total across all days
     cellValues[7] = [];
     for(let i = 0; i < 6; i++){
 
       cellValues[7][i] = cellValues[0][i] + cellValues[1][i] + cellValues[2][i] + cellValues[3][i] +
         cellValues[4][i] + cellValues[5][i] + cellValues[6][i];
     }
+    // converting the times to string format
     for(let i = 0; i < cellValues.length; i++){
       for(let j = 0; j < cellValues[i].length; j++){
 
@@ -223,10 +211,10 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     args.htmlArgs.week.begin = TsWeeklyRepository.dateFormat(args.htmlArgs.week.begin);
     args.htmlArgs.week.end = TsWeeklyRepository.dateFormat(args.htmlArgs.week.end);
 
-    return await signingViaEmail.controller(args.token.data.access_token, args);
+    return await signingViaEmail.controller(args);
   }
 
-  private static dateFormat(date: string): string{
+  private static dateFormat(date): string{
 
     const dateArr = date.split("-");
 
