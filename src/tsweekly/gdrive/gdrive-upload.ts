@@ -14,28 +14,30 @@
  * limitations under the License.
  */
 
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateTsWeeklyDto {
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {google} = require('googleapis');
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  weekId: number
+export const gDriveUpload = exports;
 
-  @ApiProperty()
-  @IsString()
-  document: string
+gDriveUpload.upload = async (auth, args) => {
 
-  @ApiProperty()
-  preview: string
+  const fileMetadata = {
+    'name': args.name,
+    parents: args.parents
+  };
 
-  @ApiProperty()
-  @IsDate()
-  userSigned: boolean
+  const media = {
+    mimeType: 'image/pdf',
+    body: args.body
+  };
 
-  @ApiProperty()
-  @IsDate()
-  adminSigned: boolean
+  const drive = google.drive({ version: 'v3', auth: auth });
+
+  const file = await drive.files.create({
+    resource: fileMetadata,
+    media: media,
+    fields: 'id'
+  });
+  return file//.data.id
 }

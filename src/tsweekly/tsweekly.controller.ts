@@ -24,47 +24,27 @@ import { TsUser } from '../auth/tsuser.entity';
 import { UpdateResult } from 'typeorm';
 
 @Controller('tsweekly')
-@UseGuards(AuthGuard())
 export class TsWeeklyController {
 
   constructor(private tsWeeklyService: TsWeeklyService) {}
 
-  // @Post()
-  // createTsWeekly(@GetTsUser() tsUser: TsUser,
-  //                @Body() createTsWeeklyDto: CreateTsWeeklyDto,
-  // ): Promise<void> {
-  //   return this.tsWeeklyService.createTsWeekly(tsUser, createTsWeeklyDto);
-  // }
 
-  @Get()
+  @Get(':emailId')
+  @UseGuards(AuthGuard())
   getTsWeekly(@GetTsUser() tsUser: TsUser): Promise<TsWeekly[]> {
     return this.tsWeeklyService.getTsWeekly(tsUser);
   }
 
-  @Patch(':weekId')
+  @Patch(':emailId/:weekId')
+  @UseGuards(AuthGuard())
   UpdateTsWeeklyUser(@GetTsUser() tsUser: TsUser,
                      @Param('weekId') weekId,
                      @Body() updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
     return this.tsWeeklyService.updateTsWeeklyUser(tsUser, weekId, updateTsWeeklyDto);
   }
 
-  @Patch(':emailId/:weekId/')
-  UpdateTsWeeklyAdmin(@GetTsUser() tsUser: TsUser,
-                      @Param('emailId') emailId,
-                      @Param('weekId') weekId,
-                      @Body() updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
-    return this.tsWeeklyService.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
+  @Get('admin/update') // no auth
+  UpdateTsWeeklyAdmin() {
+    return this.tsWeeklyService.updateTsWeeklyAdmin();
   }
-
-  // @Get(':emailId')
-  // getTsweeklyById(@Param('emailId') emailId): Promise<TsWeekly[]> {
-  //   return this.tsWeeklyService.getTsweeklyById(emailId);
-  // }
-  //
-  // @Post()
-  // createTsweekly(@Body('email', EmailValidationPipe) email,
-  //                @Body() createTsweeklyDto: CreateTsweeklyDto): Promise<void> {
-  //   return this.tsWeeklyService.createTsweekly(createTsweeklyDto);
-  // }
-  //
 }

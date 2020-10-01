@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateResult } from 'typeorm';
 import { TsWeeklyRepository } from './tsweekly.repository';
 import { TsWeekly } from './tsweekly.entity';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
-import { UpdateResult } from 'typeorm';
 import { TsUser } from '../auth/tsuser.entity';
 import { readFileSync } from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { gDriveAuth } from './gdrive/gdrive-auth';
+import { gDriveUpload } from './gdrive/gdrive-upload';
+import { listEnvelopes } from './docusign/list-envelopes';
+import { listEnvelopeDocuments } from './docusign/list-envelope-documents';
+import { downloadDocument } from './docusign/download-document';
+import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
-import { ConfigService } from '@nestjs/config';
 
 // const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
-
 
 @Injectable()
 export class TsWeeklyService {
@@ -49,13 +54,78 @@ export class TsWeeklyService {
 
   async updateTsWeeklyUser(tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
 
-    const token = await this.getToken();
+    const token = await this.getDocusignToken();
+    const basePath = this.configService.get<string>('DOCUSIGN_BASE_PATH');
+    const accountId = this.configService.get<string>('DOCUSIGN_ACCOUNT_ID');
 
-    return await this.tsWeeklyRepository.updateTsWeeklyUser(token, tsUser, weekId, updateTsWeeklyDto);
+    return await this.tsWeeklyRepository.updateTsWeeklyUser(token.data.access_token, basePath, accountId, tsUser, weekId, updateTsWeeklyDto);
   }
 
-  async updateTsWeeklyAdmin(tsUser: TsUser, emailId: string, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
-    return this.tsWeeklyRepository.updateTsWeeklyAdmin(tsUser, emailId, weekId, updateTsWeeklyDto);
+  async updateTsWeeklyAdmin() {
+
+    const updates = 0;
+    const token = await this.getDocusignToken();
+    const basePath = this.configService.get<string>('DOCUSIGN_BASE_PATH');
+    const accountId = this.configService.get<string>('DOCUSIGN_ACCOUNT_ID');
+
+    const args = {
+      basePath: basePath,
+      accessToken: token.data.access_token,
+      accountId: accountId,
+      envelopeId: null,
+      documentId: null,
+      envelopeDocuments: null
+    }
+
+    const envelopes = await listEnvelopes.worker(args);
+
+    if(Number(envelopes.resultSetSize) == 0){
+      throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
+    }
+
+    for (let i = 0; i < Number(envelopes.resultSetSize); i++) {//envelopes.resultSetSize
+
+      args.envelopeId = envelopes.envelopes[i].envelopeId;
+
+      const documents = await listEnvelopeDocuments.worker(args);
+
+      args.documentId = documents.envelopeDocuments[0].documentId;
+      args.envelopeDocuments = documents.envelopeDocuments;
+
+      const pdfDocument = await downloadDocument.worker(args);
+
+      const readableInstanceStream = new Readable({
+        read() {
+          this.push(Buffer.from(pdfDocument.fileBytes, 'binary'));
+          this.push(null);
+        }
+      });
+
+      const gDriveArgs = {
+        name: pdfDocument.docName,
+        parents: [this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')],
+        body: readableInstanceStream
+      }
+
+      const credentials = readFileSync('credentials.json');
+      const oAuth2Client = await gDriveAuth.authorize(JSON.parse(credentials.toString('utf8')));
+
+      const file  = await gDriveUpload.upload(oAuth2Client, gDriveArgs);
+
+      let url  = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+      const urlSplit = url.split('id');
+      url = urlSplit[0] + file.data.id + urlSplit[1];
+
+      console.log(file.data.id, url);
+
+      // TODO: GENERATE PREVIEW
+
+     const result = await this.tsWeeklyRepository.updateTsWeeklyAdmin(args.envelopeId, url);
+
+     // TODO: LOOK AT RESULT / INCREMENT UPDATES
+    }
+
+    throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
   }
 
   // public static async createPdf(days: TsDay[], week: TsWeek){
@@ -128,21 +198,21 @@ export class TsWeeklyService {
   //   writeFileSync('ss.pdf', pdfBytes); // writing the file locally
   // }
 
-  async getToken(){
+  async getDocusignToken(){
 
     const privateKey = readFileSync('private.key');
 
     const payload = {
-      "iss": this.configService.get<string>('ISS'),
-      "sub": this.configService.get<string>('SUB'),
+      "iss": this.configService.get<string>('DOCUSIGN_ISS'),
+      "sub": this.configService.get<string>('DOCUSIGN_SUB'),
       "name": this.configService.get<string>('NAME'),
-      "aud": this.configService.get<string>('AUD'),
+      "aud": this.configService.get<string>('DOCUSIGN_AUD'),
       "iat": Math.floor(new Date().getTime() / 1000),
       "exp": Math.floor((new Date().getTime() + 1000000) / 1000),
-      "scope": this.configService.get<string>('SCOPE')
+      "scope": this.configService.get<string>('DOCUSIGN_SCOPE')
     }
 
-    const tokenUrl = this.configService.get<string>('TOKEN_URL');
+    const tokenUrl = this.configService.get<string>('DOCUSIGN_TOKEN_URL');
 
     const jwtToken = jwt.sign(payload, privateKey, {
       algorithm: 'RS256',

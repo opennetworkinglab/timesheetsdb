@@ -30,8 +30,8 @@ export class TsDayController {
 
   constructor(private tsDayService: TsDayService) {}
 
-  @Get()
-  getTsDays(@GetTsUser() tsUser: TsUser, @Body('weekId') weekId): Promise<TsDay[]> {
+  @Get(':emailId/:weekId')
+  getTsDays(@GetTsUser() tsUser: TsUser, @Param('weekId') weekId): Promise<TsDay[]> {
     return this.tsDayService.getTsDays(tsUser, weekId);
   }
 

@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty } from 'class-validator';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const docusign = require('docusign-esign');
 
-export class CreateTsWeeklyDto {
+// noinspection UnnecessaryLocalVariableJS
+export const listEnvelopeDocuments = exports;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  weekId: number
+listEnvelopeDocuments.worker = async (args) => {
+
+  const dsApiClient = new docusign.ApiClient();
+  dsApiClient.setBasePath(args.basePath);
+  dsApiClient.addDefaultHeader('Authorization', 'Bearer ' + args.accessToken);
+  
+  const envelopesApi = new docusign.EnvelopesApi(dsApiClient);
+
+  return  await envelopesApi.listDocuments(args.accountId, args.envelopeId, null);
 }

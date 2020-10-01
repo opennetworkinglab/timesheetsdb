@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsInt, IsNotEmpty, IsString } from 'class-validator';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const docusign = require('docusign-esign');
 
-export class UpdateTsWeeklyDto {
+export const listEnvelopes = exports;
+let lastQueryDate = new Date();
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  weekId: number
+listEnvelopes.worker = async (args) => {
 
-  @ApiProperty()
-  @IsString()
-  document: string
+  const dsApiClient = new docusign.ApiClient();
+  dsApiClient.setBasePath(args.basePath);
+  dsApiClient.addDefaultHeader('Authorization', 'Bearer ' + args.accessToken);
 
-  @ApiProperty()
-  preview: string
+  const envelopesApi = new docusign.EnvelopesApi(dsApiClient)
 
-  @ApiProperty()
-  @IsDate()
-  userSigned: boolean
+  const options = { fromDate: lastQueryDate, fromToStatus:  'Completed'};
+  lastQueryDate = new Date()
 
-  @ApiProperty()
-  @IsDate()
-  adminSigned: boolean
+  return await envelopesApi.listStatusChanges(args.accountId, options);
 }
