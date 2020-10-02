@@ -81,7 +81,7 @@ function makeEnvelope(args){
 
   const doc1 = new docusign.Document();
   doc1.documentBase64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
-  doc1.name = "args.documentName"; // TODO :  ADD NAME
+  doc1.name = args.documentName;
   doc1.fileExtension = 'html';
   doc1.documentId = '1';
 

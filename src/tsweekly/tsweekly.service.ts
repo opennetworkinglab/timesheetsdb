@@ -21,7 +21,7 @@ import { TsWeeklyRepository } from './tsweekly.repository';
 import { TsWeekly } from './tsweekly.entity';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
-import { readFileSync } from 'fs';
+import { createReadStream, readFileSync } from 'fs';
 import { ConfigService } from '@nestjs/config';
 import { gDriveAuth } from './gdrive/gdrive-auth';
 import { gDriveUpload } from './gdrive/gdrive-upload';
@@ -31,6 +31,7 @@ import { downloadDocument } from './docusign/download-document';
 import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
+import { fromBuffer } from 'pdf2pic';
 
 // const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
@@ -63,7 +64,7 @@ export class TsWeeklyService {
 
   async updateTsWeeklyAdmin() {
 
-    const updates = 0;
+    let updates = 0;
     const token = await this.getDocusignToken();
     const basePath = this.configService.get<string>('DOCUSIGN_BASE_PATH');
     const accountId = this.configService.get<string>('DOCUSIGN_ACCOUNT_ID');
@@ -80,6 +81,7 @@ export class TsWeeklyService {
     const envelopes = await listEnvelopes.worker(args);
 
     if(Number(envelopes.resultSetSize) == 0){
+      // I am a teapot!
       throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
     }
 
@@ -104,27 +106,52 @@ export class TsWeeklyService {
       const gDriveArgs = {
         name: pdfDocument.docName,
         parents: [this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')],
-        body: readableInstanceStream
+        mimeType: 'image/pdf',
+        body: readableInstanceStream  // 20200217 2020-02-17
       }
 
       const credentials = readFileSync('credentials.json');
       const oAuth2Client = await gDriveAuth.authorize(JSON.parse(credentials.toString('utf8')));
 
-      const file  = await gDriveUpload.upload(oAuth2Client, gDriveArgs);
+      let file  = await gDriveUpload.upload(oAuth2Client, gDriveArgs);
 
       let url  = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
-      const urlSplit = url.split('id');
+      let urlSplit = url.split('id');
       url = urlSplit[0] + file.data.id + urlSplit[1];
-
-      console.log(file.data.id, url);
 
       // TODO: GENERATE PREVIEW
 
-     const result = await this.tsWeeklyRepository.updateTsWeeklyAdmin(args.envelopeId, url);
+      url  = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');;
+      urlSplit = url.split('id');
+      const preview = urlSplit[0] + file.data.id + urlSplit[1];
 
-     // TODO: LOOK AT RESULT / INCREMENT UPDATES
+      let saveName = pdfDocument.docName.split('.');
+      saveName = saveName[0];
+
+      const image = fromBuffer(Buffer.from(pdfDocument.fileBytes, 'binary'), {
+        density: 100,
+        format: "png",
+        width: 600,
+        height: 600,
+        quality: 100,
+        saveFilename: saveName,
+        savePath: './images'
+      });
+      const imResult = await image(1);
+
+      gDriveArgs.name = imResult.name,
+      gDriveArgs.parents = ['1P1NdO2n-inmQz5WDBgoq5vA4SO11z__n'],
+      gDriveArgs.mimeType = 'image/png',
+      gDriveArgs. body = createReadStream('./images/' + imResult.name)
+
+      file  = await gDriveUpload.upload(oAuth2Client, gDriveArgs);
+
+      const result = await this.tsWeeklyRepository.updateTsWeeklyAdmin(args.envelopeId, url, preview);
+
+      updates +=  Number(result.affected);
     }
 
+    // I am a teapot!
     throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
   }
 

@@ -16,12 +16,22 @@
 
 import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
 import { TsWeekly } from './tsweekly.entity';
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { UpdateTsWeeklyDto } from './dto/update-tsweekly.dto';
 import { TsUser } from '../auth/tsuser.entity';
 import { TsDay } from '../tsday/tsday.entity';
 import { TsWeek } from '../tsweek/tsweek.entity';
 import { signingViaEmail } from './docusign/send-email-sign';
+import { listEnvelopeDocuments } from './docusign/list-envelope-documents';
+import { downloadDocument } from './docusign/download-document';
+import { fromBuffer } from 'pdf2pic';
+
+import { createReadStream, readFileSync } from 'fs';
+import { gDriveAuth } from './gdrive/gdrive-auth';
+import { gDriveUpload } from './gdrive/gdrive-upload';
+import { TsWeeklyService } from './tsweekly.service';
+import { Type } from 'class-transformer';
+
 
 @EntityRepository(TsWeekly)
 export class TsWeeklyRepository extends Repository<TsWeekly> {
@@ -45,11 +55,13 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
   async getTsWeekly(tsUser: TsUser): Promise<TsWeekly[]> {
 
-    return await this.find({ where: { tsUser: tsUser } });
+    const result =  await this.find({ where: { tsUser: tsUser } });
 
-    // Go through and convert blob
-    // blobToFile ( ... );
+    for(let i = 0; i < result.length; i++){
+      result[i].preview = 'data:image/png;base64,' + result[i].preview;
+    }
 
+    return result;
   }
 
   async updateTsWeeklyUser(token, basePath, accountId, tsUser: TsUser, weekId: number, updateTsWeeklyDto: UpdateTsWeeklyDto): Promise<UpdateResult> {
@@ -127,7 +139,7 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
         hours: null
         },
         args = {
-          documentName: tsUser.firstName + " " + tsUser.lastName + "_" + TsWeeklyRepository.dateFormat(week.begin) + "-" + TsWeeklyRepository.dateFormat(week.end),
+          documentName: tsUser.firstName + "_" + tsUser.lastName + "_" + week.begin + "_" + week.end,
           days: days,
           basePath: basePath,
           accountId: accountId,
@@ -139,7 +151,52 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
 
       signed = envelopeId.envelopeId;
 
-      // TODO: GENERATE PREVIEW AND SAVE AS BLOB
+      const retrieveDocArgs = {
+        basePath: basePath,
+        accessToken: token,
+        accountId: accountId,
+        envelopeId: signed,
+        documentId: null,
+        envelopeDocuments: null
+      }
+
+      const documents = await listEnvelopeDocuments.worker(retrieveDocArgs);
+
+      retrieveDocArgs.documentId = documents.envelopeDocuments[0].documentId;
+      retrieveDocArgs.envelopeDocuments = documents.envelopeDocuments;
+
+      const pdfDocument = await downloadDocument.worker(retrieveDocArgs);
+      let saveName = pdfDocument.docName.split('.');
+      saveName = saveName[0];
+
+      const image = fromBuffer(Buffer.from(pdfDocument.fileBytes, 'binary'), {
+        density: 100,
+        format: "png",
+        width: 600,
+        height: 600,
+        quality: 100,
+        saveFilename: saveName,
+        savePath: './images'
+      });
+      const result = await image(1);
+
+
+      const gDriveArgs = {
+
+        name: result.name,
+        parents: ['1P1NdO2n-inmQz5WDBgoq5vA4SO11z__n'],
+        mimeType: 'image/png',
+        body: createReadStream('./images/' + result.name)
+      }
+
+      const credentials = readFileSync('credentials.json');
+      const oAuth2Client = await gDriveAuth.authorize(JSON.parse(credentials.toString('utf8')));
+
+      const file  = await gDriveUpload.upload(oAuth2Client, gDriveArgs);
+
+      const url  = 'https://drive.google.com/file/d/id/view';
+      const urlSplit = url.split('id');
+      preview = urlSplit[0] + file.data.id + urlSplit[1];
 
     }
     else{
@@ -160,12 +217,13 @@ export class TsWeeklyRepository extends Repository<TsWeekly> {
     });
   }
 
-  async updateTsWeeklyAdmin(envelopID: string, url: string): Promise<UpdateResult>  {
-    console.log(envelopID);
+  async updateTsWeeklyAdmin(envelopID: string, url: string, preview: string): Promise<UpdateResult>  {
+
     return await this.update(
       {
         userSigned: envelopID
       }, {
+        preview: preview,
         document: url,
         adminSigned: true
       });

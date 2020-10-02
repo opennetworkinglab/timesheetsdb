@@ -28,7 +28,6 @@ export class TsWeeklyController {
 
   constructor(private tsWeeklyService: TsWeeklyService) {}
 
-
   @Get(':emailId')
   @UseGuards(AuthGuard())
   getTsWeekly(@GetTsUser() tsUser: TsUser): Promise<TsWeekly[]> {

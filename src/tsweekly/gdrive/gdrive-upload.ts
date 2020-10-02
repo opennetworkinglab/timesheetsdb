@@ -28,7 +28,7 @@ gDriveUpload.upload = async (auth, args) => {
   };
 
   const media = {
-    mimeType: 'image/pdf',
+    mimeType: args.mimeType,
     body: args.body
   };
 
