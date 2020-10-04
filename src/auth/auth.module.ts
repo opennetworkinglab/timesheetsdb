@@ -15,25 +15,25 @@
  */
 
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TsUserRepository } from './tsuser.repository';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
+import { UserRepository } from './user.repository';
 
 @Module({
   imports: [
-    // create new token
+    // TODO: TOKEN CREATION. DELETE FOR PRODUCTION
     PassportModule.register({defaultStrategy: 'jwt'}),
     JwtModule.register({
     secret: 'test',
     signOptions: {
-      expiresIn: 3600
+      expiresIn: 86400
     },
     }),
-    TypeOrmModule.forFeature([TsUserRepository])
+    TypeOrmModule.forFeature([UserRepository])
   ],
   controllers: [AuthController],
   providers: [

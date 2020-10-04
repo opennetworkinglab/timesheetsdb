@@ -16,48 +16,60 @@
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TsUserRepository } from './tsuser.repository';
-import { CreateTsUserDto } from './dto/create-tsuser.dto';
+import { UserRepository } from './user.repository';
+import { CreateUserDto } from './dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayloadInterface } from './jwt-payload.interface';
-import { TsUser } from './tsuser.entity';
+import { User } from './user.entity';
 import { UpdateResult } from 'typeorm';
-import { UpdateTsUserDto } from './dto/update-tsuser.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
 
   constructor(
-    @InjectRepository(TsUserRepository)
-    private tsUserRepository: TsUserRepository,
+    @InjectRepository(UserRepository)
+    private userRepository: UserRepository,
     private jwtService: JwtService) {}
 
-  async createTsUser(tsUser: TsUser, createTsUserDto: CreateTsUserDto): Promise<void> {
+  async createUser(user: User, createUserDto: CreateUserDto): Promise<void> {
 
-    if(!tsUser.isSupervisor){
+    if(!user.isSupervisor || !user.isActive){
       throw new UnauthorizedException();
     }
 
-    return this.tsUserRepository.createTsUser(tsUser, createTsUserDto);
+    return this.userRepository.createTsUser(createUserDto);
   }
 
-  async updateTsUser(tsUser: TsUser, emailId: string, updateTsUserDto: UpdateTsUserDto): Promise<UpdateResult> {
-    return this.tsUserRepository.updateTsUser(tsUser, emailId, updateTsUserDto);
+  // TODO: DELETE FOR PRODUCTION
+  async TEMPcreateUser(createUserDto: CreateUserDto): Promise<void> {
+
+    return this.userRepository.createTsUser(createUserDto);
   }
 
-  async getTsUsers(tsUser: TsUser): Promise<TsUser[]> {
-    return this.tsUserRepository.getTsUsers(tsUser);
+  async updateUser(user: User, emailId: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
+
+    if(!user.isSupervisor){
+      throw new UnauthorizedException();
+    }
+
+    return this.userRepository.updateUser(user, emailId, updateUserDto);
   }
 
-  // TEMP
-  async tempSignUp(createTsUserDto: CreateTsUserDto): Promise<void> {
-    return this.tsUserRepository.tempCreateTsUser(createTsUserDto);
+  async getUsers(user: User): Promise<User[]> {
+
+    if(!user.isSupervisor){
+      throw new UnauthorizedException();
+    }
+
+    return this.userRepository.getUsers(user);
   }
 
-  // TEMP
+
+  // TODO: DELETE FOR PRODUCTION
   async tempSignIn(email: string): Promise<{ accessToken: string }> {
 
-    const emailString = this.tsUserRepository.tempSignIn(email);
+    const emailString = this.userRepository.tempSignIn(email);
 
     if(!emailString) {
       throw new UnauthorizedException("Invalid");
@@ -68,5 +80,4 @@ export class AuthService {
 
     return { accessToken };
   }
-
 }

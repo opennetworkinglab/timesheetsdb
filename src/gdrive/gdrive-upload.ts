@@ -14,25 +14,30 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
 
-export class EmailValidationPipe implements PipeTransform{
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {google} = require('googleapis');
 
-  transform(value: string): any {
+export const gDriveUpload = exports;
 
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
+gDriveUpload.upload = async (auth, args) => {
 
-    return value
-  }
+  const fileMetadata = {
+    'name': args.name,
+    parents: args.parents
+  };
 
-  private static isValid (email: string){
+  const media = {
+    mimeType: args.mimeType,
+    body: args.body
+  };
 
-    const validArr = email.split('@');
+  const drive = google.drive({ version: 'v3', auth: auth });
 
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
-  }
+  const file = await drive.files.create({
+    resource: fileMetadata,
+    media: media,
+    fields: 'id'
+  });
+  return file//.data.id
 }

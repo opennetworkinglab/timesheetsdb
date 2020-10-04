@@ -15,18 +15,22 @@
  */
 
 import { Module } from '@nestjs/common';
-
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TsweekModule } from './tsweek/tsweek.module';
-import { TsWeeklyModule } from './tsweekly/tsweekly.module';
-import { TsDayModule } from './tsday/tsday.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ProjectModule } from './project/project.module';
+import { WeekModule } from './week/week.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TsUser } from './auth/tsuser.entity';
-import { TsDay } from './tsday/tsday.entity';
-import { TsWeek } from './tsweek/tsweek.entity';
-import { TsWeekly } from './tsweekly/tsweekly.entity';
-
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './auth/user.entity';
+import { Week } from './week/week.entity';
+import { Project } from './project/project.entity';
+import { DayModule } from './day/day.module';
+import { TimeModule } from './time/time.module';
+import { Day } from './day/day.entity';
+import { Time } from './time/time.entity';
+import { WeeklyModule } from './weekly/weekly.module';
+import { Weekly } from './weekly/weekly.entity';
 
 @Module({
   imports: [
@@ -39,12 +43,12 @@ import { TsWeekly } from './tsweekly/tsweekly.entity';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',// as 'postgres',
-        host: configService.get('DATABASE_HOST', 'localhost'),
+        host: configService.get<string>('DATABASE_HOST', 'localhost'),
         port: configService.get<number>('DATABASE_PORT', 5432),
-        username: configService.get('DATABASE_USER', 'postgres'),
-        password: configService.get('DATABASE_PASS', 'postgres'),
-        database: 'timesheets',
-        entities: [TsUser, TsDay, TsWeek, TsWeekly],
+        username: configService.get<string>('DATABASE_USER', 'postgres'),
+        password: configService.get<string>('DATABASE_PASS', 'postgres'),
+        database: configService.get<string>('DATABASE_NAME', 'timesheets'),
+        entities: [User, Week, Project, Day, Time, Weekly],
         // entities: [join(__dirname + '/../**/*.entity.{js,ts}')],
         synchronize: true,
       }),
@@ -52,10 +56,14 @@ import { TsWeekly } from './tsweekly/tsweekly.entity';
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    TsweekModule,
-    TsWeeklyModule,
-    TsDayModule,
     AuthModule,
+    ProjectModule,
+    WeekModule,
+    DayModule,
+    TimeModule,
+    WeeklyModule
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
