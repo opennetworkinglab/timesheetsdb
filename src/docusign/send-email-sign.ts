@@ -79,6 +79,8 @@ function makeEnvelope(args){
   notification.reminders = reminders;
   env.notification = notification;
 
+  // TODO: CHANGE TO ALLOW MULTIPLE DOCUMENTS IN ONE ENVELOPE.
+
   const doc1 = new docusign.Document();
   doc1.documentBase64 = Buffer.from(htmlPage(args.htmlArgs)).toString('base64');
   doc1.name = args.documentName;
@@ -135,7 +137,7 @@ function makeEnvelope(args){
 
 function htmlPage(args) {
 
-  // TODO: LOOK AT THIS FOR FULL WEEK
+  // TODO: LOOK AT THIS FOR FULL WEEK. Add functionality to deal with < 7 days
 
   let htmlDoc = `<!DOCTYPE html>
     <html lang="en">

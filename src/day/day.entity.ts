@@ -18,7 +18,7 @@ import {
   BaseEntity,
   Column,
   Entity,
-  JoinColumn, JoinTable, ManyToMany,
+  JoinColumn,
   ManyToOne, OneToMany,
   PrimaryGeneratedColumn,
   Unique,
@@ -60,4 +60,3 @@ export class Day extends BaseEntity {
   })
   times: Time[]
 }
-

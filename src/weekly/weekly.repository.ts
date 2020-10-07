@@ -118,6 +118,9 @@ export class WeeklyRepository extends Repository<Weekly> {
 
     const moveFile = await movePreviewToUnsigned(user, moveFileArgs);
 
+    if(moveFile.status !== 200){
+      console.log(moveFile);
+    }
 
     return await this.update(
       {
