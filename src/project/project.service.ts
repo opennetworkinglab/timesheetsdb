@@ -35,5 +35,4 @@ export class ProjectService {
 
     return this.projectRepository.createProject(createProjectDto);
   }
-
 }

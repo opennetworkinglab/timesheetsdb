@@ -36,5 +36,4 @@ export class DayService {
   async updateDay(user: User, dayId: Date, updateDayDto: UpdateDayDto): Promise<UpdateResult> {
     return await this.tsDayRepository.updateDay(user, dayId, updateDayDto)
   }
-
 }

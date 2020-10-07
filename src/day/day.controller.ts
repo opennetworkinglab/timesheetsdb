@@ -41,5 +41,4 @@ export class DayController {
                     @Body() updateDayDto: UpdateDayDto ): Promise<UpdateResult> {
     return this.dayService.updateDay(user, dayId, updateDayDto);
   }
-
 }

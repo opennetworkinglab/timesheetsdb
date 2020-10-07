@@ -14,15 +14,29 @@
  * limitations under the License.
  */
 
-export const formatMMDDYY = (date): string =>{
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {google} = require('googleapis');
 
-  const dateArr = date.split("-");
+export const upload = exports;
 
-  // month/day/year
-  return dateArr[1] + "-" + dateArr[2] + "-" +dateArr[0];
-}
+upload.worker = async (auth, args) => {
 
-export const formatArrayYYMMDD = (date): string => {
+  const fileMetadata = {
+    'name': args.name,
+    parents: args.parents
+  };
 
-  return date.split("-");
+  const media = {
+    mimeType: args.mimeType,
+    body: args.body
+  };
+
+  const drive = google.drive({ version: 'v3', auth: auth });
+
+  const file = await drive.files.create({
+    resource: fileMetadata,
+    media: media,
+    fields: 'id'
+  });
+  return file//.data.id
 }
