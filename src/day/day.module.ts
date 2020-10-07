@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { DayController } from './day.controller';
+import { DayService } from './day.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module';
+import { DayRepository } from './day.repository';
 
-export class EmailValidationPipe implements PipeTransform{
-
-  transform(value: string): any {
-
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
-
-    return value
-  }
-
-  private static isValid (email: string){
-
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
-  }
-}
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([DayRepository]),
+    AuthModule
+  ],
+  controllers: [DayController],
+  providers: [DayService]
+})
+export class DayModule {}

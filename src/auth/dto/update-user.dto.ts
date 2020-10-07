@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
-export class EmailValidationPipe implements PipeTransform{
+export class UpdateUserDto {
 
-  transform(value: string): any {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  supervisorEmail: string
 
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  darpaAllocationPct: number
 
-    return value
-  }
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
+  isSupervisor: boolean
 
-  private static isValid (email: string){
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
+  isActive: boolean
 
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
-  }
+  @ApiProperty()
+  @IsNotEmpty()
+  projects: string[]
 }

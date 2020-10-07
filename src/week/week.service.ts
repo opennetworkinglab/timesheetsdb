@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { WeekRepository } from './week.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FilterWeekDto } from './dto/filter-week.dto';
+import { Week } from './week.entity';
 
-export class EmailValidationPipe implements PipeTransform{
+@Injectable()
+export class WeekService {
 
-  transform(value: string): any {
+  constructor(
+    @InjectRepository(WeekRepository)
+    private weekRepository: WeekRepository) {}
 
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
-
-    return value
+  async getWeek(filterWeekDto: FilterWeekDto): Promise<Week[]> {
+    return this.weekRepository.getWeeks(filterWeekDto);
   }
 
-  private static isValid (email: string){
-
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
+  async getWeekById(id: number):Promise<Week> {
+    return this.weekRepository.getWeekById(id);
   }
 }

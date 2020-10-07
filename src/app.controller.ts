@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
 
-export class EmailValidationPipe implements PipeTransform{
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
 
-  transform(value: string): any {
-
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
-
-    return value
-  }
-
-  private static isValid (email: string){
-
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
   }
 }

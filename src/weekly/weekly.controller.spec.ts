@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { WeeklyController } from './weekly.controller';
 
-export class EmailValidationPipe implements PipeTransform{
+describe('WeeklyController', () => {
+  let controller: WeeklyController;
 
-  transform(value: string): any {
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [WeeklyController],
+    }).compile();
 
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
+    controller = module.get<WeeklyController>(WeeklyController);
+  });
 
-    return value
-  }
-
-  private static isValid (email: string){
-
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
-  }
-}
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});

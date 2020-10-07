@@ -14,37 +14,26 @@
  * limitations under the License.
  */
 
-import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, ExtractJwt } from 'passport-jwt'
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtPayloadInterface } from './jwt-payload.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserRepository } from './user.repository';
-import { ConfigService } from '@nestjs/config';
+import { ProjectRepository } from './project.repository';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { User } from '../auth/user.entity';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class ProjectService {
 
   constructor(
-    @InjectRepository(UserRepository)
-    private userRepository: UserRepository,
-    private configService: ConfigService){
+    @InjectRepository(ProjectRepository)
+    private projectRepository: ProjectRepository) {}
 
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get<string>('AUTHENTICATION_SECRET'),
-    });
-  }
+  async createProject(user: User, createProjectDto: CreateProjectDto): Promise<void> {
 
-  async validate(payload: JwtPayloadInterface) {
-
-    const { email } = payload;
-    const user = await this.userRepository.findOne({ email });
-
-    if(!user || !user.isActive) {
+    if(!user.isSupervisor){
       throw new UnauthorizedException();
     }
 
-    return user;
+    return this.projectRepository.createProject(createProjectDto);
   }
+
 }

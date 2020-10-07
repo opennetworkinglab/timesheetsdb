@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { Day } from '../day/day.entity';
 
-export class EmailValidationPipe implements PipeTransform{
+@Entity('times')
+export class Time extends BaseEntity {
 
-  transform(value: string): any {
+  @ApiProperty()
+  @PrimaryGeneratedColumn({ name: 'time_id'})
+  id: number
 
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
+  @ApiProperty()
+  @Column()
+  name: string
 
-    return value
-  }
+  @ApiProperty()
+  @Column()
+  minutes: number
 
-  private static isValid (email: string){
-
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
-  }
+  @ApiProperty()
+  @ManyToOne(() => Day, day => day.times, { eager: false })
+  days: Day[]
 }

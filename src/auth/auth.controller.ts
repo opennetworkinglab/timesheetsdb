@@ -14,51 +14,79 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { EmailValidationPipe } from './pipes/email-validation.pipe';
-import { CreateTsUserDto } from './dto/create-tsuser.dto';
-import { AuthService } from './auth.service';
+import { Body, Controller, Get, Param, Patch, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { GetTsUser } from './get-tsuser.decorator';
-import { TsUser } from './tsuser.entity';
 import { UpdateResult } from 'typeorm';
-import { UpdateTsUserDto } from './dto/update-tsuser.dto';
+import { EmailValidationPipe } from './pipes/email-validation.pipe';
+import { AuthService } from './auth.service';
+import { GetUser } from './get-user.decorator';
+import { User } from './user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { gDriveAuth } from '../gdrive/gdrive-auth';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+              private configService: ConfigService) {}
 
   @Post('createuser')
   @UseGuards(AuthGuard())
-  createTsUser(@GetTsUser() tsUser: TsUser,
-               @Body('email', EmailValidationPipe)
-               @Body() createTsuserDto:  CreateTsUserDto): Promise<void> {
+  createUser(@GetUser() user: User,
+             @Body('email', EmailValidationPipe) email,
+             @Body() createUserDto:  CreateUserDto): Promise<void> {
 
-    return this.authService.createTsUser(tsUser, createTsuserDto);
+    return this.authService.createUser(user, createUserDto);
   }
 
-  @Post('tempcreateuser') // TEMP
-  tempCreateTsUser(@Body() createTsuserDto:  CreateTsUserDto): Promise<void> {
-    return this.authService.tempSignUp(createTsuserDto);
+  @Post('tempcreateuser') // TODO: TEMP USER CREATE. DELETE FRO PRODUCTION
+  tempCreateUser(@Body() createUserDto: CreateUserDto): Promise<void> {
+    return this.authService.TEMPcreateUser(createUserDto);
   }
 
-  @Post('tempsignin') // TEMP
+  @Post('tempsignin') // TODO: TEMP USER SIGNIN. DELETE FRO PRODUCTION
   tempSignIn(@Body('email') email): Promise<{ accessToken: string}> {
     return this.authService.tempSignIn(email);
   }
 
   @Patch(':emailId')
   @UseGuards(AuthGuard())
-  updateTsUser(@GetTsUser() tsUser: TsUser,
+  updateUser(@GetUser() tsUser: User,
                @Param('emailId') emailId,
-               @Body() updateTsUserDto: UpdateTsUserDto): Promise<UpdateResult> {
-    return this.authService.updateTsUser(tsUser, emailId, updateTsUserDto);
+               @Body() updateUserDto: UpdateUserDto): Promise<UpdateResult> {
+    return this.authService.updateUser(tsUser, emailId, updateUserDto);
   }
 
   @Get()
   @UseGuards(AuthGuard())
-  getTsUser(@GetTsUser() tsUser: TsUser): Promise<TsUser[]> {
-    return this.authService.getTsUsers(tsUser);
+  getUsers(@GetUser() user: User): Promise<User[]> {
+    return this.authService.getUsers(user);
+  }
+
+  @Get('google/auth/token')
+  @UseGuards(AuthGuard())
+  generateGoogleAuthToken(@GetUser() user: User){
+
+    if(!user.isSupervisor){
+      throw new UnauthorizedException("Not authorized");
+    }
+
+    const redirectUris = this.configService.get<string>('GOOGLE_REDIRECT_URIS').split(', ');
+
+    const credentials= {
+      "installed": {
+        "client_id": this.configService.get<string>('GOOGLE_CLIENT_ID'),
+        "project_id": this.configService.get<string>('GOOGLE_PROJECT_ID'),
+        "auth_uri": this.configService.get<string>('GOOGLE_AUTH_URI'),
+        "token_uri": this.configService.get<string>('GOOGLE_TOKEN_URI'),
+        "auth_provider_x509_cert_url": this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
+        "client_secret": this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
+        "redirect_uris": redirectUris
+      }
+    }
+
+    gDriveAuth.generateToken(credentials);
   }
 }

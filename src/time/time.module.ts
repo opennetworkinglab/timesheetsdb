@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { TimeService } from './time.service';
+import { TimeController } from './time.controller';
 
-export class EmailValidationPipe implements PipeTransform{
-
-  transform(value: string): any {
-
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
-
-    return value
-  }
-
-  private static isValid (email: string){
-
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
-  }
-}
+@Module({
+  providers: [TimeService],
+  controllers: [TimeController]
+})
+export class TimeModule {}

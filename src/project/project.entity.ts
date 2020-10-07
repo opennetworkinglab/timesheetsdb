@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { BaseEntity, Column, Entity, ManyToMany, PrimaryColumn, Unique } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../auth/user.entity';
 
-export class EmailValidationPipe implements PipeTransform{
+@Entity('project')
+@Unique('ProjectTitle', ['name'])
+export class Project extends BaseEntity {
 
-  transform(value: string): any {
+  @ApiProperty()
+  @PrimaryColumn()
+  name: string
 
-    if (!EmailValidationPipe.isValid(value)){
-      throw new BadRequestException(`email ${value}is not of opennetworking.org domain`);
-    }
+  @ApiProperty()
+  @Column()
+  priority: number
 
-    return value
-  }
-
-  private static isValid (email: string){
-
-    const validArr = email.split('@');
-
-    if(validArr[1].localeCompare('opennetworking.org') === 0){
-      return true;
-    }
-  }
+  @ApiProperty()
+  @ManyToMany(() => User, user => user.projects, { eager: false })
+  users: User[]
 }
