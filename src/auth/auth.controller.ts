@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateResult } from 'typeorm';
@@ -24,10 +25,11 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+
 @Controller('auth')
 export class AuthController {
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,) {}
 
   @Post('createuser')
   @UseGuards(AuthGuard())

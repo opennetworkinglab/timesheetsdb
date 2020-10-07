@@ -36,6 +36,16 @@ gDriveAuth.authorize = (credentials) => {
   oAuth2Client.setCredentials(JSON.parse(token.toString('utf8')));
 
   return oAuth2Client;
+}
+
+gDriveAuth.generateToken = (credentials) => {
+
+  const {client_secret, client_id, redirect_uris} = credentials.installed;
+
+  const oAuth2Client = new google.auth.OAuth2(
+    client_id, client_secret, redirect_uris[0]);
+
+  gDriveAuth.getAccessToken(oAuth2Client);
 
 }
 
@@ -59,6 +69,7 @@ gDriveAuth.getAccessToken = (oAuth2Client) => {
     oAuth2Client.getToken(code, (err, token) => {
       if (err) return console.error('Error retrieving access token', err);
       oAuth2Client.setCredentials(token);
+
       // Store the token to disk for later program executions
       writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
         if (err) return console.error(err);

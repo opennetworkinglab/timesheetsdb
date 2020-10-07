@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import { Module } from '@nestjs/common';
-import { DayController } from './day.controller';
-import { DayService } from './day.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from '../auth/auth.module';
-import { DayRepository } from './day.repository';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {google} = require('googleapis');
 
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([DayRepository]),
-    AuthModule
-  ],
-  controllers: [DayController],
-  providers: [DayService]
-})
-export class DayModule {}
+export const gDriveDeleteFile = exports;
+
+gDriveDeleteFile.find = async (auth, fileId) => {
+
+  const drive = google.drive({ version: 'v3', auth: auth });
+
+  drive.files.delete({
+    fileId: fileId
+  })
+}
+
+

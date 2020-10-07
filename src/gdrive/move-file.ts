@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-import { Module } from '@nestjs/common';
-import { DayController } from './day.controller';
-import { DayService } from './day.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from '../auth/auth.module';
-import { DayRepository } from './day.repository';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {google} = require('googleapis');
 
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([DayRepository]),
-    AuthModule
-  ],
-  controllers: [DayController],
-  providers: [DayService]
-})
-export class DayModule {}
+export const moveFile = exports;
+
+moveFile.worker = async (auth, args) => {
+
+  const drive = google.drive({ version: 'v3', auth: auth });
+
+  // Retrieve the existing parents to remove
+  const file = await drive.files.get({
+    fileId: args.fileId,
+    fields: 'parents'
+  });
+
+  const previousParents = file.parents.join(',');
+
+  return await drive.files.update({
+    fileId: args.fileId,
+    addParents: args.folderId,
+    removeParents: previousParents,
+    fields: 'id, parents'
+  });
+}
