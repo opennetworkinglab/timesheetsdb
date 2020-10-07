@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-export const dateFormatMDY = (date): string =>{
+export const formatMMDDYY = (date): string =>{
 
   const dateArr = date.split("-");
 
   // month/day/year
-  return dateArr[1] + "/" + dateArr[2] + "/" +dateArr[0] ;
+  return dateArr[1] + "-" + dateArr[2] + "-" +dateArr[0];
+}
+
+export const formatArrayYYMMDD = (date): string => {
+
+  return date.split("-");
 }

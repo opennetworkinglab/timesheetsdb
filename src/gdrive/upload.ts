@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const {google} = require('googleapis');
 
-export const gDriveUpload = exports;
+export const upload = exports;
 
-gDriveUpload.upload = async (auth, args) => {
+upload.worker = async (auth, args) => {
 
   const fileMetadata = {
     'name': args.name,

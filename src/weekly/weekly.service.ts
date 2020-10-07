@@ -30,19 +30,21 @@ import { createReadStream, readFileSync } from 'fs';
 import { listEnvelopes } from '../docusign/list-envelopes';
 import { listEnvelopeDocuments } from '../docusign/list-envelope-documents';
 import { downloadDocument } from '../docusign/download-document';
-import { gDriveAuth } from '../gdrive/gdrive-auth';
-import { gDriveUpload } from '../gdrive/gdrive-upload';
+import { auth } from '../gdrive/auth';
+import { upload } from '../gdrive/upload';
 
 // const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
 
+// noinspection DuplicatedCode
 @Injectable()
 export class WeeklyService {
 
   constructor(
     @InjectRepository(WeeklyRepository)
     private weeklyRepository: WeeklyRepository,
-    private configService: ConfigService) {}
+    private configService: ConfigService) {
+  }
 
   async createTsWeekly(): Promise<void> {
 
@@ -55,17 +57,30 @@ export class WeeklyService {
 
   async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {
 
-    const token = await this.getDocusignToken();
+    const { userSigned } = updateWeeklyDto;
 
-    const authArgs = {
-      docusignToken: token.data.access_token,
-      docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
-      docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
-      googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
-      googleShareUrl: this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE')
+    const googleCredentials = await this.getGoogleCredentials();
+
+    if(userSigned){
+
+
+      const token = await this.getDocusignToken();
+
+      const authArgs = {
+        docusignToken: token.data.access_token,
+        docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
+        docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
+        googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
+        googleShareUrl: this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE'),
+        googleCredentials: googleCredentials
+      }
+
+      const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
+
+      return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto);
     }
 
-    return await this.weeklyRepository.updateWeeklyUser(authArgs, user, weekId, updateWeeklyDto);
+    return await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, googleCredentials, updateWeeklyDto);
   }
 
   async updateWeeklyAdmin() {
@@ -86,13 +101,14 @@ export class WeeklyService {
 
     const envelopes = await listEnvelopes.worker(args);
 
-    if(Number(envelopes.resultSetSize) == 0){
+    if (Number(envelopes.resultSetSize) == 0) {
       // I am a teapot!
       throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
     }
 
     for (let i = 0; i < Number(envelopes.resultSetSize); i++) {//envelopes.resultSetSize
 
+      //-- Get envelope and download document
       args.envelopeId = envelopes.envelopes[i].envelopeId;
 
       const documents = await listEnvelopeDocuments.worker(args);
@@ -108,6 +124,12 @@ export class WeeklyService {
           this.push(null);
         }
       });
+      //-------
+
+      //-- Upload to Google
+      const credentials = this.getGoogleCredentials();
+      const oAuth2Client = await auth.authorize(credentials);
+
 
       const gDriveArgs = {
         name: pdfDocument.docName,
@@ -116,18 +138,15 @@ export class WeeklyService {
         body: readableInstanceStream  // 20200217 2020-02-17
       }
 
-      const credentials = readFileSync('credentials.json');
-      const oAuth2Client = await gDriveAuth.authorize(JSON.parse(credentials.toString('utf8')));
+      let file = await upload.upload(oAuth2Client, gDriveArgs);
 
-      let file  = await gDriveUpload.upload(oAuth2Client, gDriveArgs);
-
-      let url  = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+      let url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
       let urlSplit = url.split('id');
       url = urlSplit[0] + file.data.id + urlSplit[1];
 
       // TODO: GENERATE PREVIEW
 
-      url  = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');;
+      url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
       urlSplit = url.split('id');
       const preview = urlSplit[0] + file.data.id + urlSplit[1];
 
@@ -145,25 +164,42 @@ export class WeeklyService {
       });
       const imResult = await image(1);
 
-      gDriveArgs.name = imResult.name,
-        gDriveArgs.parents = ['1P1NdO2n-inmQz5WDBgoq5vA4SO11z__n'],
-        gDriveArgs.mimeType = 'image/png',
-        gDriveArgs. body = createReadStream('./images/' + imResult.name)
+      gDriveArgs.name = imResult.name;
+      gDriveArgs.parents = ['1P1NdO2n-inmQz5WDBgoq5vA4SO11z__n'];
+      gDriveArgs.mimeType = 'image/png';
+      gDriveArgs.body = createReadStream('./images/' + imResult.name);
 
-      file  = await gDriveUpload.upload(oAuth2Client, gDriveArgs);
+      file = await upload.upload(oAuth2Client, gDriveArgs);
 
       const result = await this.weeklyRepository.updateWeeklyAdmin(args.envelopeId, url, preview);
 
-      updates +=  Number(result.affected);
+      updates += Number(result.affected);
     }
 
     // I am a teapot!
     throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
   }
 
-  async getDocusignToken(){
+  async getGoogleCredentials() {
 
-    const privateKey = readFileSync('private.key');
+    const redirectUris = this.configService.get<string>('GOOGLE_REDIRECT_URIS').split(', ');
+
+    return {
+      "installed": {
+        "client_id": this.configService.get<string>('GOOGLE_CLIENT_ID'),
+        "project_id": this.configService.get<string>('GOOGLE_PROJECT_ID'),
+        "auth_uri": this.configService.get<string>('GOOGLE_AUTH_URI'),
+        "token_uri": this.configService.get<string>('GOOGLE_TOKEN_URI'),
+        "auth_provider_x509_cert_url": this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
+        "client_secret": this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
+        "redirect_uris": redirectUris
+      }
+    }
+  }
+
+  async getDocusignToken() {
+
+    const privateKey = readFileSync('docusignPrivate.key');
 
     const payload = {
       "iss": this.configService.get<string>('DOCUSIGN_ISS'),
@@ -187,4 +223,5 @@ export class WeeklyService {
       }
     );
   }
+
 }

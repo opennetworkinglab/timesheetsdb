@@ -6,7 +6,7 @@ VALUES ('sean@opennetworking.org', 'Sean', 'Condon', 'ain@opennetworking.org', 1
 
 -- TsWeeks is populated by the application
 
-INSERT INTO tsdays (email, day, week_id, darpa_mins, non_darpa_mins, sick_mins, holiday_mins, pto_mins)
+INSERT INTO tsdays (email, day, week_id, time_name, minutes)
 VALUES ('sean@opennetworking.org', '2020-08-31', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
 ('sean@opennetworking.org', '2020-09-01', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
 ('sean@opennetworking.org', '2020-09-02', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-08-31' AND '2020-09-01'),480, 0, 0, 0, 0),
@@ -40,3 +40,6 @@ VALUES ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '
        ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-07' AND '2020-09-08'), '2020-09-17T11:00:00', null, 'preview url2', 'document url2'),
        ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-14' AND '2020-09-15'), '2020-09-21T11:08:00', null, 'preview url3', 'document url3'),
        ('sean@opennetworking.org', (SELECT id FROM tsweeks WHERE begin BETWEEN '2020-09-21' AND '2020-09-22'), '2020-09-28T11:10:00', null, 'preview url4', 'document url4');
+
+INSERT INTO times(name, minutes)
+VALUES('Sick', 100);
