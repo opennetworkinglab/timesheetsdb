@@ -19,6 +19,11 @@ const {google} = require('googleapis');
 
 export const moveFile = exports;
 
+/**
+ *
+ * @param auth
+ * @param args .fileID google file id .folderId id of new parent folder
+ */
 moveFile.worker = async (auth, args) => {
 
   const drive = google.drive({ version: 'v3', auth: auth });
@@ -29,7 +34,7 @@ moveFile.worker = async (auth, args) => {
     fields: 'parents'
   });
 
-  const previousParents = file.parents.join(',');
+  const previousParents = file.data.parents.join(',');
 
   return await drive.files.update({
     fileId: args.fileId,

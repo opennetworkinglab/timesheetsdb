@@ -26,10 +26,9 @@ import { fromBuffer } from 'pdf2pic';
 import { createReadStream } from "fs";
 import { auth } from '../../../gdrive/auth';
 import { upload } from '../../../gdrive/upload';
-import { getUserAndContentFolderIds } from '../../../gdrive/util/get-user-and-content-folder-ids';
 import { formatArrayYYMMDD } from '../../../util/date/date-formating';
 import { tmpdir } from 'os';
-
+import { getUserContentFolderIds } from '../../../gdrive/util/get-user-content-folder-ids';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.
@@ -114,7 +113,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
     parent: googleParent
   }
 
-  const results = await getUserAndContentFolderIds(oAuth2Client, args, args.searchTerm.length - 1);
+  const results = await getUserContentFolderIds(oAuth2Client, args, args.searchTerm.length - 1);
 
   let imageName = result.name.split('.');
   imageName = imageName[0] + "." + imageName[2];

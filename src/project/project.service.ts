@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 /*
  * Copyright 2020-present Open Networking Foundation
  *
@@ -16,7 +14,6 @@
  * limitations under the License.
  */
 
->>>>>>> c81e48ecb1e1d81309d0ffd326497b174ddb9b72
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectRepository } from './project.repository';
@@ -38,5 +35,4 @@ export class ProjectService {
 
     return this.projectRepository.createProject(createProjectDto);
   }
-
 }

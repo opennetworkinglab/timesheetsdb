@@ -20,7 +20,7 @@ import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
 import { generateEnvelopeAndPreview } from '../docusign/util/generation/envelope-preview';
-import { getUserAndContentFolderIds } from '../gdrive/util/get-user-and-content-folder-ids';
+import { movePreviewToUnsigned } from '../gdrive/util/move-preview';
 
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
@@ -57,14 +57,12 @@ export class WeeklyRepository extends Repository<Weekly> {
    */
   async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {
 
-    const exists = await this.findOne({ where: { user: user, weekId: weekId } });
+    const weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
 
-    if(!exists){
+    if(!weeklySigned){
       updateWeeklyDto.weekId = weekId;
       await this.createWeekly(user, updateWeeklyDto);
     }
-
-    const weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
 
     // check admin has signed
     if(weeklySigned.adminSigned){
@@ -90,14 +88,13 @@ export class WeeklyRepository extends Repository<Weekly> {
       });
   }
 
-  async updateWeeklyUserUnsign(user: User, weekId: number, googleCredentials, updateWeeklyDto: UpdateWeeklyDto){
+  async updateWeeklyUserUnsign(user: User, weekId: number, googleArgs, updateWeeklyDto: UpdateWeeklyDto){
 
-    const exists = await this.findOne({ where: { user: user, weekId: weekId }});
     const weeklySigned = await this.findOne({ where: { user: user, weekId: weekId }});
 
     const { userSigned } = updateWeeklyDto;
 
-    if(!exists){
+    if(!weeklySigned){
       updateWeeklyDto.weekId = weekId;
       await this.createWeekly(user, updateWeeklyDto);
     }
@@ -107,7 +104,20 @@ export class WeeklyRepository extends Repository<Weekly> {
       throw new BadRequestException("Has not been signed");
     }
 
-    const userFolder = getUserAndContentFolderIds()
+    const googleShareUrlArr = googleArgs.googleShareUrl.split('id');
+    let previewUrl = weeklySigned.preview;
+    previewUrl = previewUrl.replace(googleShareUrlArr[0], "");
+    const previewId = previewUrl.replace(googleShareUrlArr[1], "");
+
+    const moveFileArgs = {
+      googleCredentials: googleArgs.googleCredentials,
+      googleParent: googleArgs.googleParent,
+      weekId: weekId,
+      fileId: previewId
+    }
+
+    const moveFile = await movePreviewToUnsigned(user, moveFileArgs);
+
 
     return await this.update(
       {

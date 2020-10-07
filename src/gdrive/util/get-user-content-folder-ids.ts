@@ -22,7 +22,7 @@ import { gDriveFolder } from '../folder';
  * @param args .searchTerm = ['FolderName1', ..., 'FolderNameN ] (Folder structure N - ... - 1) .parent = main folder parent
  * @param startCheckValue Should be the length of searchTerm - 1
  */
-export const getUserAndContentFolderIds = async (auth, args, startCheckValue) => { // user - week - month - year
+export const getUserContentFolderIds = async (auth, args, startCheckValue) => { // user - week - month - year
 
   let searchTerm;
   let fileMetadata;
@@ -39,11 +39,13 @@ export const getUserAndContentFolderIds = async (auth, args, startCheckValue) =>
       searchTerm = "name='images' and parents in '" + userFolder.data.files[0].id + "' and trashed = false";
       const imagesFolder = await gDriveFolder.find(auth, searchTerm);
 
-      searchTerm = "name='user' and parents in '" + userFolder.data.files[0].id + "' and trashed = false";
+      searchTerm = "name='unsigned' and parents in '" + userFolder.data.files[0].id + "' and trashed = false";
+      const trashFolder = await gDriveFolder.find(auth, searchTerm);
 
       return {
         userFolder: userFolder.data.files[0].id,
         imagesFolder: imagesFolder.data.files[0].id,
+        unsigned: trashFolder.data.files[0].id
       }
     }
 
@@ -63,9 +65,18 @@ export const getUserAndContentFolderIds = async (auth, args, startCheckValue) =>
 
     const imagesFolder = await gDriveFolder.gDriveFolder.create(auth, fileMetadata);
 
+    fileMetadata = {
+      'name': 'unsigned',
+      'mimeType': 'application/vnd.google-apps.folder',
+      parents: [userFolder.data.id]
+    };
+
+    const trashFolder = await gDriveFolder.gDriveFolder.create(auth, fileMetadata);
+
     return {
       userFolder: userFolder.data.id,
       imagesFolder: imagesFolder.data.id,
+      unsigned: trashFolder
     }
   }
 
@@ -79,7 +90,7 @@ export const getUserAndContentFolderIds = async (auth, args, startCheckValue) =>
 
     args.parent = result.data.files[0].id;
 
-    return await this.getUserAndImageFolderId(auth, args, startCheckValue - 1);
+    return await this.getUserContentFolderIds(auth, args, startCheckValue - 1);
 
   } else {
 
@@ -92,6 +103,6 @@ export const getUserAndContentFolderIds = async (auth, args, startCheckValue) =>
     const folder = await gDriveFolder.create(auth, fileMetadata);
     args.parent = folder.data.id;
 
-    return this.getUserAndImageFolderId(auth, args, startCheckValue - 1);
+    return this.getUserContentFolderIds(auth, args, startCheckValue - 1);
   }
 }

@@ -60,6 +60,8 @@ export class WeeklyService {
     const { userSigned } = updateWeeklyDto;
 
     const googleCredentials = await this.getGoogleCredentials();
+    const googleShareUrl = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+    const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
 
     if(userSigned){
 
@@ -71,16 +73,21 @@ export class WeeklyService {
         docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
         docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
         googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
-        googleShareUrl: this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE'),
+        googleShareUrl: googleShareUrl,
         googleCredentials: googleCredentials
       }
 
-      const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
 
       return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto);
     }
 
-    return await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, googleCredentials, updateWeeklyDto);
+    const googleArgs = {
+      googleCredentials: googleCredentials,
+      googleShareUrl: googleShareUrl,
+      googleParent: googleParent
+    }
+
+    return await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, googleArgs, updateWeeklyDto);
   }
 
   async updateWeeklyAdmin() {
@@ -223,5 +230,4 @@ export class WeeklyService {
       }
     );
   }
-
 }

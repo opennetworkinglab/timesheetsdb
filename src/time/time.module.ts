@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 /*
  * Copyright 2020-present Open Networking Foundation
  *
@@ -16,7 +14,6 @@
  * limitations under the License.
  */
 
->>>>>>> c81e48ecb1e1d81309d0ffd326497b174ddb9b72
 import { Module } from '@nestjs/common';
 import { TimeService } from './time.service';
 import { TimeController } from './time.controller';
