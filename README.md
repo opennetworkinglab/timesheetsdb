@@ -7,6 +7,8 @@ Time sheets database for web application
 ```
 PostgreSQL v13.0
 NodeJS v14.13.1
+npm v6.14.8
+
 ```
 
 ## Installation
