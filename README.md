@@ -1,6 +1,6 @@
 # Timesheetsdb
-Time sheets database for web application
-
+Time sheets application that keeps track out individuals times for each project.
+A frontend to work with is backend would be [TimesheetsUI](https://github.com/opennetworkinglab/timesheetsui).
 
 ## Prerequisites
 
@@ -21,9 +21,32 @@ $ npm install
 
 ### Environment file
 
-Database, Docusign and Google information are to be entered here before launching the application
+Docusign and Google information are to be entered here before launching the application
 Docusign - for creating and sending documents to sign  
 Google - use of Google Drive for storing the documents and png previews of them.  
+
+### Database File - ormconfig.json
+Insert your database information into this file:  
+type - e.g. postgres  
+host  
+port  
+username  
+password  
+database - name of the database (Must be created manually)  
+
+### Update/ Change to Entities (Database Tables)
+If any changes are made to any entity file, generate a migration script:
+```
+npx typeorm migration:generate -n NAME_OF_SCRIPT -d src/migrations
+```
+
+####Table created:
+Users - User information  
+Days - Day for a user containing the times for that day.  
+Projects - Project names and priority  
+Times - Times for a user for an individual day.  
+Week - Weeks of the year.  
+Weeklies - Contains the links to the preview and document once user signs.
 
 ### Development
 ```
@@ -38,29 +61,14 @@ $ npm run start:prod
 ### Other commands can be found in package.json, under scripts
 
 ## Test
-
-### unit tests
-```
-$ npm run test
-```
-
-### e2e tests
-```
-$ npm run test:e2e
-```
-
-### test coverage
-```
-$ npm run test:cov
-```
+Testing is completed using [Ansible](https://gerrit.opencord.org/admin/repos/infra-manifest).
 
 # Rest Points
-curl syntax for rest points can be found in Rest points with curl.txt
+Exposed on port 3000. A curl syntax for Rest Points can be found in Rest points with curl.txt.
 
 ## Project Priority
 Priority 1 is for shared projects. E.g Sick  
 Projects populate the docusign table in an order based on priority
-
 
 # Google Folder Layout
 Main Folder - Id of this folder will be passed in the env file.  
