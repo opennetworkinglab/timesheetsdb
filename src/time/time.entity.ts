@@ -17,12 +17,13 @@
 import {
   BaseEntity,
   Column,
-  Entity,
+  Entity, JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Day } from '../day/day.entity';
+import { Project } from '../project/project.entity';
 
 @Entity('times')
 export class Time extends BaseEntity {
@@ -32,7 +33,8 @@ export class Time extends BaseEntity {
   id: number
 
   @ApiProperty()
-  @Column()
+  @ManyToOne(() => Project)
+  @JoinColumn({ name: 'name' })
   name: string
 
   @ApiProperty()
@@ -41,5 +43,6 @@ export class Time extends BaseEntity {
 
   @ApiProperty()
   @ManyToOne(() => Day, day => day.times, { eager: false })
+  @JoinColumn({ name: 'day_id' })
   days: Day[]
 }

@@ -18,7 +18,7 @@ import { BaseEntity, Column, Entity, ManyToMany, PrimaryColumn, Unique } from 't
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../auth/user.entity';
 
-@Entity('project')
+@Entity('projects')
 @Unique('ProjectTitle', ['name'])
 export class Project extends BaseEntity {
 
