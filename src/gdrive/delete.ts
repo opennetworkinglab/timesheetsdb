@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-export const formatMMDDYY = (date): string =>{
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {google} = require('googleapis');
 
-  const dateArr = date.split("-");
+export const gDriveDeleteFile = exports;
 
-  // month/day/year
-  return dateArr[1] + "-" + dateArr[2] + "-" +dateArr[0];
+gDriveDeleteFile.find = async (auth, fileId) => {
+
+  const drive = google.drive({ version: 'v3', auth: auth });
+
+  drive.files.delete({
+    fileId: fileId
+  })
 }
 
-export const formatArrayYYMMDD = (date): string => {
 
-  return date.split("-");
-}

@@ -52,14 +52,11 @@ export class Day extends BaseEntity {
   @Column( { name: 'week_id' })
   weekId: number
 
+  // TODO: Check out many to many relationship with joinTable
   @ApiProperty()
   @OneToMany(() => Time, time => time.days, { eager: true })
-  // @JoinColumn({ name: 'time_id'})
-  // @Column({ name: 'time_id', type: 'bigint' })
   @JoinColumn({
     name: "time_id"
   })
   times: Time[]
-
 }
-

@@ -19,7 +19,7 @@ import { EntityRepository, Repository } from 'typeorm';
 import { Project } from './project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 
-const sharedProjectsName = ['Sick', 'Holiday', 'PTO', 'G&A', 'IR&D']
+const sharedProjectsName = ['Sick', 'Holiday', 'PTO', 'G_A', 'IR_D']
 const sharedProjectsPriority = 1;
 
 @EntityRepository(Project)
@@ -33,7 +33,6 @@ export class ProjectRepository extends Repository<Project> {
     }).catch(()=> {
       console.log("Projects already created: " + sharedProjectsName);
     });
-
   }
 
   async createProject(createProjectDto: CreateProjectDto): Promise<void> {

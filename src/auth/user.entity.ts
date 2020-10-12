@@ -36,6 +36,7 @@ export class User extends BaseEntity {
   @Column({ name: 'last_name' })
   lastName: string
 
+  // TODO: MOVE supervisorEmail and darpaAllocationPct (rename to allocationPCt)
   @ApiProperty()
   @Column({ name: 'supervisor_email' })
   supervisorEmail: string
