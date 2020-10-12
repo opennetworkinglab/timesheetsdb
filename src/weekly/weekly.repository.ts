@@ -20,7 +20,7 @@ import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
 import { generateEnvelopeAndPreview } from '../docusign/util/generation/envelope-preview';
-import { movePreviewToUnsigned } from '../gdrive/util/move-preview';
+import { movePreviewToUnsigned } from '../google/util/move-preview';
 
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {

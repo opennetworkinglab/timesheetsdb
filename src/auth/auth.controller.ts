@@ -23,8 +23,8 @@ import { GetUser } from './get-user.decorator';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { gDriveAuth } from '../gdrive/gdrive-auth';
 import { ConfigService } from '@nestjs/config';
+import { auth } from '../google/auth';
 
 @Controller('auth')
 export class AuthController {
@@ -75,18 +75,24 @@ export class AuthController {
 
     const redirectUris = this.configService.get<string>('GOOGLE_REDIRECT_URIS').split(', ');
 
-    const credentials= {
+    const credentials = {
       "installed": {
         "client_id": this.configService.get<string>('GOOGLE_CLIENT_ID'),
-        "project_id": this.configService.get<string>('GOOGLE_PROJECT_ID'),
+        "project_id":this.configService.get<string>('GOOGLE_PROJECT_ID'),
         "auth_uri": this.configService.get<string>('GOOGLE_AUTH_URI'),
         "token_uri": this.configService.get<string>('GOOGLE_TOKEN_URI'),
         "auth_provider_x509_cert_url": this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
         "client_secret": this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
         "redirect_uris": redirectUris
       }
-    }
+    };
 
-    gDriveAuth.generateToken(credentials);
+    auth.generateToken(credentials);
+  }
+
+  @Get('reminderemails')
+  reminderEmails(){
+
+    return this.authService.reminderEmails();
   }
 }

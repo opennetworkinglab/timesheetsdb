@@ -24,11 +24,11 @@ import { listEnvelopeDocuments } from '../../list-envelope-documents';
 import { downloadDocument } from '../../download-document';
 import { fromBuffer } from 'pdf2pic';
 import { createReadStream } from "fs";
-import { auth } from '../../../gdrive/auth';
-import { upload } from '../../../gdrive/upload';
+import { auth } from '../../../google/auth';
 import { formatArrayYYMMDD } from '../../../util/date/date-formating';
 import { tmpdir } from 'os';
-import { getUserContentFolderIds } from '../../../gdrive/util/get-user-content-folder-ids';
+import { getUserContentFolderIds } from '../../../google/util/get-user-content-folder-ids';
+import { upload } from '../../../google/gdrive/upload';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.
