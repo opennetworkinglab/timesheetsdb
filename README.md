@@ -1,6 +1,8 @@
 # Timesheetsdb
 Time sheets application that keeps track out individuals times for each project.
-A frontend to work with is backend would be [TimesheetsUI](https://github.com/opennetworkinglab/timesheetsui).
+A frontend to work with is back-end would be [TimesheetsUI](https://github.com/opennetworkinglab/timesheetsui).
+
+<img src="https://drive.google.com/uc?id=1kI9kRGBCzk1I7plgTLHMEGob4LqF2zgo"/>
 
 ## Prerequisites
 
@@ -8,7 +10,6 @@ A frontend to work with is backend would be [TimesheetsUI](https://github.com/op
 PostgreSQL v13.0
 NodeJS v14.13.1
 npm v6.14.8
-
 ```
 
 ## Installation
@@ -34,7 +35,7 @@ username
 password  
 database - name of the database (Must be created manually)  
 
-### Update/ Change to Entities (Database Tables)
+### Update / Change to Entities (Database Tables)
 If any changes are made to any entity file, generate a migration script:
 ```
 npx typeorm migration:generate -n NAME_OF_SCRIPT -d src/migrations
