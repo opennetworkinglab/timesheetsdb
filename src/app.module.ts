@@ -37,22 +37,24 @@ import { Weekly } from './weekly/weekly.entity';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    // TypeOrmModule.forRoot(typeOrmConfig),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'postgres',// as 'postgres',
-        host: configService.get<string>('DATABASE_HOST', 'localhost'),
-        port: configService.get<number>('DATABASE_PORT', 5432),
-        username: configService.get<string>('DATABASE_USER', 'postgres'),
-        password: configService.get<string>('DATABASE_PASS', 'postgres'),
-        database: configService.get<string>('DATABASE_NAME', 'timesheets'),
-        entities: [User, Week, Project, Day, Time, Weekly],
-        // entities: [join(__dirname + '/../**/*.entity.{js,ts}')],
-        synchronize: true,
-      }),
-    }),
+    TypeOrmModule.forRoot(),
+    // TypeOrmModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     type: 'postgres',// as 'postgres',
+    //     host: configService.get<string>('DATABASE_HOST', 'localhost'),
+    //     port: configService.get<number>('DATABASE_PORT', 5432),
+    //     username: configService.get<string>('DATABASE_USER', 'postgres'),
+    //     password: configService.get<string>('DATABASE_PASS', 'postgres'),
+    //     database: configService.get<string>('DATABASE_NAME', 'timesheets'),
+    //     entities: ['dist/**/*.entity.{js,ts}'],
+    //     synchronize: true,
+    //     migrations: ["dist/migrations/*{.ts,.js}"],
+    //     migrationsTableName: "migrations_typeorm",
+    //     migrationsRun: true
+    //   }),
+    // }),
     ConfigModule.forRoot({
       isGlobal: true
     }),
