@@ -2,7 +2,7 @@
 Time sheets application that keeps track out individuals times for each project.
 A frontend to work with is back-end would be [TimesheetsUI](https://github.com/opennetworkinglab/timesheetsui).
 
-<img src="https://drive.google.com/uc?id=1kI9kRGBCzk1I7plgTLHMEGob4LqF2zgo"/>
+<img src="https://drive.google.com/uc?id=1kI9kRGBCzk1I7plgTLHMEGob4LqF2zgo" alt="There should be an image"/>
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ $ npm install
 
 Docusign and Google information are to be entered here before launching the application
 Docusign - for creating and sending documents to sign  
-Google - use of Google Drive for storing the documents and png previews of them.  
+Google - use of gmail, to send emails and gdrive for storing the documents and png previews of them.  
 
 ### Database File - ormconfig.json
 Insert your database information into this file:  
@@ -40,6 +40,7 @@ If any changes are made to any entity file, generate a migration script:
 ```
 npx typeorm migration:generate -n NAME_OF_SCRIPT -d src/migrations
 ```
+Will contain a timestamp in the name.
 
 ####Table created:
 Users - User information  
