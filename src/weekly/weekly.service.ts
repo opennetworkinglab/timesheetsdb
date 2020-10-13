@@ -90,7 +90,7 @@ export class WeeklyService {
     return await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, googleArgs, updateWeeklyDto);
   }
 
-  async updateWeeklyAdmin() {
+  async updateWeeklySupervisor() {
 
     let updates = 0;
     const token = await this.getDocusignToken();
@@ -178,7 +178,7 @@ export class WeeklyService {
 
       file = await upload.upload(oAuth2Client, gDriveArgs);
 
-      const result = await this.weeklyRepository.updateWeeklyAdmin(args.envelopeId, url, preview);
+      const result = await this.weeklyRepository.updateWeeklySupervisor(args.envelopeId, url, preview);
 
       updates += Number(result.affected);
     }

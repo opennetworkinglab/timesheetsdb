@@ -26,6 +26,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { auth } from '../google/auth';
 import { sendEmail } from '../google/gmail/send-email';
 import { ConfigService } from '@nestjs/config';
+import { sendReminderEmails } from '../google/util/send-reminder-emails';
 
 @Injectable()
 export class AuthService {
@@ -101,18 +102,12 @@ export class AuthService {
       }
     }
 
-
     const oAuth2Client = await auth.authorize(credentials);
 
     // TODO: CALL SEND-REMINDER-EMAILS
+    sendReminderEmails.worker(oAuth2Client);
 
-    const args = {
-      userEmail: 'cosmicleaper@gmail.com',
-      message: "Hello there!"
-    }
 
-    const res = await sendEmail.worker(oAuth2Client, args);
 
-    console.log(res);
   }
 }

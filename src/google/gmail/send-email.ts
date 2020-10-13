@@ -23,7 +23,7 @@ export const sendEmail = exports;
 /**
  *
  * @param auth
- * @param args .userEmail .message
+ * @param args .userEmail .message .subject
  */
 sendEmail.worker = async (auth, args) => {
 
@@ -49,7 +49,7 @@ sendEmail.worker = async (auth, args) => {
 
   const raw = makeBody({
     to: args.userEmail,
-    subject: 'Reminder',
+    subject: args.subject,
     message: args.message
   });
 

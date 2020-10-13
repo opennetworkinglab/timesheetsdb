@@ -64,9 +64,9 @@ export class WeeklyRepository extends Repository<Weekly> {
       await this.createWeekly(user, updateWeeklyDto);
     }
 
-    // check admin has signed
-    if(weeklySigned.adminSigned){
-      throw new BadRequestException("Admin has signed");
+    // check supervisor has signed
+    if(weeklySigned.supervisorSigned){
+      throw new BadRequestException("Supervisor has signed");
     }
 
     const { userSigned } = updateWeeklyDto;
@@ -132,7 +132,7 @@ export class WeeklyRepository extends Repository<Weekly> {
       });
   }
 
-  async updateWeeklyAdmin(envelopID: string, url: string, preview: string): Promise<UpdateResult>  {
+  async updateWeeklySupervisor(envelopID: string, url: string, preview: string): Promise<UpdateResult>  {
 
     return await this.update(
       {
@@ -140,7 +140,7 @@ export class WeeklyRepository extends Repository<Weekly> {
       }, {
         preview: preview,
         document: url,
-        adminSigned: true
+        supervisorSigned: true
       });
   }
 }
