@@ -74,9 +74,16 @@ Projects populate the docusign table in an order based on priority
 
 # Google Folder Layout
 Main Folder - Id of this folder will be passed in the env file.  
-Main Folder -> year  
-year -> month  
-month -> week  
-week -> user(name of user) - Pdf documents stored here  
-user -> images - png of documents stored here  
-user -> unsigned - where pngs are moved to when user unsigns
+- Main Folder 
+    - year  
+        - month  
+            - week
+                - user(name of user) - Pdf documents stored here 
+                    - images - png of documents stored here  
+                    - unsigned - where pngs are moved to when user unsigns
+
+# Templates
+Some aspects of the application allow the use of templates.  
+The template's folder houses these templates.  
+Current templates exist for:  
+- Gmail
