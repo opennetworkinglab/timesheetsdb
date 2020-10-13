@@ -18,7 +18,7 @@ import { getConnection } from 'typeorm';
 import { Week } from '../../../week/week.entity';
 import { Day } from '../../../day/day.entity';
 import { User } from '../../../auth/user.entity';
-import { dayEntityTimesTo2DArray } from '../../../util/array/to-array';
+import { timesTo2DArray7Days } from '../../../util/array/to-array';
 import { signingViaEmail } from '../../send-email-sign';
 import { listEnvelopeDocuments } from '../../list-envelope-documents';
 import { downloadDocument } from '../../download-document';
@@ -29,6 +29,9 @@ import { upload } from '../../../gdrive/upload';
 import { formatArrayYYMMDD } from '../../../util/date/date-formating';
 import { tmpdir } from 'os';
 import { getUserContentFolderIds } from '../../../gdrive/util/get-user-content-folder-ids';
+import { error } from 'pdf-lib';
+import { EmptyError } from 'rxjs';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.
@@ -44,9 +47,13 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   const days = await getConnection().getRepository(Day).find({ where: { user: user, weekId: weekId }});
   const admin = await getConnection().getRepository(User).findOne({ where: { email: user.supervisorEmail }});
 
-  const daysResult = dayEntityTimesTo2DArray(user, days);
+  if(days.length === 0){
+    throw new HttpException("No times have been logged for any days this week", HttpStatus.BAD_REQUEST);
+  }
 
-  // args for document generation. The document to be signed
+  const daysResult = await timesTo2DArray7Days(user, days);
+
+  // args for document generation. The document to be signed. Html args are for the html that is used to create the document
   const htmlArgs = {
       submitterEmail: user.email,
       submitterName: user.firstName + " " + user.lastName,

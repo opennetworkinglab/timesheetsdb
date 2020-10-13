@@ -51,8 +51,7 @@ export class Day extends BaseEntity {
   @JoinColumn({ name: 'week_id' })
   @Column( { name: 'week_id' })
   weekId: number
-
-  // TODO: Check out many to many relationship with joinTable
+  
   @ApiProperty()
   @OneToMany(() => Time, time => time.days, { eager: true })
   @JoinColumn({
