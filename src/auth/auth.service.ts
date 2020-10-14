@@ -104,8 +104,16 @@ export class AuthService {
 
     const oAuth2Client = await auth.authorize(credentials);
 
+    const args = {
+      userEmail: "valdar@opennetworking.org",
+      message: "TEST",
+      subject:  "TEST",
+    }
+
+    sendEmail.worker(oAuth2Client, args);
+
     // TODO: CALL SEND-REMINDER-EMAILS
-    sendReminderEmails.worker(oAuth2Client);
+    // sendReminderEmails.worker(oAuth2Client);
 
 
 
