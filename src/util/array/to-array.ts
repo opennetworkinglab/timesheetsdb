@@ -14,30 +14,80 @@
  * limitations under the License.
  */
 
-export const dayEntityTimesTo2DArray = (user, days) => {
+import { getConnection } from 'typeorm';
+import { Week } from '../../week/week.entity';
+import { getDay } from '../date/date-formating';
+import { Time } from '../../time/time.entity';
 
-  const timeName = [] // weekday. e.g. Monday
+export const timesTo2DArray7Days = async (user, days) => {
+
+  const week = await getConnection().getRepository(Week).findOne({
+    where: {
+      id: days[0].weekId
+    }});
+
+  let currentDay = getDay(week.begin);
+
+  const timeName = [] // weekday. e.g. Monday.
   const timeMinutes = []
   const dayTimes = []
 
-  for(let i = 0; i < days.length; i++){
+  let dayIndex = 0;
+  // loop for size of week
+  for(let i = 0; i < 7; i++){
 
     let userIndex = 0;
     let timesIndex = -1;
 
-    // Sorts the day times into the same order as the projects
-    while(userIndex < user.projects.length){
+    // check that day is current day. Also checks if we have gone through all days
+    if(dayIndex < days.length && getDay(days[dayIndex].day) === currentDay) {
 
-      timesIndex++;
+      // Sorts the day times into the same order as the projects
+      while (userIndex < user.projects.length) {
 
-      if(user.projects[userIndex].name === days[i].times[timesIndex].name){
-        dayTimes[userIndex] = days[i].times[timesIndex];
-        userIndex++;
-        timesIndex = -1;
+        timesIndex++;
+
+        // if times are not all dealt with
+        if (timesIndex < days[dayIndex].times.length) {
+
+          // Used to sort projects in our days
+          if (user.projects[userIndex].name === days[dayIndex].times[timesIndex].name) {
+
+            dayTimes[userIndex] = days[dayIndex].times[timesIndex];
+
+            timesIndex = -1;
+            userIndex++;
+          }
+        }
+        // Create times for any additional projects
+        else {
+          const time = new Time();
+          time.name = user.projects[userIndex].name;
+          time.minutes = 0;
+          dayTimes[userIndex] = time;
+          timesIndex = -1;
+          userIndex++;
+        }
       }
+      dayIndex++;
+      currentDay++;
+    }
+    // If all days passed in are dealt with. Populate the remainder days left
+    else{
+
+      let count = 0;
+      while(count < user.projects.length){
+
+        const time = new Time();
+        time.name = user.projects[count].name;
+        time.minutes = 0;
+        dayTimes[count] = time;
+        count++;
+      }
+      currentDay++;
     }
 
-    timeName[i] = [] // times in weekday. e.g. Sick
+    timeName[i] = [] // times in weekday. e.g. timeName[0][0] = Sick. Monday at position 0 is Sick
     timeMinutes[i] = []
     let totalWeekdayTime = 0;
 
@@ -47,24 +97,24 @@ export const dayEntityTimesTo2DArray = (user, days) => {
       timeMinutes[i][j] = dayTimes[j].minutes / 60;
       totalWeekdayTime += timeMinutes[i][j];
     }
-    timeName[i][days[i].times.length] = 'Total';
-    timeMinutes[i][days[i].times.length] = totalWeekdayTime;
+    timeName[i][user.projects.length] = 'Total';
+    timeMinutes[i][user.projects.length] = totalWeekdayTime;
   }
 
-  timeName[days.length] = []
-  timeMinutes[days.length] = [] // Stores Total for project
+  timeName[7] = []
+  timeMinutes[7] = [] // Stores Total for project
 
   // This works as long as all days have the same projects. Projects should be added/removed on a week by week basis.
   for(let i = 0; i < timeMinutes[0].length; i++){
 
-    timeName[days.length][i] = 'Total ' + timeName[0][i];
+    timeName[7][i] = 'Total ' + timeName[0][i];
     let totalProjectTime = 0;
 
     for(let j = 0; j < timeMinutes.length - 1; j++){
 
       totalProjectTime += timeMinutes[j][i];
     }
-    timeMinutes[days.length][i] = totalProjectTime;
+    timeMinutes[7][i] = totalProjectTime;
   }
 
   return {

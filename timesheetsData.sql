@@ -3,7 +3,7 @@
 -- The generated projects are shared projects. Add projects
 INSERT INTO projects(name, priority)
 VALUES ('HC001', 2),
-       (' Darpa DK9867', 2);
+       ('Darpa DK9867', 2);
 
 -- To populate user table
 INSERT INTO users(email, first_name, last_name, supervisor_email, darpa_allocation_pct, is_supervisor, is_active)

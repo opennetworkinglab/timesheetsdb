@@ -35,6 +35,7 @@ export class Time extends BaseEntity {
   @ApiProperty()
   @ManyToOne(() => Project)
   @JoinColumn({ name: 'name' })
+  @Column({ name: 'name'})
   name: string
 
   @ApiProperty()

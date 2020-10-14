@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-export const formatMMDDYY = (date): string =>{
+export const getDay = (date): number =>{
 
   const dateArr = date.split("-");
 
-  // month/day/year
-  return dateArr[1] + "-" + dateArr[2] + "-" +dateArr[0];
+  return Number(dateArr[2]);
 }
 
 export const formatArrayYYMMDD = (date): string => {
