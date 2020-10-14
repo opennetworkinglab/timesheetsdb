@@ -84,7 +84,7 @@ export class WeeklyRepository extends Repository<Weekly> {
         weekId: weekId
       }, {
         preview: results.preview,
-        userSigned: null, //results.signed
+        userSigned: results.signed
       });
   }
 
@@ -97,6 +97,10 @@ export class WeeklyRepository extends Repository<Weekly> {
     if(!weeklySigned){
       updateWeeklyDto.weekId = weekId;
       await this.createWeekly(user, updateWeeklyDto);
+    }
+
+    if(weeklySigned.supervisorSigned){
+      throw new BadRequestException("Supervisor has signed");
     }
 
     // check user has requested to unsign and if it is not signed
@@ -132,14 +136,14 @@ export class WeeklyRepository extends Repository<Weekly> {
       });
   }
 
-  async updateWeeklySupervisor(envelopID: string, url: string, preview: string): Promise<UpdateResult>  {
+  async updateWeeklySupervisor(envelopID: string, documentUrl: string, previewUrl: string): Promise<UpdateResult>  {
 
     return await this.update(
       {
         userSigned: envelopID
       }, {
-        preview: preview,
-        document: url,
+        preview: previewUrl,
+        document: documentUrl,
         supervisorSigned: true
       });
   }

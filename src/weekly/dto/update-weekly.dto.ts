@@ -37,5 +37,5 @@ export class UpdateWeeklyDto {
 
   @ApiProperty()
   @IsBoolean()
-  adminSigned: boolean
+  supervisorSigned: boolean
 }

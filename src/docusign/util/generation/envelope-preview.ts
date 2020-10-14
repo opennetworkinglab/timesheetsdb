@@ -43,7 +43,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
 
   const week = await getConnection().getRepository(Week).findOne({ where: { id: weekId }});
   const days = await getConnection().getRepository(Day).find({ where: { user: user, weekId: weekId }});
-  const admin = await getConnection().getRepository(User).findOne({ where: { email: user.supervisorEmail }});
+  const supervisor = await getConnection().getRepository(User).findOne({ where: { email: user.supervisorEmail }});
 
   if(days.length === 0){
     throw new HttpException("No times have been logged for any days this week", HttpStatus.BAD_REQUEST);
@@ -55,8 +55,8 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   const htmlArgs = {
       submitterEmail: user.email,
       submitterName: user.firstName + " " + user.lastName,
-      supervisorEmail: admin.email,
-      supervisorName: admin.firstName + " " + admin.lastName,
+      supervisorEmail: supervisor.email,
+      supervisorName: supervisor.firstName + " " + supervisor.lastName,
       days: daysResult,
       week: week,
     },

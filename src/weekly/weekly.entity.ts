@@ -48,7 +48,6 @@ export class Weekly extends BaseEntity {
   userSigned: string
 
   @ApiProperty()
-  //TODO: CHANGE ADMIN TO SUPERVISOR
-  @Column({ name: 'admin_signed', nullable: true })
+  @Column({ name: 'supervisor_signed', nullable: true })
   supervisorSigned: boolean
 }

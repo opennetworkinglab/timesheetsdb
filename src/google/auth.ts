@@ -26,7 +26,7 @@ export const auth = exports;
 auth.authorize = (credentials) => {
 
   //TODO: PATH OUTSIDE ROOT - ADD TO README
-  const TOKEN_PATH = '../fc.token.json';
+  const TOKEN_PATH = '../token/token.json';
 
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
@@ -54,7 +54,7 @@ auth.getAccessToken = (oAuth2Client) => {
 
   const SCOPES = ['https://mail.google.com/', 'https://www.googleapis.com/auth/drive'];
 
-  const TOKEN_PATH = '../cgf/token.json';
+  const TOKEN_PATH = '../token/token.json';
 
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
