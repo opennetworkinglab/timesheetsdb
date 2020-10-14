@@ -30,8 +30,8 @@ import { createReadStream, readFileSync } from 'fs';
 import { listEnvelopes } from '../docusign/list-envelopes';
 import { listEnvelopeDocuments } from '../docusign/list-envelope-documents';
 import { downloadDocument } from '../docusign/download-document';
-import { auth } from '../gdrive/auth';
-import { upload } from '../gdrive/upload';
+import { auth } from '../google/auth';
+import { upload } from '../google/gdrive/upload';
 
 // const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
@@ -90,7 +90,7 @@ export class WeeklyService {
     return await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, googleArgs, updateWeeklyDto);
   }
 
-  async updateWeeklyAdmin() {
+  async updateWeeklySupervisor() {
 
     let updates = 0;
     const token = await this.getDocusignToken();
@@ -178,7 +178,7 @@ export class WeeklyService {
 
       file = await upload.upload(oAuth2Client, gDriveArgs);
 
-      const result = await this.weeklyRepository.updateWeeklyAdmin(args.envelopeId, url, preview);
+      const result = await this.weeklyRepository.updateWeeklySupervisor(args.envelopeId, url, preview);
 
       updates += Number(result.affected);
     }

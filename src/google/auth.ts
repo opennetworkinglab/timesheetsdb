@@ -21,11 +21,12 @@ const {google} = require('googleapis');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const readline = require('readline');
 
-export const gDriveAuth = exports;
+export const auth = exports;
 
-gDriveAuth.authorize = (credentials) => {
+auth.authorize = (credentials) => {
 
-  const TOKEN_PATH = 'token.json';
+  //TODO: PATH OUTSIDE ROOT - ADD TO README
+  const TOKEN_PATH = '../fc.token.json';
 
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
@@ -38,22 +39,22 @@ gDriveAuth.authorize = (credentials) => {
   return oAuth2Client;
 }
 
-gDriveAuth.generateToken = (credentials) => {
+auth.generateToken = (credentials) => {
 
   const {client_secret, client_id, redirect_uris} = credentials.installed;
 
   const oAuth2Client = new google.auth.OAuth2(
     client_id, client_secret, redirect_uris[0]);
 
-  gDriveAuth.getAccessToken(oAuth2Client);
+  auth.getAccessToken(oAuth2Client);
 
 }
 
-gDriveAuth.getAccessToken = (oAuth2Client) => {
+auth.getAccessToken = (oAuth2Client) => {
 
-  const SCOPES = ['https://www.googleapis.com/auth/drive'];
+  const SCOPES = ['https://mail.google.com/', 'https://www.googleapis.com/auth/drive'];
 
-  const TOKEN_PATH = 'token.json';
+  const TOKEN_PATH = '../cgf/token.json';
 
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',

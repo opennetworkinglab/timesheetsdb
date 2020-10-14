@@ -44,7 +44,7 @@ export class WeeklyController {
   }
 
   @Get('admin/update') // no auth
-  UpdateWeeklyAdmin() {
-    return this.weeklyService.updateWeeklyAdmin();
+  UpdateWeeklySupervisor() {
+    return this.weeklyService.updateWeeklySupervisor();
   }
 }

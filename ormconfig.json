@@ -1,11 +1,11 @@
 [
   {
     "type": "postgres",
-    "host": "localhost",
+    "host": ,
     "port": 5432,
-    "username": "postgres",
-    "password": "postgres",
-    "database": "timesheetsnew",
+    "username": ,
+    "password": ,
+    "database": ,
     "entities": ["dist/**/*.entity{ .ts,.js}"],
     "synchronize": true,
     "migrations": ["dist/migrations/*{.ts,.js}"],

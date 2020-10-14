@@ -1,0 +1,14 @@
+{
+  "userEmails": [
+    {
+      "subject": "Sign Yo Weekly",
+      "message": "Please sign your weekly for week_S_INSERT_DATES",
+      "insertDates": true
+    },
+    {
+      "subject": "Weekly Sign Reminder",
+      "message": "Please sign your weekly for week_S_INSERT_DATES",
+      "insertDates": true
+    }
+  ]
+}

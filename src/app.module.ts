@@ -20,17 +20,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProjectModule } from './project/project.module';
 import { WeekModule } from './week/week.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './auth/user.entity';
-import { Week } from './week/week.entity';
-import { Project } from './project/project.entity';
 import { DayModule } from './day/day.module';
 import { TimeModule } from './time/time.module';
-import { Day } from './day/day.entity';
-import { Time } from './time/time.entity';
 import { WeeklyModule } from './weekly/weekly.module';
-import { Weekly } from './weekly/weekly.entity';
 
 @Module({
   imports: [

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const {google} = require('googleapis');
 
 export const upload = exports;
 
-upload.worker = async (auth, args) => {
+upload.upload = async (auth, args) => {
 
   const fileMetadata = {
     'name': args.name,
