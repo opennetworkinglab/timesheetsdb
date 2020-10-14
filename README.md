@@ -36,13 +36,35 @@ password
 database - name of the database (Must be created manually)  
 
 ### Update / Change to Entities (Database Tables)
+#### Scripts
+The migration scripts are located in src/migrations. Each script will have a timestamp in its name.  
+Each script contains an up and down method:  
+- up implements the changes to the DB
+- down reverts the changes up made
+
+#### Generate script
 If any changes are made to any entity file, generate a migration script:
 ```
 npx typeorm migration:generate -n NAME_OF_SCRIPT -d src/migrations
 ```
-Will contain a timestamp in the name.
 
-####Table created:
+#### Create script
+To manually write script use command (below) and enter the changes you want in the up method
+```
+npx typeorm migration:create -n NAME_OF_SCRIPT -d src/migrations
+```
+
+#### Run / Revert scripts
+Run:
+```
+ts-node ./node_modules/typeorm/cli.js migration:run
+```
+Revert:
+```
+ts-node ./node_modules/typeorm/cli.js migration:revert
+```
+
+#### Tables created:
 Users - User information  
 Days - Day for a user containing the times for that day.  
 Projects - Project names and priority  
@@ -66,7 +88,7 @@ $ npm run start:prod
 Testing is completed using [Ansible](https://gerrit.opencord.org/admin/repos/infra-manifest).
 
 # Rest Points
-Exposed on port 3000. A curl syntax for Rest Points can be found in Rest points with curl.txt.
+Exposed on port 3000. A curl syntax for Rest Points can be found in 'Rest points with curl.txt'.
 
 ## Project Priority
 Priority 1 is for shared projects. E.g Sick  
