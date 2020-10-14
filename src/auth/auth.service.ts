@@ -26,7 +26,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { auth } from '../google/auth';
 import { sendEmail } from '../google/gmail/send-email';
 import { ConfigService } from '@nestjs/config';
-import { sendReminderEmails } from '../google/util/send-reminder-emails';
 
 @Injectable()
 export class AuthService {

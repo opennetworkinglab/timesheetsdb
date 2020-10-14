@@ -27,8 +27,9 @@ import { createReadStream } from "fs";
 import { auth } from '../../../google/auth';
 import { formatArrayYYMMDD } from '../../../util/date/date-formating';
 import { tmpdir } from 'os';
-import { getUserContentFolderIds } from '../../../gdrive/util/get-user-content-folder-ids';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { getUserContentFolderIds } from '../../../google/util/get-user-content-folder-ids';
+import { upload } from '../../../google/gdrive/upload';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.

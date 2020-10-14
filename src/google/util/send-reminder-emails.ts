@@ -3,28 +3,16 @@
 
 import { getConnection } from 'typeorm';
 import { Weekly } from '../../weekly/weekly.entity';
-import { readFile, readFileSync } from 'fs';
+import { readFile } from 'fs';
 import { promisify } from 'util';
 import { Week } from '../../week/week.entity';
 import { sendEmail } from '../gmail/send-email';
 
 export const sendReminderEmails = exports;
 
-
-/**
- *
- * @param auth
- * @param args .userEmail .message
- */
 sendReminderEmails.worker = async (auth) => {
 
   const usersSigned = await getConnection().getRepository(Weekly).find({ where: { userSigned: null }});
-  const supervisorSigned = await getConnection().getRepository(Weekly).find({
-    where: {
-      userSigned: true,
-      supervisorSigned: false
-    }
-  });
 
   const readFileAsync = promisify(readFile);
 
