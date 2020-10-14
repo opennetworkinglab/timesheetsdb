@@ -84,7 +84,7 @@ export class WeeklyRepository extends Repository<Weekly> {
         weekId: weekId
       }, {
         preview: results.preview,
-        userSigned: results.signed
+        userSigned: null, //results.signed
       });
   }
 
