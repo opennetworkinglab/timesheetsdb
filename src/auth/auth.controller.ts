@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateResult } from 'typeorm';
 import { EmailValidationPipe } from './pipes/email-validation.pipe';
@@ -23,14 +23,11 @@ import { GetUser } from './get-user.decorator';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ConfigService } from '@nestjs/config';
-import { auth } from '../google/auth';
 
 @Controller('auth')
 export class AuthController {
 
-  constructor(private authService: AuthService,
-              private configService: ConfigService) {}
+  constructor(private authService: AuthService) {}
 
   @Post('createuser')
   @UseGuards(AuthGuard())
@@ -53,10 +50,10 @@ export class AuthController {
 
   @Patch(':emailId')
   @UseGuards(AuthGuard())
-  updateUser(@GetUser() tsUser: User,
+  updateUser(@GetUser() user: User,
                @Param('emailId') emailId,
                @Body() updateUserDto: UpdateUserDto): Promise<UpdateResult> {
-    return this.authService.updateUser(tsUser, emailId, updateUserDto);
+    return this.authService.updateUser(user, emailId, updateUserDto);
   }
 
   @Get()
@@ -65,34 +62,8 @@ export class AuthController {
     return this.authService.getUsers(user);
   }
 
-  @Get('google/auth/token')
-  @UseGuards(AuthGuard())
-  generateGoogleAuthToken(@GetUser() user: User){
-
-    if(!user.isSupervisor){
-      throw new UnauthorizedException("Not authorized");
-    }
-
-    const redirectUris = this.configService.get<string>('GOOGLE_REDIRECT_URIS').split(', ');
-
-    const credentials = {
-      "installed": {
-        "client_id": this.configService.get<string>('GOOGLE_CLIENT_ID'),
-        "project_id":this.configService.get<string>('GOOGLE_PROJECT_ID'),
-        "auth_uri": this.configService.get<string>('GOOGLE_AUTH_URI'),
-        "token_uri": this.configService.get<string>('GOOGLE_TOKEN_URI'),
-        "auth_provider_x509_cert_url": this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
-        "client_secret": this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
-        "redirect_uris": redirectUris
-      }
-    };
-
-    auth.generateToken(credentials);
-  }
-
   @Get('reminderemails')
   reminderEmails(){
-
     return this.authService.reminderEmails();
   }
 }

@@ -43,7 +43,7 @@ export class WeeklyController {
     return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto);
   }
 
-  @Get('admin/update') // no auth
+  @Get('supervisor/update') // no auth
   UpdateWeeklySupervisor() {
     return this.weeklyService.updateWeeklySupervisor();
   }

@@ -14,15 +14,46 @@
  * limitations under the License.
  */
 
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
+import { auth } from './google/auth';
+import { readFile } from 'fs/promises';
+
+export const GOOGLE_TOKEN_PATH = '../token/token.json'
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService, private readonly configService: ConfigService) {
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+    this.delay(500).then( () => {
+
+      readFile(GOOGLE_TOKEN_PATH)
+        .then( () => {
+          console.log("Google Token exists");
+        })
+        .catch( () => {
+
+          const redirectUris = this.configService.get<string>('GOOGLE_REDIRECT_URIS').split(', ');
+
+          const credentials = {
+            "installed": {
+              "client_id": this.configService.get<string>('GOOGLE_CLIENT_ID'),
+              "project_id":this.configService.get<string>('GOOGLE_PROJECT_ID'),
+              "auth_uri": this.configService.get<string>('GOOGLE_AUTH_URI'),
+              "token_uri": this.configService.get<string>('GOOGLE_TOKEN_URI'),
+              "auth_provider_x509_cert_url": this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
+              "client_secret": this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
+              "redirect_uris": redirectUris
+            }
+          };
+
+          auth.generateToken(credentials);
+        });
+    });
+  }
+
+  async delay(ms: number) {
+    await new Promise(resolve => setTimeout(()=>resolve(), ms));
   }
 }

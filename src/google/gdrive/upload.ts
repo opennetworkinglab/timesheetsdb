@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const {google} = require('googleapis');
 
 export const upload = exports;
 
-upload.upload = async (auth, args) => {
+upload.worker = async (auth, args) => {
 
   const fileMetadata = {
     'name': args.name,
@@ -34,10 +33,9 @@ upload.upload = async (auth, args) => {
 
   const drive = google.drive({ version: 'v3', auth: auth });
 
-  const file = await drive.files.create({
+  return await drive.files.create({
     resource: fileMetadata,
     media: media,
     fields: 'id'
   });
-  return file//.data.id
 }

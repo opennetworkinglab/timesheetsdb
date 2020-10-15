@@ -32,26 +32,6 @@ import { WeeklyModule } from './weekly/weekly.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot(),
-    // TypeOrmModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     type: 'postgres',// as 'postgres',
-    //     host: configService.get<string>('DATABASE_HOST', 'localhost'),
-    //     port: configService.get<number>('DATABASE_PORT', 5432),
-    //     username: configService.get<string>('DATABASE_USER', 'postgres'),
-    //     password: configService.get<string>('DATABASE_PASS', 'postgres'),
-    //     database: configService.get<string>('DATABASE_NAME', 'timesheets'),
-    //     entities: ['dist/**/*.entity.{js,ts}'],
-    //     synchronize: true,
-    //     migrations: ["dist/migrations/*{.ts,.js}"],
-    //     migrationsTableName: "migrations_typeorm",
-    //     migrationsRun: true
-    //   }),
-    // }),
-    ConfigModule.forRoot({
-      isGlobal: true
-    }),
     AuthModule,
     ProjectModule,
     WeekModule,
