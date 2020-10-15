@@ -117,7 +117,7 @@ export class WeeklyService {
       throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
     }
 
-    for (let i = 0; i < Number(envelopes.resultSetSize); i++) {//envelopes.resultSetSize
+    for (let i = 0; i < Number(envelopes.resultSetSize); i++) {
 
       //-- Get envelope and download document
       args.envelopeId = envelopes.envelopes[i].envelopeId;

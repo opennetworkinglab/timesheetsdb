@@ -27,6 +27,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('timesheetstest')
     .build();
+
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
