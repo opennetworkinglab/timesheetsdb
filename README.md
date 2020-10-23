@@ -30,13 +30,21 @@ $ npm install
 
 ## Running the app
 
-### Environment file
+### Configuration
 
-Docusign and Google information are to be entered here before launching the application
-Docusign - for creating and sending documents to sign  
-Google - use of gmail, to send emails and gdrive for storing the documents and png previews of them.  
+To run the app you'll need:
 
-### Database File - ormconfig.json
+- Database configuration put in `ormconfig.json`, for migrations to be run
+
+- A key from Docusign, put in `docusignPrivate.key`
+
+- Configuration environmental variables - examples are given in `.env`:
+
+    Database, Docusign and Google information are to be entered here before launching the application
+    Docusign - for creating and sending documents to sign
+    Google - use of Google Drive for storing the documents and png previews of them.
+
+#### Database File - ormconfig.json
 Insert your database information into this file:  
 type - e.g. postgres  
 host  
@@ -54,6 +62,21 @@ Each script contains an up and down method:
 
 #### Generate script
 If any changes are made to any entity file, generate a migration script:
+=======
+To run the app you'll need:
+
+- Database configuration put in `ormconfig.json`, for migrations to be run
+
+- A key from Docusign, put in `docusignPrivate.key`
+
+- Configuration environmental variables - examples are given in `.env`:
+
+    Database, Docusign and Google information are to be entered here before launching the application
+    Docusign - for creating and sending documents to sign
+    Google - use of Google Drive for storing the documents and png previews of them.
+
+### Development
+>>>>>>> master
 ```
 npx typeorm migration:generate -n NAME_OF_SCRIPT -d src/migrations
 ```
@@ -101,10 +124,11 @@ Testing is completed using [Ansible](https://gerrit.opencord.org/admin/repos/inf
 Exposed on port 3000. A curl syntax for Rest Points can be found in 'Rest points with curl.txt'.
 
 ## Project Priority
-Priority 1 is for shared projects. E.g Sick  
+Priority 1 is for shared projects. E.g Sick
 Projects populate the docusign table in an order based on priority
 
 # Google Folder Layout
+<<<<<<< HEAD
 Main Folder - Id of this folder will be passed in the env file.  
 - Main Folder 
     - year  
@@ -119,3 +143,12 @@ Some aspects of the application allow the use of templates.
 The template's folder houses these templates.  
 Current templates exist for:  
 - Gmail
+=======
+Main Folder - Id of this folder will be passed in the env file.
+Main Folder -> year
+year -> month
+month -> week
+week -> user(name of user) - Pdf documents stored here
+user -> images - png of documents stored here
+user -> unsigned - where pngs are moved to when user unsigns
+>>>>>>> master

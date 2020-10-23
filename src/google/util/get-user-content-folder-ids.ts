@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { gDriveFolder } from '../folder';
+import { gDriveFolder } from '../gdrive/folder';
 
 /**
  *

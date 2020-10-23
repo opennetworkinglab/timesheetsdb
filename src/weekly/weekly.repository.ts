@@ -20,7 +20,7 @@ import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
 import { generateEnvelopeAndPreview } from '../docusign/util/generation/envelope-preview';
-import { movePreviewToUnsigned } from '../gdrive/util/move-preview';
+import { movePreviewToUnsigned } from '../google/util/move-preview';
 
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
@@ -64,9 +64,9 @@ export class WeeklyRepository extends Repository<Weekly> {
       await this.createWeekly(user, updateWeeklyDto);
     }
 
-    // check admin has signed
-    if(weeklySigned.adminSigned){
-      throw new BadRequestException("Admin has signed");
+    // check supervisor has signed
+    if(weeklySigned.supervisorSigned){
+      throw new BadRequestException("Supervisor has signed");
     }
 
     const { userSigned } = updateWeeklyDto;
@@ -97,6 +97,10 @@ export class WeeklyRepository extends Repository<Weekly> {
     if(!weeklySigned){
       updateWeeklyDto.weekId = weekId;
       await this.createWeekly(user, updateWeeklyDto);
+    }
+
+    if(weeklySigned.supervisorSigned){
+      throw new BadRequestException("Supervisor has signed");
     }
 
     // check user has requested to unsign and if it is not signed
@@ -132,15 +136,15 @@ export class WeeklyRepository extends Repository<Weekly> {
       });
   }
 
-  async updateWeeklyAdmin(envelopID: string, url: string, preview: string): Promise<UpdateResult>  {
+  async updateWeeklySupervisor(envelopID: string, documentUrl: string, previewUrl: string): Promise<UpdateResult>  {
 
     return await this.update(
       {
         userSigned: envelopID
       }, {
-        preview: preview,
-        document: url,
-        adminSigned: true
+        preview: previewUrl,
+        document: documentUrl,
+        supervisorSigned: true
       });
   }
 }

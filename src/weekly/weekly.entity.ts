@@ -24,7 +24,7 @@ import { Week } from '../week/week.entity';
 export class Weekly extends BaseEntity {
 
   @ApiProperty()
-  @ManyToOne(() => User, user => user.weeklies, { eager: false })
+  @ManyToOne(() => User, user => user.weeklies, { eager: true })
   @JoinColumn({ name: 'weekly_user_email' })
   @PrimaryColumn({ name: 'weekly_user_email', type: 'varchar' })
   user: User
@@ -48,6 +48,6 @@ export class Weekly extends BaseEntity {
   userSigned: string
 
   @ApiProperty()
-  @Column({ name: 'admin_signed', nullable: true })
-  adminSigned: boolean
+  @Column({ name: 'supervisor_signed', nullable: true })
+  supervisorSigned: boolean
 }

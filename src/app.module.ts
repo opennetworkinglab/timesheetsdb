@@ -20,42 +20,18 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProjectModule } from './project/project.module';
 import { WeekModule } from './week/week.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './auth/user.entity';
-import { Week } from './week/week.entity';
-import { Project } from './project/project.entity';
 import { DayModule } from './day/day.module';
 import { TimeModule } from './time/time.module';
-import { Day } from './day/day.entity';
-import { Time } from './time/time.entity';
 import { WeeklyModule } from './weekly/weekly.module';
-import { Weekly } from './weekly/weekly.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    // TypeOrmModule.forRoot(typeOrmConfig),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'postgres',// as 'postgres',
-        host: configService.get<string>('DATABASE_HOST', 'localhost'),
-        port: configService.get<number>('DATABASE_PORT', 5432),
-        username: configService.get<string>('DATABASE_USER', 'postgres'),
-        password: configService.get<string>('DATABASE_PASS', 'postgres'),
-        database: configService.get<string>('DATABASE_NAME', 'timesheets'),
-        entities: [User, Week, Project, Day, Time, Weekly],
-        // entities: [join(__dirname + '/../**/*.entity.{js,ts}')],
-        synchronize: true,
-      }),
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true
-    }),
+    TypeOrmModule.forRoot(),
     AuthModule,
     ProjectModule,
     WeekModule,

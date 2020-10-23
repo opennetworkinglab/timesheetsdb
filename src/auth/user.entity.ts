@@ -54,7 +54,7 @@ export class User extends BaseEntity {
   isActive: boolean
 
   @ApiProperty()
-  @ManyToMany(() => Project, project => project.users, { eager: true})
+  @ManyToMany(() => Project, project => project.users, { eager: true })
   @JoinTable({ name: 'user_projects' })
   projects: Project[]
 
@@ -63,6 +63,6 @@ export class User extends BaseEntity {
   days: Day[]
 
   @ApiProperty()
-  @OneToMany(() => Weekly, weekly => weekly.user, { eager: true })
+  @OneToMany(() => Weekly, weekly => weekly.user, { eager: false })
   weeklies: Weekly[]
 }
