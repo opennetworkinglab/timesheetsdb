@@ -188,6 +188,7 @@ export class WeeklyService {
       });
       let imResult = await image(1);
       const imResultSplit = imResult.split('.');
+
       imResult = imResultSplit[0] + "-completed" + imResultSplit[1];
 
       // Save preview to drive

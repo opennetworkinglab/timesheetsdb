@@ -19,11 +19,19 @@ $ npm install
 
 ## Running the app
 
-### Environment file
+### Configuration
 
-Database, Docusign and Google information are to be entered here before launching the application
-Docusign - for creating and sending documents to sign  
-Google - use of Google Drive for storing the documents and png previews of them.  
+To run the app you'll need:
+
+- Database configuration put in `ormconfig.json`, for migrations to be run
+
+- A key from Docusign, put in `docusignPrivate.key`
+
+- Configuration environmental variables - examples are given in `.env`:
+
+    Database, Docusign and Google information are to be entered here before launching the application
+    Docusign - for creating and sending documents to sign
+    Google - use of Google Drive for storing the documents and png previews of them.
 
 ### Development
 ```
@@ -58,15 +66,15 @@ $ npm run test:cov
 curl syntax for rest points can be found in Rest points with curl.txt
 
 ## Project Priority
-Priority 1 is for shared projects. E.g Sick  
+Priority 1 is for shared projects. E.g Sick
 Projects populate the docusign table in an order based on priority
 
 
 # Google Folder Layout
-Main Folder - Id of this folder will be passed in the env file.  
-Main Folder -> year  
-year -> month  
-month -> week  
-week -> user(name of user) - Pdf documents stored here  
-user -> images - png of documents stored here  
+Main Folder - Id of this folder will be passed in the env file.
+Main Folder -> year
+year -> month
+month -> week
+week -> user(name of user) - Pdf documents stored here
+user -> images - png of documents stored here
 user -> unsigned - where pngs are moved to when user unsigns
