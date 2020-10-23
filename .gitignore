@@ -2,6 +2,10 @@
 /dist
 /node_modules
 
+# config files
+docusignPrivate.key
+ormconfig.json
+
 # Logs
 logs
 *.log
