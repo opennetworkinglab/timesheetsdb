@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 /*
  * Copyright 2020-present Open Networking Foundation
  *
@@ -16,7 +14,6 @@
  * limitations under the License.
  */
 
->>>>>>> fcde0c9fd3bb332dec4498e4e692ad056e48c161
 import {MigrationInterface, QueryRunner} from "typeorm";
 
 export class createTables1602695627430 implements MigrationInterface {
