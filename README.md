@@ -12,6 +12,16 @@ NodeJS v14.13.1
 npm v6.14.8
 ```
 
+### Google and Docusign Authentication
+Google authentication can happen through the app. On first start up you will be asked to
+authenticate for google.  
+Docusign authentication can be done 2 ways. If you have access to docusign admin(paid) you can
+set access for an app to which ever user.  
+Alternatively download and run Quickstart project with your credentials.  
+
+For both google and docusign, this only needs to happen once unless the google token is deleted
+and/or the account in docusign revokes access for the application.
+
 ## Installation
 
 ```bash

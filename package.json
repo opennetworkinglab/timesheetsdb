@@ -34,6 +34,7 @@
     "class-validator": "0.12.2",
     "docusign-esign": "5.7.0",
     "fs": "0.0.1-security",
+    "fs.promises": "^0.1.2",
     "googleapis": "60.0.1",
     "i": "0.3.6",
     "jsonwebtoken": "8.5.1",
