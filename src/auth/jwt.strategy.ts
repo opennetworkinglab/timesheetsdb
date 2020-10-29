@@ -20,19 +20,25 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtPayloadInterface } from './jwt-payload.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './user.repository';
-import { ConfigService } from '@nestjs/config';
+import { passportJwtSecret } from 'jwks-rsa';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
     @InjectRepository(UserRepository)
-    private userRepository: UserRepository,
-    private configService: ConfigService){
+    private userRepository: UserRepository){
 
     super({
+      secretOrKeyProvider: passportJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
+      }),
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get<string>('AUTHENTICATION_SECRET'),
+      issuer: 'https://accounts.google.com',
+      algorithms: ['RS256'],
     });
   }
 
