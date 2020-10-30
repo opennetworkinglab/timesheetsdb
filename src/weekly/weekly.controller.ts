@@ -29,10 +29,11 @@ export class WeeklyController {
   constructor(private weeklyService: WeeklyService) {
   }
 
-  @Get(':emailId')
+  @Get(':emailId/:weekId')
   @UseGuards(AuthGuard())
-  getWeekly(@GetUser() user: User): Promise<Weekly[]> {
-    return this.weeklyService.getWeekly(user);
+  getWeekly(@GetUser() user: User,
+            @Param('weekId') weekId): Promise<Weekly> {
+    return this.weeklyService.getWeekly(user, weekId);
   }
 
   @Patch(':emailId/:weekId')

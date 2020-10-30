@@ -55,8 +55,8 @@ export class WeeklyService {
     // return this.tsWeeklyRepository.createTsWeekly(tsUser, createTsWeeklyDto);
   }
 
-  async getWeekly(user: User): Promise<Weekly[]> {
-    return this.weeklyRepository.getWeeklies(user);
+  async getWeekly(user: User, weekId: number): Promise<Weekly> {
+    return this.weeklyRepository.getWeekly(user, weekId);
   }
 
   async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {

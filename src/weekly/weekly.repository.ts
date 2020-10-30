@@ -25,9 +25,9 @@ import { movePreviewToUnsigned } from '../google/util/move-preview';
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
 
-  async getWeeklies(user: User): Promise<Weekly[]> {
+  async getWeekly(user: User, weekId: number): Promise<Weekly> {
 
-    return await this.find({ where: { user: user } });
+    return await this.findOne({ where: { user: user, weekId: weekId } });
   }
 
   async createWeekly(user: User, updateWeeklyDto: UpdateWeeklyDto): Promise<void> {
@@ -37,6 +37,7 @@ export class WeeklyRepository extends Repository<Weekly> {
     const newWeekly = new Weekly();
     newWeekly.weekId = weekId;
     newWeekly.user = user;
+    newWeekly.supervisorSigned = false;
 
     try {
 
@@ -57,12 +58,14 @@ export class WeeklyRepository extends Repository<Weekly> {
    */
   async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {
 
-    const weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
+    let weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
 
     if(!weeklySigned){
       updateWeeklyDto.weekId = weekId;
       await this.createWeekly(user, updateWeeklyDto);
     }
+
+    weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
 
     // check supervisor has signed
     if(weeklySigned.supervisorSigned){
