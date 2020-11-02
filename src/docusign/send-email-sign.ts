@@ -92,6 +92,7 @@ function makeEnvelope(args){
   const signer1 = docusign.Signer.constructFromObject({
     email: args.htmlArgs.submitterEmail,
     name: args.htmlArgs.submitterName,
+    clientUserId: 1,
     recipientId: '1',
     routingOrder: '1'});
 
@@ -99,6 +100,7 @@ function makeEnvelope(args){
   const signer2 = docusign.Signer.constructFromObject({
     email: args.htmlArgs.supervisorEmail,
     name: args.htmlArgs.supervisorName,
+    clientUserId: 2,
     recipientId: '2',
     routingOrder: '2'});
 
