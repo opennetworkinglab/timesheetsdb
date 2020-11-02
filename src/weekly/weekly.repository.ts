@@ -111,10 +111,10 @@ export class WeeklyRepository extends Repository<Weekly> {
       throw new BadRequestException("Has not been signed");
     }
 
-    const googleShareUrlArr = googleArgs.googleShareUrl.split('id');
-    let previewUrl = weeklySigned.preview;
-    previewUrl = previewUrl.replace(googleShareUrlArr[0], "");
-    const previewId = previewUrl.replace(googleShareUrlArr[1], "");
+    const googleShareUrlArr = googleArgs.googleShareUrl.split('IDLOCATION');
+    const previewUrl = weeklySigned.preview;
+
+    const previewId = previewUrl.replace(googleShareUrlArr[0], "");
 
     const moveFileArgs = {
       googleCredentials: googleArgs.googleCredentials,
@@ -125,7 +125,7 @@ export class WeeklyRepository extends Repository<Weekly> {
 
     const moveFile = await movePreviewToUnsigned(user, moveFileArgs);
 
-    if(moveFile.status !== 200){
+    if (moveFile.status !== 200) {
       console.log(moveFile);
     }
 

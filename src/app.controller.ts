@@ -18,7 +18,7 @@ import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
 import { auth } from './google/auth';
-import { readFile } from 'fs/promises';
+import { readFile } from 'fs.promises';
 
 export const GOOGLE_TOKEN_PATH = '../token/token.json'
 

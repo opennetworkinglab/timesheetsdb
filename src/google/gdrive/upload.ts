@@ -33,9 +33,20 @@ upload.worker = async (auth, args) => {
 
   const drive = google.drive({ version: 'v3', auth: auth });
 
-  return await drive.files.create({
+  const imgFIle = await drive.files.create({
     resource: fileMetadata,
     media: media,
-    fields: 'id'
+    fields: 'id',
   });
+
+  drive.permissions.create({
+    resource: {
+      'type': 'anyone',
+      'role': 'reader',
+      // 'domain': 'appsrocks.com'
+    },
+    fileId: imgFIle.data.id,
+    fields: 'id',
+  });
+  return imgFIle;
 }
