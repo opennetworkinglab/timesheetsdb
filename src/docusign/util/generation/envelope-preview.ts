@@ -83,8 +83,6 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
 
   const documents = await listEnvelopeDocuments.worker(retrieveDocArgs);
 
-  // TODO: Go throw documents and create generation.
-
   retrieveDocArgs.documentId = documents.envelopeDocuments[0].documentId;
   retrieveDocArgs.envelopeDocuments = documents.envelopeDocuments;
 
@@ -134,8 +132,8 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   const file  = await upload.worker(oAuth2Client, gDriveArgs);
 
   const url  = authArgs.googleShareUrl;
-  const urlSplit = url.split('id');
-  const preview = urlSplit[0] + file.data.id + urlSplit[1];
+  const urlSplit = url.split('IDLOCATION');
+  const preview = urlSplit[0] + file.data.id;
 
   return {
     preview: preview,

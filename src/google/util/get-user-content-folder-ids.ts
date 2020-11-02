@@ -50,7 +50,7 @@ export const getUserContentFolderIds = async (auth, args, startCheckValue) => { 
     }
 
     fileMetadata = {
-      'name': args.userName,
+      'name': args.searchTerm[startCheckValue],
       'mimeType': 'application/vnd.google-apps.folder',
       parents: [args.parent]
     };

@@ -58,6 +58,12 @@ export class AuthController {
 
   @Get()
   @UseGuards(AuthGuard())
+  getUserById(@GetUser() user: User): User {
+    return user;
+  }
+
+  @Get('users')
+  @UseGuards(AuthGuard())
   getUsers(@GetUser() user: User): Promise<User[]> {
     return this.authService.getUsers(user);
   }

@@ -69,7 +69,6 @@ export class WeeklyService {
 
     if(userSigned){
 
-
       const token = await this.getDocusignToken();
 
       const authArgs = {
@@ -168,8 +167,8 @@ export class WeeklyService {
 
       // Get document url to save to DB
       let url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
-      let urlSplit = url.split('id');
-      const documentUrl = urlSplit[0] + file.data.id + urlSplit[1];
+      let urlSplit = url.split('IDLOCATION');
+      const documentUrl = urlSplit[0] + file.data.id;
 
       // Save preview of document in PNG
       let saveName = pdfDocument.docName.split('.');
