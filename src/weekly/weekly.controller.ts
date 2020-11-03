@@ -39,9 +39,10 @@ export class WeeklyController {
   @Patch(':emailId/:weekId')
   @UseGuards(AuthGuard())
   UpdateWeeklyUser(@GetUser() user: User,
-                     @Param('weekId') weekId,
-                     @Body() updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {
-    return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto);
+                   @Param('weekId') weekId,
+                   @Body() updateWeeklyDto: UpdateWeeklyDto,
+                   @Body('redirectUrl') redirectUrl: string): Promise<{ viewRequest }> {
+    return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto, redirectUrl);
   }
 
   @Get('supervisor/update') // no auth

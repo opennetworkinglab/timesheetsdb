@@ -36,6 +36,7 @@ import { upload } from '../google/gdrive/upload';
 import { getUserContentFolderIds } from '../google/util/get-user-content-folder-ids';
 import { Week } from '../week/week.entity';
 import { formatArrayYYMMDD } from '../util/date/date-formating';
+import { voidEnvelope } from '../docusign/void-envelope';
 
 // const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
@@ -59,7 +60,7 @@ export class WeeklyService {
     return this.weeklyRepository.getWeekly(user, weekId);
   }
 
-  async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {
+  async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto, redirectUrl: string): Promise<{ viewRequest }> {
 
     const { userSigned } = updateWeeklyDto;
 
@@ -67,21 +68,20 @@ export class WeeklyService {
     const googleShareUrl = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
     const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
 
+    const token = await this.getDocusignToken();
+
+    const authArgs = {
+      docusignToken: token.data.access_token,
+      docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
+      docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
+      googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
+      googleShareUrl: googleShareUrl,
+      googleCredentials: googleCredentials
+    }
+
     if(userSigned){
 
-      const token = await this.getDocusignToken();
-
-      const authArgs = {
-        docusignToken: token.data.access_token,
-        docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
-        docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
-        googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
-        googleShareUrl: googleShareUrl,
-        googleCredentials: googleCredentials
-      }
-
-
-      return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto);
+      return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto, redirectUrl);
     }
 
     const googleArgs = {
@@ -90,7 +90,8 @@ export class WeeklyService {
       googleParent: googleParent
     }
 
-    return await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, googleArgs, updateWeeklyDto);
+    await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, authArgs, googleArgs, updateWeeklyDto);
+    return { viewRequest: null };
   }
 
   async updateWeeklySupervisor() {
