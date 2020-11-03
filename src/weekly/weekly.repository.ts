@@ -21,6 +21,7 @@ import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
 import { generateEnvelopeAndPreview } from '../docusign/util/generation/envelope-preview';
 import { movePreviewToUnsigned } from '../google/util/move-preview';
+import { voidEnvelope } from '../docusign/void-envelope';
 
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
@@ -56,7 +57,7 @@ export class WeeklyRepository extends Repository<Weekly> {
    * @param googleParent Main parent folder
    * @param updateWeeklyDto
    */
-  async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {
+  async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto): Promise<{ viewRequest }> {
 
     let weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
 
@@ -81,7 +82,7 @@ export class WeeklyRepository extends Repository<Weekly> {
 
     const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent);
 
-    return await this.update(
+    await this.update(
       {
         user: user,
         weekId: weekId
@@ -89,9 +90,11 @@ export class WeeklyRepository extends Repository<Weekly> {
         preview: results.preview,
         userSigned: results.signed
       });
+
+    return results;
   }
 
-  async updateWeeklyUserUnsign(user: User, weekId: number, googleArgs, updateWeeklyDto: UpdateWeeklyDto){
+  async updateWeeklyUserUnsign(user: User, weekId: number, args, googleArgs, updateWeeklyDto: UpdateWeeklyDto){
 
     const weeklySigned = await this.findOne({ where: { user: user, weekId: weekId }});
 
@@ -129,6 +132,15 @@ export class WeeklyRepository extends Repository<Weekly> {
       console.log(moveFile);
     }
 
+    const docArgs = {
+      basePath: args.docusignBasePath,
+      accessToken: args.docusignToken,
+      accountId: args.docusignAccountId
+    }
+
+    // TODO: SOLVE ERROR
+//     const x = voidEnvelope.send(docArgs, weeklySigned.userSigned);
+// return ;
     return await this.update(
       {
         user: user,

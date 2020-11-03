@@ -40,7 +40,7 @@ export class WeeklyController {
   @UseGuards(AuthGuard())
   UpdateWeeklyUser(@GetUser() user: User,
                      @Param('weekId') weekId,
-                     @Body() updateWeeklyDto: UpdateWeeklyDto): Promise<UpdateResult> {
+                     @Body() updateWeeklyDto: UpdateWeeklyDto): Promise<{ viewRequest }> {
     return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto);
   }
 
