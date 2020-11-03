@@ -29,10 +29,9 @@ voidEnvelope.send = async (args, envelopeId) => {
   const envelopesApi = new docusign.EnvelopesApi(dsApiClient)
   const env = new docusign.Envelope();
   env.status = 'voided';
-  // env.voidedReason = 'changed my mind';
-try {
-  await envelopesApi.update(args.accountId, envelopeId, env);
-}catch (e){
-  console.log(e);
-}
+  env.voidedReason = 'changed my mind';
+
+  await envelopesApi.update(args.accountId, envelopeId, {
+    "envelope": env
+  });
 }

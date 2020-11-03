@@ -138,9 +138,8 @@ export class WeeklyRepository extends Repository<Weekly> {
       accountId: args.docusignAccountId
     }
 
-    // TODO: SOLVE ERROR
-//     const x = voidEnvelope.send(docArgs, weeklySigned.userSigned);
-// return ;
+    voidEnvelope.send(docArgs, weeklySigned.userSigned);
+
     return await this.update(
       {
         user: user,
