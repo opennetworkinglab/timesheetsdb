@@ -60,7 +60,7 @@ export class WeeklyService {
     return this.weeklyRepository.getWeekly(user, weekId);
   }
 
-  async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto): Promise<{ viewRequest }> {
+  async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto, redirectUrl: string): Promise<{ viewRequest }> {
 
     const { userSigned } = updateWeeklyDto;
 
@@ -81,7 +81,7 @@ export class WeeklyService {
 
     if(userSigned){
 
-      return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto);
+      return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto, redirectUrl);
     }
 
     const googleArgs = {

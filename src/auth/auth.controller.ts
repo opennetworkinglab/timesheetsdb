@@ -51,8 +51,8 @@ export class AuthController {
   @Patch(':emailId')
   @UseGuards(AuthGuard())
   updateUser(@GetUser() user: User,
-               @Param('emailId') emailId,
-               @Body() updateUserDto: UpdateUserDto): Promise<UpdateResult> {
+             @Param('emailId') emailId,
+             @Body() updateUserDto: UpdateUserDto): Promise<UpdateResult> {
     return this.authService.updateUser(user, emailId, updateUserDto);
   }
 

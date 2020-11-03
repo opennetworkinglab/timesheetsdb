@@ -40,7 +40,7 @@ import { recipientView } from '../../recipient-view-request';
  * @param googleParent
  * @return object containing generation link and envelope id.
  */
-export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleParent) => {
+export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleParent, redirectUrl) => {
 
   const week = await getConnection().getRepository(Week).findOne({ where: { id: weekId }});
   const days = await getConnection().getRepository(Day).find({ where: { user: user, weekId: weekId }});
@@ -74,17 +74,16 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   const signed = envelope.envelopeId;
 
   const embeddedArgs = {
-    dsReturnUrl: 'https://google.ie',
+    dsReturnUrl: redirectUrl,
     signerEmail: user.email,
     signerName: user.firstName + " " + user.lastName,
     signerClientId: 1,
     basePath: authArgs.docusignBasePath,
     accountId: authArgs.docusignAccountId,
     accessToken: authArgs.docusignToken,
-    envelopeId: signed
+    envelopeId: signed,
   }
 
-  // TODO: return url
   const viewRequest = await recipientView.controller(embeddedArgs)
 
   const retrieveDocArgs = {

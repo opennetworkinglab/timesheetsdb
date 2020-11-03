@@ -57,7 +57,7 @@ export class WeeklyRepository extends Repository<Weekly> {
    * @param googleParent Main parent folder
    * @param updateWeeklyDto
    */
-  async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto): Promise<{ viewRequest }> {
+  async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto, redirectUrl: string): Promise<{ viewRequest }> {
 
     let weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
 
@@ -80,7 +80,7 @@ export class WeeklyRepository extends Repository<Weekly> {
       throw new BadRequestException("Already signed");
     }
 
-    const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent);
+    const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
 
     await this.update(
       {
