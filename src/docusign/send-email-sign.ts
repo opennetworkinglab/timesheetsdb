@@ -23,7 +23,7 @@ signingViaEmail.controller = async (args) => {
 
   const envelopeArgs = {
       documentName: args.documentName,
-      status: "sent",
+      status: 'sent',
       htmlArgs: args.htmlArgs
     },
     workerArgs = {
@@ -93,16 +93,15 @@ function makeEnvelope(args){
     email: args.htmlArgs.submitterEmail,
     name: args.htmlArgs.submitterName,
     clientUserId: 1,
-    recipientId: '1',
-    routingOrder: '1'});
+    recipientId: 1,
+    routingOrder: 1 });
 
   // Signer 2 is the supervisor. Gets sent the document after signer 1 signs
   const signer2 = docusign.Signer.constructFromObject({
     email: args.htmlArgs.supervisorEmail,
     name: args.htmlArgs.supervisorName,
-    clientUserId: 2,
-    recipientId: '2',
-    routingOrder: '2'});
+    recipientId: 2,
+    routingOrder: 2 });
 
   const signHere1 = docusign.SignHere.constructFromObject({
     anchorString: '**signature_1**',

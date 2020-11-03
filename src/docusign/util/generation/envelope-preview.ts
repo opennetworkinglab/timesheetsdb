@@ -30,6 +30,7 @@ import { tmpdir } from 'os';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { getUserContentFolderIds } from '../../../google/util/get-user-content-folder-ids';
 import { upload } from '../../../google/gdrive/upload';
+import { recipientView } from '../../recipient-view-request';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.
@@ -71,6 +72,20 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   const envelope = await signingViaEmail.controller(signEmailArgs);
 
   const signed = envelope.envelopeId;
+
+  const embeddedArgs = {
+    dsReturnUrl: 'https://google.ie',
+    signerEmail: user.email,
+    signerName: user.firstName + " " + user.lastName,
+    signerClientId: 1,
+    basePath: authArgs.docusignBasePath,
+    accountId: authArgs.docusignAccountId,
+    accessToken: authArgs.docusignToken,
+    envelopeId: signed
+  }
+
+  // TODO: return url
+  const viewRequest = await recipientView.controller(embeddedArgs)
 
   const retrieveDocArgs = {
     basePath: authArgs.docusignBasePath,
@@ -137,6 +152,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
 
   return {
     preview: preview,
-    signed: signed
+    signed: signed,
+    viewRequest: viewRequest
   }
 }
