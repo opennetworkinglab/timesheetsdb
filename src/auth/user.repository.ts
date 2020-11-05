@@ -21,10 +21,56 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Project } from '../project/project.entity';
 
+const usersEmails = ['bill@opennetworking.org', 'ain@opennetworking.org', 'sean@opennetworking.org', 'zdw@opennetworking.org', 'valdar@opennetworking.org'];
+const supervisor = ['ain@opennetworking.org', 'bill@opennetworking.org', 'ain@opennetworking.org', 'bill@opennetworking.org' , 'ain@opennetworking.org'];
+const userNames = [['William', 'Snow'], ['Ain', 'Indermitte'], ['Sean', 'Condon'], ['Zack', 'Williams'], ['Valdar', 'Rudman']];
+const DARPA_ALLOCATION = 100;
+const SUPERVISOR = true;
+const ACTIVE = true;
+
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
 
-  async createTsUser(createUserDto: CreateUserDto): Promise<void> {
+  constructor() {
+    super();
+
+    this.createUsers().then(() => {
+      console.log("Users created");
+    });
+  }
+
+  async createUsers(){
+
+    for (let i = 0; i < usersEmails.length; i++){
+
+      const user = new User();
+      user.email = usersEmails[i];
+      user.darpaAllocationPct = DARPA_ALLOCATION;
+      user.isActive = ACTIVE;
+      user.firstName = userNames[i][0];
+      user.lastName = userNames[i][1];
+      user.supervisorEmail = supervisor[i];
+      user.projects = [];
+
+      if(i < 2){
+        user.isSupervisor = SUPERVISOR;
+      }
+      else {
+        user.isSupervisor = !SUPERVISOR;
+      }
+
+      const sharedProjects = await getConnection().getRepository(Project).find({ where: { priority: 1 }});
+
+      for(let i = 0; i < sharedProjects.length; i++){
+
+        user.projects.push(sharedProjects[i]);
+      }
+
+      await user.save();
+    }
+  }
+
+  async createUser(createUserDto: CreateUserDto): Promise<void> {
 
     const { email, firstName, lastName, supervisorEmail, darpaAllocationPct, isSupervisor, projects } = createUserDto;
 

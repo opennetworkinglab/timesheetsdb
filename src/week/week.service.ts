@@ -27,8 +27,8 @@ export class WeekService {
     @InjectRepository(WeekRepository)
     private weekRepository: WeekRepository) {}
 
-  async getWeek(filterWeekDto: FilterWeekDto): Promise<Week[]> {
-    return this.weekRepository.getWeeks(filterWeekDto);
+  async getWeek(): Promise<Week[]> {
+    return this.weekRepository.getWeeks();
   }
 
   async getWeekById(id: number):Promise<Week> {

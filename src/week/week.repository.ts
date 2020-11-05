@@ -17,6 +17,9 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Week } from './week.entity';
 import { FilterWeekDto } from './dto/filter-week.dto';
+import { OnfDay } from '../onf-day/onf-day.entity';
+
+const onfDays = [ [26, 10, 2020], [27, 10, 2020] ];
 
 @EntityRepository(Week)
 export class WeekRepository extends Repository<Week> {
@@ -27,27 +30,15 @@ export class WeekRepository extends Repository<Week> {
     // Create week on first start of application
     this.createWeek().then(() => {
       console.log("Weeks created");
-    }).catch(()=> {
+    }).catch((e)=> {
       console.log("Weeks already created");
+      console.log(e);
     });
   }
 
-  async getWeeks(filterWeekDto: FilterWeekDto): Promise<Week[]> {
+  async getWeeks(): Promise<Week[]> {
 
-    const { year, weekNo } = filterWeekDto;
-
-    const query = this.createQueryBuilder('week');
-
-    if (year) {
-      query.andWhere('week.year = :year', { year });
-    }
-
-    if (weekNo) {
-      query.andWhere('week.weekNo = :weekNo', { weekNo: weekNo });
-    }
-
-    // Gets all the weeks or weeks based on filters
-    return await query.getMany();
+    return await this.find();
   }
 
   async getWeekById(id: number):Promise<Week> {
@@ -56,22 +47,36 @@ export class WeekRepository extends Repository<Week> {
   }
 
   async createWeek(): Promise<void> {
-
+console.log("dsasdda")
     const weekMs = 168 * 60 * 60 * 1000;
     const startDate = 1588550400000; // Mon 4th may 2020
     const initWeek = 18;
 
     // Populating weeks table 34
-    for (let w = 1; w <= 34; w++) {
+    for (let w = 1; w <= 52; w++) {
 
       const d = new Date(startDate + w * weekMs);
 
       const week = new Week();
       week.year = d.getFullYear();
       week.weekNo = initWeek + w;
-      week.monthNo = d.getMonth();
+      week.monthNo = d.getMonth() + 1; // Its from 0 - 11
       week.begin = new Date(d.getTime());
       week.end = new Date(d.getTime() + weekMs - 1000);
+      week.onfDays = [];
+
+      for(let i = 0; i < onfDays.length; i++){
+        // console.log("Week: \n\t",d.getDate(), onfDays[i][0], "\n\t", d.getMonth(), onfDays[i][1], "\n\t", d.getFullYear(), onfDays[i][2]);
+        if(d.getDate() <= onfDays[i][0] && onfDays[i][0] <= d.getDate() + 6 && d.getMonth() === onfDays[i][1] && d.getFullYear() === onfDays[i][2]){
+console.log("sdsdadasads")
+          const onfDay = new OnfDay();
+          onfDay.date = new Date(onfDays[i][2], onfDays[i][1], onfDays[i][0]);
+          await onfDay.save();
+
+          week.onfDays.push(onfDay);
+        }
+      }
+
       await week.save();
     }
   }

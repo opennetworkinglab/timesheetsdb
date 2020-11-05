@@ -19,7 +19,7 @@ import { EntityRepository, Repository } from 'typeorm';
 import { Project } from './project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 
-const sharedProjectsName = ['Sick', 'Holiday', 'PTO', 'G_A', 'IR_D']
+const sharedProjectsName = ['Darpa HR001120C0107','Sick', 'Holiday', 'PTO', 'G_A', 'IR_D']
 const sharedProjectsPriority = 1;
 
 @EntityRepository(Project)
