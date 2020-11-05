@@ -48,6 +48,6 @@ export class Weekly extends BaseEntity {
   userSigned: string
 
   @ApiProperty()
-  @Column({ name: 'supervisor_signed', nullable: true })
+  @Column({ name: 'supervisor_signed', default: false})
   supervisorSigned: boolean
 }

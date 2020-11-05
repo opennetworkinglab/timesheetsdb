@@ -76,7 +76,6 @@ To run the app you'll need:
     Google - use of Google Drive for storing the documents and png previews of them.
 
 ### Development
->>>>>>> master
 ```
 npx typeorm migration:generate -n NAME_OF_SCRIPT -d src/migrations
 ```

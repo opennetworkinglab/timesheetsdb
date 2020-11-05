@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { EntityRepository, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
 import { Weekly } from './weekly.entity';
 import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
@@ -22,6 +22,7 @@ import { UpdateWeeklyDto } from './dto/update-weekly.dto';
 import { generateEnvelopeAndPreview } from '../docusign/util/generation/envelope-preview';
 import { movePreviewToUnsigned } from '../google/util/move-preview';
 import { voidEnvelope } from '../docusign/void-envelope';
+import { Day } from '../day/day.entity';
 
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
@@ -60,6 +61,11 @@ export class WeeklyRepository extends Repository<Weekly> {
   async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto, redirectUrl: string): Promise<{ viewRequest }> {
 
     let weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
+    const days = await getConnection().getRepository(Day).find({ where: { weekId: weekId}});
+
+    if(days.length === 0){
+      throw new BadRequestException("No days for this week have been filled");
+    }
 
     if(!weeklySigned){
       updateWeeklyDto.weekId = weekId;

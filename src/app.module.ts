@@ -25,6 +25,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DayModule } from './day/day.module';
 import { TimeModule } from './time/time.module';
 import { WeeklyModule } from './weekly/weekly.module';
+import { OnfDayModule } from './onf-day/onf-day.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { WeeklyModule } from './weekly/weekly.module';
     WeekModule,
     DayModule,
     TimeModule,
-    WeeklyModule
+    WeeklyModule,
+    OnfDayModule
   ],
   controllers: [AppController],
   providers: [AppService],

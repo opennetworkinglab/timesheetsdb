@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { WeekService } from './week.service';
-import { FilterWeekDto } from './dto/filter-week.dto';
-import { Week } from './week.entity';
+import { Test, TestingModule } from '@nestjs/testing';
+import { OnfDayService } from './onf-day.service';
 
+describe('OnfDayService', () => {
+  let service: OnfDayService;
 
-@Controller('week')
-@UseGuards(AuthGuard())
-export class WeekController {
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [OnfDayService],
+    }).compile();
 
-  constructor(private weekService: WeekService) {}
+    service = module.get<OnfDayService>(OnfDayService);
+  });
 
-  @Get()
-  getWeek(): Promise<Week[]> {
-    return this.weekService.getWeek();
-  }
-
-  @Get(':id')
-  async getWeekById(@Param('id') id):Promise<Week> {
-    return this.weekService.getWeekById(id);
-  }
-}
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
