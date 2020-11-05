@@ -29,6 +29,11 @@ export class WeeklyController {
   constructor(private weeklyService: WeeklyService) {
   }
 
+  @Get('supervisor/update') // no auth
+  UpdateWeeklySupervisor() {
+    return this.weeklyService.updateWeeklySupervisor();
+  }
+
   @Get(':emailId/:weekId')
   @UseGuards(AuthGuard())
   getWeekly(@GetUser() user: User,
@@ -45,8 +50,4 @@ export class WeeklyController {
     return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto, redirectUrl);
   }
 
-  @Get('supervisor/update') // no auth
-  UpdateWeeklySupervisor() {
-    return this.weeklyService.updateWeeklySupervisor();
-  }
 }
