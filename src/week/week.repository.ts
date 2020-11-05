@@ -30,9 +30,8 @@ export class WeekRepository extends Repository<Week> {
     // Create week on first start of application
     this.createWeek().then(() => {
       console.log("Weeks created");
-    }).catch((e)=> {
+    }).catch(()=> {
       console.log("Weeks already created");
-      console.log(e);
     });
   }
 
