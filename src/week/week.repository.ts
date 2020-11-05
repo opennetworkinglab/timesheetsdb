@@ -46,7 +46,7 @@ export class WeekRepository extends Repository<Week> {
   }
 
   async createWeek(): Promise<void> {
-console.log("dsasdda")
+
     const weekMs = 168 * 60 * 60 * 1000;
     const startDate = 1588550400000; // Mon 4th may 2020
     const initWeek = 18;
@@ -67,7 +67,7 @@ console.log("dsasdda")
       for(let i = 0; i < onfDays.length; i++){
         // console.log("Week: \n\t",d.getDate(), onfDays[i][0], "\n\t", d.getMonth(), onfDays[i][1], "\n\t", d.getFullYear(), onfDays[i][2]);
         if(d.getDate() <= onfDays[i][0] && onfDays[i][0] <= d.getDate() + 6 && d.getMonth() === onfDays[i][1] && d.getFullYear() === onfDays[i][2]){
-console.log("sdsdadasads")
+
           const onfDay = new OnfDay();
           onfDay.date = new Date(onfDays[i][2], onfDays[i][1], onfDays[i][0]);
           await onfDay.save();
