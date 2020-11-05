@@ -202,8 +202,8 @@ export class WeeklyService {
 
       // Get url to save to DB for preview png image
       url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
-      urlSplit = url.split('id');
-      const preview = urlSplit[0] + file.data.id + urlSplit[1];
+      urlSplit = url.split('IDLOCATION');
+      const preview = urlSplit[0] + file.data.id;
 
       const result = await this.weeklyRepository.updateWeeklySupervisor(args.envelopeId, documentUrl, preview);
 
