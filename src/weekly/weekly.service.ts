@@ -186,13 +186,14 @@ export class WeeklyService {
         saveFilename: saveName,
         savePath: tempDir
       });
-      let imResult = await image(1);
-      const imResultSplit = imResult.split('.');
+      const imResult = await image(1);
 
-      imResult = imResultSplit[0] + "-completed" + imResultSplit[1];
+      const imResultSplit = imResult.name.split('.');
+
+      const imResultName = imResultSplit[0] + "-completed." + imResultSplit[2];
 
       // Save preview to drive
-      gDriveArgs.name = imResult.name;
+      gDriveArgs.name = imResultName;
       gDriveArgs.parents = [userFolder.imagesFolder];
       gDriveArgs.mimeType = 'image/png';
       gDriveArgs.body = createReadStream(tempDir +  "/" + imResult.name);
@@ -201,8 +202,8 @@ export class WeeklyService {
 
       // Get url to save to DB for preview png image
       url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
-      urlSplit = url.split('id');
-      const preview = urlSplit[0] + file.data.id + urlSplit[1];
+      urlSplit = url.split('IDLOCATION');
+      const preview = urlSplit[0] + file.data.id;
 
       const result = await this.weeklyRepository.updateWeeklySupervisor(args.envelopeId, documentUrl, preview);
 
