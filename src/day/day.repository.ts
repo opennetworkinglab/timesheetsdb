@@ -77,7 +77,7 @@ export class DayRepository extends Repository<Day> {
     }
 
     const { project, minutes } = updateDayDto;
-    console.log(minutes);
+
     // update for existing times
     for(let i = 0; i < updateDay.times.length; i++){
 

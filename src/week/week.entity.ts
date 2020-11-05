@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { OnfDay } from '../onf-day/onf-day.entity';
 
 @Entity('weeks') // Database table name
 @Unique('week_year_week', ['year', 'weekNo'])
@@ -46,4 +57,9 @@ export class Week extends BaseEntity {
   @ApiProperty()
   @Column({ type: 'date', name: 'end' })
   end: Date
+
+  @ApiProperty()
+  @OneToMany(() => OnfDay, onfDay => onfDay.week, { eager: true })
+  @JoinColumn()
+  onfDays: OnfDay[]
 }

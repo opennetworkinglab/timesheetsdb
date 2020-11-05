@@ -42,13 +42,13 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    return this.userRepository.createTsUser(createUserDto);
+    return this.userRepository.createUser(createUserDto);
   }
 
   // TODO: DELETE FOR PRODUCTION
   async TEMPcreateUser(createUserDto: CreateUserDto): Promise<void> {
 
-    return this.userRepository.createTsUser(createUserDto);
+    return this.userRepository.createUser(createUserDto);
   }
 
   async updateUser(user: User, emailId: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {

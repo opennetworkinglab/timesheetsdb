@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { WeekService } from './week.service';
-import { FilterWeekDto } from './dto/filter-week.dto';
-import { Week } from './week.entity';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { Week } from '../week/week.entity';
 
+@Entity('onf_days')
+export class OnfDay extends BaseEntity {
 
-@Controller('week')
-@UseGuards(AuthGuard())
-export class WeekController {
+  @ApiProperty()
+  @PrimaryColumn({ type: 'date' })
+  date: Date;
 
-  constructor(private weekService: WeekService) {}
-
-  @Get()
-  getWeek(): Promise<Week[]> {
-    return this.weekService.getWeek();
-  }
-
-  @Get(':id')
-  async getWeekById(@Param('id') id):Promise<Week> {
-    return this.weekService.getWeekById(id);
-  }
+  @ApiProperty()
+  @ManyToOne(() => Week, week => week.onfDays, { eager: false })
+  week: Week;
 }

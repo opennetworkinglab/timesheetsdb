@@ -14,26 +14,7 @@
  * limitations under the License.
  */
 
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { WeekService } from './week.service';
-import { FilterWeekDto } from './dto/filter-week.dto';
-import { Week } from './week.entity';
+import { Injectable } from '@nestjs/common';
 
-
-@Controller('week')
-@UseGuards(AuthGuard())
-export class WeekController {
-
-  constructor(private weekService: WeekService) {}
-
-  @Get()
-  getWeek(): Promise<Week[]> {
-    return this.weekService.getWeek();
-  }
-
-  @Get(':id')
-  async getWeekById(@Param('id') id):Promise<Week> {
-    return this.weekService.getWeekById(id);
-  }
-}
+@Injectable()
+export class OnfDayService {}
