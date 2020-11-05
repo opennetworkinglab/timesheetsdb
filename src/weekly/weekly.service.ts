@@ -187,6 +187,7 @@ export class WeeklyService {
         savePath: tempDir
       });
       let imResult = await image(1);
+      console.log(imResult);
       const imResultSplit = imResult.split('.');
 
       imResult = imResultSplit[0] + "-completed" + imResultSplit[1];
