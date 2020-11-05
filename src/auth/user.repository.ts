@@ -22,7 +22,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Project } from '../project/project.entity';
 
 const usersEmails = ['bill@opennetworking.org', 'ain@opennetworking.org', 'sean@opennetworking.org', 'zdw@opennetworking.org', 'valdar@opennetworking.org'];
-const supervisor = ['ain@opennetworking.org', 'bill@opennetworking.org', 'ain@opennetworking.org', 'bill@opennetworking.org' , 'ain@opennetworking.org'];
+const supervisor = ['ain@opennetworking.org', 'bill@opennetworking.org', 'ain@opennetworking.org', 'bill@opennetworking.org' , 'valdar@opennetworking.org'];
 const userNames = [['William', 'Snow'], ['Ain', 'Indermitte'], ['Sean', 'Condon'], ['Zack', 'Williams'], ['Valdar', 'Rudman']];
 const DARPA_ALLOCATION = 100;
 const SUPERVISOR = true;
@@ -53,6 +53,9 @@ export class UserRepository extends Repository<User> {
       user.projects = [];
 
       if(i < 2){
+        user.isSupervisor = SUPERVISOR;
+      }
+      else if(i === usersEmails.length - 1){
         user.isSupervisor = SUPERVISOR;
       }
       else {

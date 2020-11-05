@@ -16,7 +16,6 @@
 
 import { EntityRepository, Repository } from 'typeorm';
 import { Week } from './week.entity';
-import { FilterWeekDto } from './dto/filter-week.dto';
 import { OnfDay } from '../onf-day/onf-day.entity';
 
 const onfDays = [ [26, 10, 2020], [27, 10, 2020] ];
