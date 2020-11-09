@@ -16,7 +16,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection, UpdateResult } from 'typeorm';
+import { getConnection, LessThan, MoreThan, UpdateResult } from 'typeorm';
 import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -37,6 +37,7 @@ import { getUserContentFolderIds } from '../google/util/get-user-content-folder-
 import { Week } from '../week/week.entity';
 import { formatArrayYYMMDD } from '../util/date/date-formating';
 import { voidEnvelope } from '../docusign/void-envelope';
+import { sendEmail } from '../google/gmail/send-email';
 
 // const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
@@ -256,5 +257,42 @@ export class WeeklyService {
         assertion: jwtToken
       }
     );
+  }
+
+  async userReminderEmails(){
+
+    const users = await getConnection().getRepository(User).find({ select: ['email'], where: { isActive: true }});
+
+    const currentDate = new Date(2020, 10, 8);
+
+    const week = await getConnection().getRepository(Week).findOne({ where: { end: currentDate }});
+
+    const oAuth2Client = await auth.authorize(this.getGoogleCredentials());
+
+    const emailArgs = {
+      message: 'Please complete timesheet for week beginning' + week.begin,
+      subject: 'Complete Timesheet week:' + week.begin
+    }
+
+    for(let i = 0; i < users.length; i++){
+
+      const weekly = await getConnection().getRepository(Weekly).findOne({ where: { user: users[i].email, weekId: week.id }});
+
+      const emailArgs = {
+        userEmail: users[i].email,
+        message: 'Please complete timesheet for week beginning' + week.begin,
+        subject: 'Complete Timesheet week:' + week.begin
+      }
+      if(weekly){
+
+        if(weekly.userSigned.length === 0){
+          await sendEmail.worker(oAuth2Client, emailArgs);
+        }
+      }
+      else {
+        await sendEmail.worker(oAuth2Client, emailArgs);
+      }
+
+    }
   }
 }

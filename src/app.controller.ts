@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
 import { auth } from './google/auth';
@@ -55,5 +55,10 @@ export class AppController {
 
   async delay(ms: number) {
     await new Promise(resolve => setTimeout(()=>resolve(), ms));
+  }
+
+  @Get()
+  async testPoint(): Promise<{ status }> {
+    return await this.appService.testPoint();
   }
 }
