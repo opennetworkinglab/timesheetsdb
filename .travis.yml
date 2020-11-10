@@ -39,6 +39,5 @@ jobs:
         - stage: release
           if: type != pull_request && fork == false
           script:
-              - bash ./build/bin/push-images
               - bash ../build-tools/release-merge-commit
 
