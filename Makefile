@@ -29,6 +29,9 @@ images: build timesheetsdb-docker
 
 all: build images
 
+publish: # @HELP publish version on github and dockerhub
+	./../build-tools/publish-version ${VERSION} opennetworkinglab/timesheetdb
+
 clean: # @HELP remove all the build artifacts
 	rm -rf ./timesheetsdb/dist ./timesheetsdb/node_modules
 
