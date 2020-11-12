@@ -28,7 +28,6 @@ auth.authorize = (credentials) => {
 
   //TODO: PATH OUTSIDE ROOT - ADD TO README
   const TOKEN_PATH = GOOGLE_TOKEN_PATH;
-
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id, client_secret, redirect_uris[0]);

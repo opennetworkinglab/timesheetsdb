@@ -267,12 +267,9 @@ export class WeeklyService {
 
     const week = await getConnection().getRepository(Week).findOne({ where: { end: currentDate }});
 
-    const oAuth2Client = await auth.authorize(this.getGoogleCredentials());
+    const cred = await this.getGoogleCredentials();
 
-    const emailArgs = {
-      message: 'Please complete timesheet for week beginning' + week.begin,
-      subject: 'Complete Timesheet week:' + week.begin
-    }
+    const oAuth2Client = await auth.authorize(cred);
 
     for(let i = 0; i < users.length; i++){
 
@@ -280,8 +277,8 @@ export class WeeklyService {
 
       const emailArgs = {
         userEmail: users[i].email,
-        message: 'Please complete timesheet for week beginning' + week.begin,
-        subject: 'Complete Timesheet week:' + week.begin
+        message: 'Please complete timesheet for week beginning ' + week.begin,
+        subject: 'Complete Timesheet week: ' + week.begin
       }
       if(weekly){
 
