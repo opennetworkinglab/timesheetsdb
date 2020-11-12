@@ -15,10 +15,28 @@
  */
 
 import { Injectable } from '@nestjs/common';
+import { getConnection } from 'typeorm';
+import { User } from './auth/user.entity';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+
+  async testPoint(): Promise<{ status }> {
+
+    try {
+      const users = await getConnection().getRepository(User).find();
+
+      if(users.length > 0){
+        return {
+          status: 'DB working'
+        }
+      }
+    }
+    catch (error){
+      return {
+        status: 'Error with db\n' + error
+      }
+    }
+
   }
 }

@@ -29,6 +29,11 @@ export class WeeklyController {
   constructor(private weeklyService: WeeklyService) {
   }
 
+  @Get('user/reminders')
+  userReminderEmails () {
+    return this.weeklyService.userReminderEmails();
+  }
+
   @Get('supervisor/update') // no auth
   UpdateWeeklySupervisor() {
     return this.weeklyService.updateWeeklySupervisor();
@@ -49,5 +54,4 @@ export class WeeklyController {
                    @Body('redirectUrl') redirectUrl: string): Promise<{ viewRequest }> {
     return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto, redirectUrl);
   }
-
 }
