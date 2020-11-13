@@ -17,7 +17,6 @@
 import { Injectable } from '@nestjs/common';
 import { WeekRepository } from './week.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FilterWeekDto } from './dto/filter-week.dto';
 import { Week } from './week.entity';
 
 @Injectable()

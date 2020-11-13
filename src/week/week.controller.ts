@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { WeekService } from './week.service';
-import { FilterWeekDto } from './dto/filter-week.dto';
 import { Week } from './week.entity';
 
 
