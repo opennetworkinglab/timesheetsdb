@@ -16,7 +16,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection, LessThan, MoreThan, UpdateResult } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -36,11 +36,7 @@ import { upload } from '../google/gdrive/upload';
 import { getUserContentFolderIds } from '../google/util/get-user-content-folder-ids';
 import { Week } from '../week/week.entity';
 import { formatArrayYYMMDD } from '../util/date/date-formating';
-import { voidEnvelope } from '../docusign/void-envelope';
 import { sendEmail } from '../google/gmail/send-email';
-
-// const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-// const weekdays = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun", "Total"];
 
 // noinspection DuplicatedCode
 @Injectable()
@@ -52,10 +48,6 @@ export class WeeklyService {
     private configService: ConfigService) {
   }
 
-  async createTsWeekly(): Promise<void> {
-
-    // return this.tsWeeklyRepository.createTsWeekly(tsUser, createTsWeeklyDto);
-  }
 
   async getWeekly(user: User, weekId: number): Promise<Weekly> {
     return this.weeklyRepository.getWeekly(user, weekId);
@@ -263,7 +255,7 @@ export class WeeklyService {
 
     const users = await getConnection().getRepository(User).find({ select: ['email'], where: { isActive: true }});
 
-    const currentDate = new Date(2020, 10, 8);
+    const currentDate = new Date();
 
     const week = await getConnection().getRepository(Week).findOne({ where: { end: currentDate }});
 

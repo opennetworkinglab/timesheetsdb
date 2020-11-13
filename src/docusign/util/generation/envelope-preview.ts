@@ -43,7 +43,7 @@ import { recipientView } from '../../recipient-view-request';
 export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleParent, redirectUrl) => {
 
   const week = await getConnection().getRepository(Week).findOne({ where: { id: weekId }});
-  const days = await getConnection().getRepository(Day).find({ where: { user: user, weekId: weekId }});
+  const days = await getConnection().getRepository(Day).find({ where: { user: user, weekId: weekId }, order: { id: 'ASC' }});
   const supervisor = await getConnection().getRepository(User).findOne({ where: { email: user.supervisorEmail }});
 
   if(days.length === 0){

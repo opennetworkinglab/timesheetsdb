@@ -15,7 +15,6 @@
  */
 
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { UpdateResult } from 'typeorm';
 import { WeeklyService } from './weekly.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';

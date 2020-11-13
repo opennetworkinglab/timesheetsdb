@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BaseEntity, Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Week } from '../week/week.entity';
 
