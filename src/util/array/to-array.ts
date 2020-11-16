@@ -19,6 +19,9 @@ import { Week } from '../../week/week.entity';
 import { getDay } from '../date/date-formating';
 import { Time } from '../../time/time.entity';
 
+const MONTHS30 = [3, 5, 8, 10]; // Apr, Jun, Sep, Nov
+const FEB = 1;
+
 export const timesTo2DArray7Days = async (user, days) => {
 
   const week = await getConnection().getRepository(Week).findOne({
@@ -26,7 +29,9 @@ export const timesTo2DArray7Days = async (user, days) => {
       id: days[0].weekId
     }});
 
-  let currentDay = getDay(week.begin);
+  const weekBeginDate = new Date(week.begin);
+  let currentDay = weekBeginDate.getDate();
+  const month = weekBeginDate.getMonth();
 
   const timeName = [] // weekday. e.g. Monday.
   const timeMinutes = []
@@ -40,7 +45,7 @@ export const timesTo2DArray7Days = async (user, days) => {
     let timesIndex = -1;
 
     // check that day is current day. Also checks if we have gone through all days
-    if(dayIndex < days.length && getDay(days[dayIndex].day) === currentDay) {
+    if(dayIndex < days.length && new Date(days[dayIndex].day).getDate() === currentDay) {
 
       // Sorts the day times into the same order as the projects
       while (userIndex < user.projects.length) {
@@ -70,7 +75,26 @@ export const timesTo2DArray7Days = async (user, days) => {
         }
       }
       dayIndex++;
-      currentDay++;
+
+      // check to see if current day is at the end of a month
+      if(month === FEB && currentDay === 28){
+        currentDay = 1;
+      }
+      else if(currentDay === 30) {
+
+        for (let i = 0; i < MONTHS30.length; i++) {
+
+          if(month === MONTHS30[i]){
+            currentDay = 1;
+          }
+        }
+      }
+      else if (currentDay === 31){
+        currentDay = 1;
+      }
+      else {
+        currentDay++;
+      }
     }
     // If all days passed in are dealt with. Populate the remainder days left
     else{
