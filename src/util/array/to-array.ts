@@ -16,7 +16,6 @@
 
 import { getConnection } from 'typeorm';
 import { Week } from '../../week/week.entity';
-import { getDay } from '../date/date-formating';
 import { Time } from '../../time/time.entity';
 
 const MONTHS30 = [3, 5, 8, 10]; // Apr, Jun, Sep, Nov
