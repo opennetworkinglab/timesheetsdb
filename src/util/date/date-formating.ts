@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-export const getDay = (date): number =>{
-
-  const dateArr = date.split("-");
-
-  return Number(dateArr[2]);
-}
-
 export const formatArrayYYMMDD = (date): string => {
 
   return date.split("-");
