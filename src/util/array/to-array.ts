@@ -78,7 +78,7 @@ export const timesTo2DArray7Days = async (user, days) => {
 
       // check to see if current day is at the end of a month and leap year
       if(month === FEB && (currentDay >= 28 )){
-        if(year % 2 === 0 && currentDay === 29){
+        if(year % 4 === 0 && currentDay === 29){
           currentDay = 1;
         }
         else if (year % 2 !== 0){
