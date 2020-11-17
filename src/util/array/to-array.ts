@@ -31,6 +31,7 @@ export const timesTo2DArray7Days = async (user, days) => {
   const weekBeginDate = new Date(week.begin);
   let currentDay = weekBeginDate.getDate();
   const month = weekBeginDate.getMonth();
+  const year = weekBeginDate.getFullYear();
 
   const timeName = [] // weekday. e.g. Monday.
   const timeMinutes = []
@@ -75,9 +76,16 @@ export const timesTo2DArray7Days = async (user, days) => {
       }
       dayIndex++;
 
-      // check to see if current day is at the end of a month
-      if(month === FEB && currentDay === 28){
-        currentDay = 1;
+      // check to see if current day is at the end of a month and leap year
+      if(month === FEB && (currentDay >= 28 )){
+        if(year % 2 === 0 && currentDay === 29){
+          currentDay = 1;
+        }
+        else if (year % 2 !== 0){
+          currentDay = 1;
+        }else{
+          currentDay++;
+        }
       }
       else if(currentDay === 30) {
 
