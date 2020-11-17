@@ -198,8 +198,14 @@ function htmlPage(args) {
     let index = 0;
     while (index < timeMinutes[0].length){
 
+      let name: string = timeName[0][index];
+      if(name.includes('_') === true){
+
+        name = name.replace('_', '&')
+      }
+
       htmlDoc += `<tr>
-                  <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${timeName[0][index]}</td>`
+                  <td style="padding: 9px 8px 0;border-bottom: 1px solid #667;">${name}</td>`
 
       for(let i = 0; i < timeMinutes.length; i++) {
 
