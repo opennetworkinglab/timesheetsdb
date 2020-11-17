@@ -126,7 +126,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   const year = weekEnd[0];
 
   const args = {
-    searchTerm: [user.firstName + " " + user.lastName, weekStart, month, year],
+    searchTerm: [weekStart, month, year],
     parent: googleParent
   }
 
