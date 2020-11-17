@@ -81,7 +81,7 @@ export const timesTo2DArray7Days = async (user, days) => {
         if(year % 4 === 0 && currentDay === 29){
           currentDay = 1;
         }
-        else if (year % 2 !== 0){
+        else if (year % 4 !== 0){
           currentDay = 1;
         }else{
           currentDay++;
