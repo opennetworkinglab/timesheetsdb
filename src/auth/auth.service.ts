@@ -23,7 +23,6 @@ import { JwtPayloadInterface } from './jwt-payload.interface';
 import { User } from './user.entity';
 import { UpdateResult } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -31,8 +30,7 @@ export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
-    private jwtService: JwtService,
-    private configService: ConfigService) {}
+    private jwtService: JwtService) {}
 
   async createUser(user: User, createUserDto: CreateUserDto): Promise<void> {
 
