@@ -20,8 +20,6 @@ const docusign = require('docusign-esign');
 export const voidEnvelope = exports;
 
 voidEnvelope.send = async (args, envelopeId) => {
-  console.log(args);
-  console.log(envelopeId);
 
   const dsApiClient = new docusign.ApiClient();
   dsApiClient.setBasePath(args.basePath);
