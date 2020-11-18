@@ -67,9 +67,4 @@ export class AuthController {
   getUsers(@GetUser() user: User): Promise<User[]> {
     return this.authService.getUsers(user);
   }
-
-  @Get('reminderemails')
-  reminderEmails(){
-    return this.authService.reminderEmails();
-  }
 }

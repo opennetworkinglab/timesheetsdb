@@ -85,36 +85,4 @@ export class AuthService {
     return { accessToken };
   }
 
-  async reminderEmails(){
-
-    const redirectUris = this.configService.get<string>('GOOGLE_REDIRECT_URIS').split(', ');
-
-    const credentials= {
-      "installed": {
-        "client_id": this.configService.get<string>('GOOGLE_CLIENT_ID'),
-        "project_id": this.configService.get<string>('GOOGLE_PROJECT_ID'),
-        "auth_uri": this.configService.get<string>('GOOGLE_AUTH_URI'),
-        "token_uri": this.configService.get<string>('GOOGLE_TOKEN_URI'),
-        "auth_provider_x509_cert_url": this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
-        "client_secret": this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
-        "redirect_uris": redirectUris
-      }
-    }
-
-    const oAuth2Client = await auth.authorize(credentials);
-
-    const args = {
-      userEmail: "valdar@opennetworking.org",
-      message: "TEST",
-      subject:  "TEST",
-    }
-
-    sendEmail.worker(oAuth2Client, args);
-
-    // TODO: CALL SEND-REMINDER-EMAILS
-    // sendReminderEmails.worker(oAuth2Client);
-
-
-
-  }
 }

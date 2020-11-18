@@ -272,6 +272,7 @@ export class WeeklyService {
         message: 'Please complete timesheet for week beginning ' + week.begin,
         subject: 'Complete Timesheet week: ' + week.begin
       }
+
       if(weekly){
 
         if(weekly.userSigned.length === 0){
@@ -281,7 +282,6 @@ export class WeeklyService {
       else {
         await sendEmail.worker(oAuth2Client, emailArgs);
       }
-
     }
   }
 }
