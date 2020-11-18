@@ -67,4 +67,10 @@ export class AuthController {
   getUsers(@GetUser() user: User): Promise<User[]> {
     return this.authService.getUsers(user);
   }
+
+  @Get('supervisor')
+  @UseGuards(AuthGuard())
+  getSupervisor(@GetUser() user: User): Promise<User> {
+    return this.authService.getSupervisor(user);
+  }
 }

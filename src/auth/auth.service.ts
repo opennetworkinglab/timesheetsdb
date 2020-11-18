@@ -23,8 +23,6 @@ import { JwtPayloadInterface } from './jwt-payload.interface';
 import { User } from './user.entity';
 import { UpdateResult } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { auth } from '../google/auth';
-import { sendEmail } from '../google/gmail/send-email';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -85,4 +83,7 @@ export class AuthService {
     return { accessToken };
   }
 
+  async getSupervisor(user: User): Promise<User> {
+    return this.userRepository.getSupervisor(user);
+  }
 }
