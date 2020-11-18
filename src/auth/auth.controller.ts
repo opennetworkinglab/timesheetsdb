@@ -68,8 +68,9 @@ export class AuthController {
     return this.authService.getUsers(user);
   }
 
-  @Get('reminderemails')
-  reminderEmails(){
-    return this.authService.reminderEmails();
+  @Get('supervisor')
+  @UseGuards(AuthGuard())
+  getSupervisor(@GetUser() user: User): Promise<User> {
+    return this.authService.getSupervisor(user);
   }
 }
