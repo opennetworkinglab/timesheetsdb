@@ -77,6 +77,12 @@ export class UserRepository extends Repository<User> {
 
     const { email, firstName, lastName, supervisorEmail, darpaAllocationPct, isSupervisor, projects } = createUserDto;
 
+    const user = this.findOne({ where: { email: email }});
+
+    if(user){
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+
     const newUser = new User();
     newUser.email = email;
     newUser.firstName = firstName;
@@ -93,17 +99,18 @@ export class UserRepository extends Repository<User> {
       newUser.projects.push(sharedProjects[i]);
     }
 
-    for(let i = 0; i < projects.length; i++) {
+    if(projects !== undefined) {
+      for (let i = 0; i < projects.length; i++) {
 
-      const getProject = await getConnection().getRepository(Project).findOne({ where: { name: projects[i] }});
+        const getProject = await getConnection().getRepository(Project).findOne({ where: { name: projects[i] } });
 
-      if (!getProject){
-        throw new HttpException("No project with " + projects[i] + " name", HttpStatus.BAD_REQUEST);
+        if (!getProject) {
+          throw new HttpException("No project with " + projects[i] + " name", HttpStatus.BAD_REQUEST);
+        }
+
+        newUser.projects.push(getProject);
       }
-
-      newUser.projects.push(getProject);
     }
-
     await newUser.save();
 
     throw new HttpException("User created", HttpStatus.CREATED);
