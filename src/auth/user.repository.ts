@@ -77,7 +77,7 @@ export class UserRepository extends Repository<User> {
 
     const { email, firstName, lastName, supervisorEmail, darpaAllocationPct, isSupervisor, projects } = createUserDto;
 
-    const user = this.findOne({ where: { email: email }});
+    const user = await this.findOne({ where: { email: email }});
 
     if(user){
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
@@ -127,15 +127,15 @@ export class UserRepository extends Repository<User> {
       supervisorEmail = updatedUser.supervisorEmail;
     }
 
-    if(!darpaAllocationPct){
+    if(darpaAllocationPct === undefined){
       darpaAllocationPct = updatedUser.darpaAllocationPct;
     }
 
-    if(!isSupervisor){
+    if(isSupervisor === undefined){
       isSupervisor = updatedUser.isSupervisor;
     }
 
-    if(!isActive){
+    if(isActive === undefined){
       isActive = updatedUser.isActive;
     }
 
@@ -162,7 +162,7 @@ export class UserRepository extends Repository<User> {
         darpaAllocationPct: darpaAllocationPct,
         isSupervisor: isSupervisor,
         isActive: isActive,
-        projects: updatedProjects
+        // projects: updatedProjects
     });
   }
 
