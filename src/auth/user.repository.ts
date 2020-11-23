@@ -15,7 +15,7 @@
  */
 
 import { HttpException, HttpStatus} from '@nestjs/common';
-import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, Not, Repository, UpdateResult } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -169,7 +169,7 @@ export class UserRepository extends Repository<User> {
   async getUsers(user: User): Promise<User[]> {
 
     return this.find({
-      where: { supervisorEmail: user.email },
+      where: { email: Not(user.email) },
       relations: ['projects']
     })
   }
