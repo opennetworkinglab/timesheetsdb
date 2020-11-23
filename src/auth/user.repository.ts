@@ -15,7 +15,7 @@
  */
 
 import { HttpException, HttpStatus} from '@nestjs/common';
-import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, Not, Repository, UpdateResult } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -77,6 +77,12 @@ export class UserRepository extends Repository<User> {
 
     const { email, firstName, lastName, supervisorEmail, darpaAllocationPct, isSupervisor, projects } = createUserDto;
 
+    const user = await this.findOne({ where: { email: email }});
+
+    if(user){
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+
     const newUser = new User();
     newUser.email = email;
     newUser.firstName = firstName;
@@ -93,17 +99,18 @@ export class UserRepository extends Repository<User> {
       newUser.projects.push(sharedProjects[i]);
     }
 
-    for(let i = 0; i < projects.length; i++) {
+    if(projects !== undefined) {
+      for (let i = 0; i < projects.length; i++) {
 
-      const getProject = await getConnection().getRepository(Project).findOne({ where: { name: projects[i] }});
+        const getProject = await getConnection().getRepository(Project).findOne({ where: { name: projects[i] } });
 
-      if (!getProject){
-        throw new HttpException("No project with " + projects[i] + " name", HttpStatus.BAD_REQUEST);
+        if (!getProject) {
+          throw new HttpException("No project with " + projects[i] + " name", HttpStatus.BAD_REQUEST);
+        }
+
+        newUser.projects.push(getProject);
       }
-
-      newUser.projects.push(getProject);
     }
-
     await newUser.save();
 
     throw new HttpException("User created", HttpStatus.CREATED);
@@ -120,15 +127,15 @@ export class UserRepository extends Repository<User> {
       supervisorEmail = updatedUser.supervisorEmail;
     }
 
-    if(!darpaAllocationPct){
+    if(darpaAllocationPct === undefined){
       darpaAllocationPct = updatedUser.darpaAllocationPct;
     }
 
-    if(!isSupervisor){
+    if(isSupervisor === undefined){
       isSupervisor = updatedUser.isSupervisor;
     }
 
-    if(!isActive){
+    if(isActive === undefined){
       isActive = updatedUser.isActive;
     }
 
@@ -155,14 +162,14 @@ export class UserRepository extends Repository<User> {
         darpaAllocationPct: darpaAllocationPct,
         isSupervisor: isSupervisor,
         isActive: isActive,
-        projects: updatedProjects
+        // projects: updatedProjects
     });
   }
 
   async getUsers(user: User): Promise<User[]> {
 
     return this.find({
-      where: { supervisorEmail: user.email },
+      where: { email: Not(user.email) },
       relations: ['projects']
     })
   }
