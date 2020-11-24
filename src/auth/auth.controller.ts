@@ -38,16 +38,6 @@ export class AuthController {
     return this.authService.createUser(user, createUserDto);
   }
 
-  @Post('tempcreateuser') // TODO: TEMP USER CREATE. DELETE FRO PRODUCTION
-  tempCreateUser(@Body() createUserDto: CreateUserDto): Promise<void> {
-    return this.authService.TEMPcreateUser(createUserDto);
-  }
-
-  @Post('tempsignin') // TODO: TEMP USER SIGNIN. DELETE FRO PRODUCTION
-  tempSignIn(@Body('email') email): Promise<{ accessToken: string}> {
-    return this.authService.tempSignIn(email);
-  }
-
   @Patch(':emailId')
   @UseGuards(AuthGuard())
   updateUser(@GetUser() user: User,
