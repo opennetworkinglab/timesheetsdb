@@ -17,8 +17,15 @@
 import { Module } from '@nestjs/common';
 import { OnfDayController } from './onf-day.controller';
 import { OnfDayService } from './onf-day.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module';
+import { OnfDayRepository } from './onf-day.repository';
 
 @Module({
+  imports: [
+    TypeOrmModule.forFeature([OnfDayRepository]),
+    AuthModule
+  ],
   controllers: [OnfDayController],
   providers: [OnfDayService]
 })

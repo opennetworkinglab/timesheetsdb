@@ -14,7 +14,18 @@
  * limitations under the License.
  */
 
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { OnfDayService } from './onf-day.service';
+import { OnfDay } from './onf-day.entity';
 
-@Controller('onf-day')
-export class OnfDayController {}
+@Controller('onfday')
+export class OnfDayController {
+
+  constructor(private onfDayService: OnfDayService) {
+  }
+
+  @Post()
+  createOnfDay(@Body('day') day: string): Promise<OnfDay>{
+    return this.onfDayService.createOnfDay(day);
+  }
+}
