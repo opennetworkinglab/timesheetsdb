@@ -119,9 +119,17 @@ export class UserRepository extends Repository<User> {
   async updateUser(user: User, emailId: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
 
     // eslint-disable-next-line prefer-const
-    let { supervisorEmail, darpaAllocationPct, isSupervisor, isActive, projects } = updateUserDto;
+    let { firstName, lastName, supervisorEmail, darpaAllocationPct, isSupervisor, isActive, projects } = updateUserDto;
 
     const updatedUser = await this.findOne({ where: { email: emailId } });
+
+    if(!firstName){
+      firstName = updatedUser.firstName;
+    }
+
+    if(!lastName){
+      lastName = updatedUser.lastName;
+    }
 
     if(!supervisorEmail){
       supervisorEmail = updatedUser.supervisorEmail;
@@ -158,6 +166,8 @@ export class UserRepository extends Repository<User> {
     return await this.update(
       { email: emailId },
       {
+        firstName: firstName,
+        lastName: lastName,
         supervisorEmail: supervisorEmail,
         darpaAllocationPct: darpaAllocationPct,
         isSupervisor: isSupervisor,
@@ -168,10 +178,12 @@ export class UserRepository extends Repository<User> {
 
   async getUsers(user: User): Promise<User[]> {
 
-    return this.find({
-      where: { email: Not(user.email) },
-      relations: ['projects']
-    })
+    // return this.find({
+    //   where: { email: Not(user.email) },
+    //   relations: ['projects']
+    // });
+
+    return this.find();
   }
 
   async getSupervisor(user: User): Promise<User> {

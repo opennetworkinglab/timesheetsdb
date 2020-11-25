@@ -42,7 +42,7 @@ export const movePreviewToUnsigned = async (user: User, args) => {
   const year = weekEnd[0];
 
   const userFolderArgs = {
-    searchTerm: [user.firstName + " " + user.lastName, weekStart, month, year],
+    searchTerm: [weekStart, month, year],
     parent: args.googleParent
   }
 

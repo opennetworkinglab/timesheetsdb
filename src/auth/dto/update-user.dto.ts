@@ -22,6 +22,16 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  firstName: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  lastName: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   supervisorEmail: string
 
   @ApiProperty()
