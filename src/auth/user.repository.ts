@@ -178,10 +178,12 @@ export class UserRepository extends Repository<User> {
 
   async getUsers(user: User): Promise<User[]> {
 
-    return this.find({
-      where: { email: Not(user.email) },
-      relations: ['projects']
-    })
+    // return this.find({
+    //   where: { email: Not(user.email) },
+    //   relations: ['projects']
+    // });
+
+    return this.find();
   }
 
   async getSupervisor(user: User): Promise<User> {
