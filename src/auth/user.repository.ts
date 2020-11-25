@@ -177,15 +177,4 @@ export class UserRepository extends Repository<User> {
   async getSupervisor(user: User): Promise<User> {
     return await this.findOne({where: {email: user.supervisorEmail}});
   }
-
-  // TODO: DELETE FOR PRODUCTION
-  async tempSignIn(email: string): Promise<string> {
-
-    const user = await this.findOne({
-      select: ['email'],
-      where: { email: email}
-    });
-
-    return user.email;
-  }
 }

@@ -62,7 +62,7 @@ Each script contains an up and down method:
 
 #### Generate script
 If any changes are made to any entity file, generate a migration script:
-=======
+
 To run the app you'll need:
 
 - Database configuration put in `ormconfig.json`, for migrations to be run
@@ -127,7 +127,7 @@ Priority 1 is for shared projects. E.g Sick
 Projects populate the docusign table in an order based on priority
 
 # Google Folder Layout
-<<<<<<< HEAD
+
 Main Folder - Id of this folder will be passed in the env file.  
 - Main Folder 
     - year  
@@ -142,7 +142,8 @@ Some aspects of the application allow the use of templates.
 The template's folder houses these templates.  
 Current templates exist for:  
 - Gmail
-=======
+    - Reminder emails
+
 Main Folder - Id of this folder will be passed in the env file.
 Main Folder -> year
 year -> month
@@ -150,4 +151,3 @@ month -> week
 week -> user(name of user) - Pdf documents stored here
 user -> images - png of documents stored here
 user -> unsigned - where pngs are moved to when user unsigns
->>>>>>> master

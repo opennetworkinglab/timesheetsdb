@@ -18,8 +18,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
-import { JwtService } from '@nestjs/jwt';
-import { JwtPayloadInterface } from './jwt-payload.interface';
 import { User } from './user.entity';
 import { UpdateResult } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -29,20 +27,13 @@ export class AuthService {
 
   constructor(
     @InjectRepository(UserRepository)
-    private userRepository: UserRepository,
-    private jwtService: JwtService) {}
+    private userRepository: UserRepository) {}
 
   async createUser(user: User, createUserDto: CreateUserDto): Promise<void> {
 
     if(!user.isSupervisor || !user.isActive){
       throw new UnauthorizedException();
     }
-
-    return this.userRepository.createUser(createUserDto);
-  }
-
-  // TODO: DELETE FOR PRODUCTION
-  async TEMPcreateUser(createUserDto: CreateUserDto): Promise<void> {
 
     return this.userRepository.createUser(createUserDto);
   }
@@ -63,22 +54,6 @@ export class AuthService {
     }
 
     return this.userRepository.getUsers(user);
-  }
-
-
-  // TODO: DELETE FOR PRODUCTION
-  async tempSignIn(email: string): Promise<{ accessToken: string }> {
-
-    const emailString = this.userRepository.tempSignIn(email);
-
-    if(!emailString) {
-      throw new UnauthorizedException("Invalid");
-    }
-
-    const payload: JwtPayloadInterface = { email };
-    const accessToken = await this.jwtService.sign(payload);
-
-    return { accessToken };
   }
 
   async getSupervisor(user: User): Promise<User> {
