@@ -151,13 +151,9 @@ function htmlPage(args) {
         <h1 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
             color: darkblue;margin-bottom: 0;">${args.submitterName}: ${args.submitterEmail}</h1>
   
-        <h2 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
-          margin-top: 0;margin-bottom: 3.5em;font-size: 1em;
-          color: darkblue;">Timesheet Week no: ${args.week.weekNo}</h2>
+        <h4>Week: ${args.week.begin} to ${args.week.end}</h4>
   
-        <h4>Week: ${args.week.begin} - ${args.week.end}</h4>
-  
-        <p style="margin-top:0; margin-bottom:0;">Supervisor: ${args.supervisorName}, ${args.supervisorEmail}</p>
+        <p style="margin-top:0; margin-bottom:0;">Approver: ${args.supervisorName}, ${args.supervisorEmail}</p>
   
         <table style="width: 100%; font-family:sans-serif;text-align: center;border-spacing:2px;border-color:grey;line-height:1.5;">
   
@@ -226,7 +222,7 @@ function htmlPage(args) {
                   </table>
                     <!-- Note the anchor tag for the signature field is in white. -->
                     <h3 style="margin-top:3em;">Submitter: <span style="color:white;">**signature_1**</span></h3>
-                    <h3 style="margin-top: 3em;">Supervisor: <span style="color:white;">**signature_2**</span></h3>
+                    <h3 style="margin-top: 3em;">Approver: <span style="color:white;">**signature_2**</span></h3>
                     </body>
               </html>`
 
