@@ -48,7 +48,6 @@ export class WeeklyService {
     private configService: ConfigService) {
   }
 
-
   async getWeekly(user: User, weekId: number): Promise<Weekly> {
     return this.weeklyRepository.getWeekly(user, weekId);
   }
@@ -144,7 +143,7 @@ export class WeeklyService {
       const oAuth2Client = await auth.authorize(credentials);
 
       const userFolderArgs = {
-        searchTerm: [weekly.user.firstName + " " + weekly.user.lastName, weekStart, month, year],
+        searchTerm: [weekStart, month, year],
         parent: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')
       }
       const userFolder = await getUserContentFolderIds(oAuth2Client,userFolderArgs, userFolderArgs.searchTerm.length - 1);
