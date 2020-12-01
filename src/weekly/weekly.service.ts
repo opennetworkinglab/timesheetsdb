@@ -48,7 +48,6 @@ export class WeeklyService {
     private configService: ConfigService) {
   }
 
-
   async getWeekly(user: User, weekId: number): Promise<Weekly> {
     return this.weeklyRepository.getWeekly(user, weekId);
   }
