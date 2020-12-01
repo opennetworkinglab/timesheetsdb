@@ -115,91 +115,96 @@ export class WeeklyService {
       args.envelopeId = envelopes.envelopes[i].envelopeId;
 
       // Getting necessary information to get user folder to save in
-      const weekly = await getConnection().getRepository(Weekly).findOne({ where: { userSigned: args.envelopeId }});
-      const week = await getConnection().getRepository(Week).findOne({ where: { id: weekly.weekId }});
-      let weekStart = formatArrayYYMMDD(week.begin);
-      const weekEnd = formatArrayYYMMDD(week.end);
-      weekStart = weekStart[1] + "-" + weekStart[2]
-      const month = weekEnd[1];
-      const year = weekEnd[0];
+      const weekly = await getConnection().getRepository(Weekly).findOne({ where: { userSigned: args.envelopeId } });
 
-      const documents = await listEnvelopeDocuments.worker(args);
+      // if envelope ids are gotten that are not created from this application they wont be in db
+      if (weekly) {
 
-      args.documentId = documents.envelopeDocuments[0].documentId;
-      args.envelopeDocuments = documents.envelopeDocuments;
+        const week = await getConnection().getRepository(Week).findOne({ where: { id: weekly.weekId } });
+        let weekStart = formatArrayYYMMDD(week.begin);
+        const weekEnd = formatArrayYYMMDD(week.end);
+        weekStart = weekStart[1] + "-" + weekStart[2]
+        const month = weekEnd[1];
+        const year = weekEnd[0];
 
-      const pdfDocument = await downloadDocument.worker(args);
+        const documents = await listEnvelopeDocuments.worker(args);
 
-      const readableInstanceStream = new Readable({
-        read() {
-          this.push(Buffer.from(pdfDocument.fileBytes, 'binary'));
-          this.push(null);
+        args.documentId = documents.envelopeDocuments[0].documentId;
+        args.envelopeDocuments = documents.envelopeDocuments;
+
+        const pdfDocument = await downloadDocument.worker(args);
+
+        const readableInstanceStream = new Readable({
+          read() {
+            this.push(Buffer.from(pdfDocument.fileBytes, 'binary'));
+            this.push(null);
+          }
+        });
+        //-------
+
+        //-- Upload to Google
+        const credentials = await this.getGoogleCredentials();
+        const oAuth2Client = await auth.authorize(credentials);
+
+        const userFolderArgs = {
+          searchTerm: [weekly.user.firstName + " " + weekly.user.lastName, weekStart, month, year],
+          parent: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')
         }
-      });
-      //-------
+        const userFolder = await getUserContentFolderIds(oAuth2Client, userFolderArgs, userFolderArgs.searchTerm.length - 1);
 
-      //-- Upload to Google
-      const credentials = await this.getGoogleCredentials();
-      const oAuth2Client = await auth.authorize(credentials);
+        // Save document to drive
+        const gDriveArgs = {
+          name: pdfDocument.docName,
+          parents: [userFolder.userFolder],
+          mimeType: 'image/pdf',
+          body: readableInstanceStream
+        }
 
-      const userFolderArgs = {
-        searchTerm: [weekStart, month, year],
-        parent: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')
+        let file = await upload.worker(oAuth2Client, gDriveArgs);
+
+        // Get document url to save to DB
+        let url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+        let urlSplit = url.split('IDLOCATION');
+        const documentUrl = urlSplit[0] + file.data.id;
+
+        // Save preview of document in PNG
+        let saveName = pdfDocument.docName.split('.');
+        saveName = saveName[0];
+
+        const tempDir = tmpdir();
+
+        const image = fromBuffer(Buffer.from(pdfDocument.fileBytes, 'binary'), {
+          density: 100,
+          format: "png",
+          width: 600,
+          height: 600,
+          quality: 100,
+          saveFilename: saveName,
+          savePath: tempDir
+        });
+        const imResult = await image(1);
+
+        const imResultSplit = imResult.name.split('.');
+
+        const imResultName = imResultSplit[0] + "-completed." + imResultSplit[2];
+
+        // Save preview to drive
+        gDriveArgs.name = imResultName;
+        gDriveArgs.parents = [userFolder.imagesFolder];
+        gDriveArgs.mimeType = 'image/png';
+        gDriveArgs.body = createReadStream(tempDir + "/" + imResult.name);
+
+        file = await upload.worker(oAuth2Client, gDriveArgs);
+
+        // Get url to save to DB for preview png image
+        url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+        urlSplit = url.split('IDLOCATION');
+        const preview = urlSplit[0] + file.data.id;
+
+        const result = await this.weeklyRepository.updateWeeklySupervisor(args.envelopeId, documentUrl, preview);
+
+        updates += Number(result.affected);
       }
-      const userFolder = await getUserContentFolderIds(oAuth2Client,userFolderArgs, userFolderArgs.searchTerm.length - 1);
-
-      // Save document to drive
-      const gDriveArgs = {
-        name: pdfDocument.docName,
-        parents: [userFolder.userFolder],
-        mimeType: 'image/pdf',
-        body: readableInstanceStream
-      }
-
-      let file = await upload.worker(oAuth2Client, gDriveArgs);
-
-      // Get document url to save to DB
-      let url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
-      let urlSplit = url.split('IDLOCATION');
-      const documentUrl = urlSplit[0] + file.data.id;
-
-      // Save preview of document in PNG
-      let saveName = pdfDocument.docName.split('.');
-      saveName = saveName[0];
-
-      const tempDir = tmpdir();
-
-      const image = fromBuffer(Buffer.from(pdfDocument.fileBytes, 'binary'), {
-        density: 100,
-        format: "png",
-        width: 600,
-        height: 600,
-        quality: 100,
-        saveFilename: saveName,
-        savePath: tempDir
-      });
-      const imResult = await image(1);
-
-      const imResultSplit = imResult.name.split('.');
-
-      const imResultName = imResultSplit[0] + "-completed." + imResultSplit[2];
-
-      // Save preview to drive
-      gDriveArgs.name = imResultName;
-      gDriveArgs.parents = [userFolder.imagesFolder];
-      gDriveArgs.mimeType = 'image/png';
-      gDriveArgs.body = createReadStream(tempDir +  "/" + imResult.name);
-
-      file = await upload.worker(oAuth2Client, gDriveArgs);
-
-      // Get url to save to DB for preview png image
-      url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
-      urlSplit = url.split('IDLOCATION');
-      const preview = urlSplit[0] + file.data.id;
-
-      const result = await this.weeklyRepository.updateWeeklySupervisor(args.envelopeId, documentUrl, preview);
-
-      updates += Number(result.affected);
     }
 
     // I am a teapot!
