@@ -283,4 +283,24 @@ export class WeeklyService {
       }
     }
   }
+
+  async approverEmail(user: User){
+
+
+    const users = getConnection().getRepository(User).find({ where: { supervisorEmail: user.email }});
+
+    const envelopeIds = getConnection().getRepository(Weekly).find( { select: [ 'userSigned' ], where: {}})
+
+
+    const token = await this.getDocusignToken();
+
+    const authArgs = {
+      accessToken: token.data.access_token,
+      basePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
+      accountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
+      envelopeIds: null
+    }
+
+
+  }
 }

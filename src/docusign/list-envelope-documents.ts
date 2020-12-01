@@ -28,5 +28,5 @@ listEnvelopeDocuments.worker = async (args) => {
   
   const envelopesApi = new docusign.EnvelopesApi(dsApiClient);
 
-  return  await envelopesApi.listDocuments(args.accountId, args.envelopeId, null);
+  return await envelopesApi.listDocuments(args.accountId, args.envelopeId, null);
 }

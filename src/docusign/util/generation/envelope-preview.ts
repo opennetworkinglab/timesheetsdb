@@ -67,6 +67,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
       accountId: authArgs.docusignAccountId,
       accessToken: authArgs.docusignToken,
       htmlArgs: htmlArgs,
+      isSubmitter: true
     };
 
   const envelope = await signingViaEmail.controller(signEmailArgs);

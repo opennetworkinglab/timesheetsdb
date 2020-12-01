@@ -15,22 +15,43 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+import { listEnvelopeDocuments } from './list-envelope-documents';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const docusign = require('docusign-esign');
 
 export const signingViaEmail = exports;
 
+/**
+ *
+ * @param args for all: accessToken, basePath, accountId
+ * args for user: documentName, htmlArgs
+ * args for approver: envelope Ids
+ */
 signingViaEmail.controller = async (args) => {
 
-  const envelopeArgs = {
+  let envelopeArgs;
+  if(args.isSubmitter === true) {
+    envelopeArgs = {
       documentName: args.documentName,
       status: 'sent',
       htmlArgs: args.htmlArgs
-    },
-    workerArgs = {
+    }
+  }
+  else {
+    envelopeArgs = {
+      accountId: args.accountId,
+      envelopeIds: args.envelopeIds,
+      status: 'sent',
+    }
+  }
+
+  const workerArgs = {
       accessToken: args.accessToken,
       basePath: args.basePath,
       accountId: args.accountId,
       envelopeArgs: envelopeArgs,
+      isSubmitter: args.isSubmitter
     }
 
   try {
@@ -50,8 +71,16 @@ signingViaEmail.worker = async (args) => {
   dsApiClient.addDefaultHeader('Authorization', 'Bearer ' + args.accessToken);
   const envelopesApi = new docusign.EnvelopesApi(dsApiClient)
 
-  const envelope = makeEnvelope(args.envelopeArgs)
+  let envelope;
 
+  if (args.isSubmitter) {
+
+    envelope = makeEnvelopeUser(args.envelopeArgs)
+  }
+  else{
+    envelope = makeEnvelopeApprover(args.envelopeArgs)
+  }
+  return ;
   const results = await envelopesApi.createEnvelope(
     args.accountId, {
       envelopeDefinition: envelope
@@ -62,7 +91,64 @@ signingViaEmail.worker = async (args) => {
   return ({ envelopeId: envelopeId })
 }
 
-function makeEnvelope(args){
+// args: envelopeIds[]
+function makeEnvelopeApprover(args) {
+
+  const env = new docusign.EnvelopeDefinition();
+  env.emailSubject = 'Please sign this document set';
+
+  // add 1 day reminder
+  const notification = new docusign.Notification();
+  notification.useAccountDefaults = 'false';
+
+  const reminders = new docusign.Reminders();
+  reminders.reminderEnabled = 'true';
+  reminders.reminderDelay = '1';
+  reminders.reminderFrequency = '1';
+
+  notification.reminders = reminders;
+  env.notification = notification;
+
+  for(let i = 0; i < args.envelopeIds.length; i++){
+    
+    const documents = listEnvelopeDocuments.worker({
+      accountId: args.accountId,
+      envelopeId: args.envelopeIds[i] });
+    console.log(documents);
+    const doc1 = new docusign.Document();
+    doc1.documentBase64 = Buffer.from(documents[1]).toString('base64');
+    doc1.name = args.documentName;
+    doc1.fileExtension = 'html';
+    doc1.documentId = '1';
+
+    env.documents = [doc1];
+
+  }
+
+  const signer1 = docusign.Signer.constructFromObject({
+    email: args.htmlArgs.supervisorEmail,
+    name: args.htmlArgs.supervisorName,
+    recipientId: 2,
+    routingOrder: 2 });
+
+  const signHere1 = docusign.SignHere.constructFromObject({
+    anchorString: '**signature_2**',
+    anchorYOffset: '10', anchorUnits: 'pixels',
+    anchorXOffset: '20'});
+
+  // Tabs are set per recipient / signer
+  signer1.tabs = docusign.Tabs.constructFromObject({
+    signHereTabs: [signHere1]});
+
+  env.recipients = docusign.Recipients.constructFromObject({
+    signers: [signer1],
+  });
+  env.status = args.status;
+
+  return env;
+}
+
+function makeEnvelopeUser(args){
 
   const env = new docusign.EnvelopeDefinition();
   env.emailSubject = 'Please sign this document set';
