@@ -16,7 +16,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection } from 'typeorm';
+import { getConnection, In, MoreThan } from 'typeorm';
 import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -284,23 +284,47 @@ export class WeeklyService {
     }
   }
 
-  async approverEmail(user: User){
+  async approverEmail(){
 
+    const approverUsers: User[] = await getConnection().getRepository(User).find({ where: [{ isSupervisor: true}]});
 
-    const users = getConnection().getRepository(User).find({ where: { supervisorEmail: user.email }});
+    // loop and send sign email for all approved users where there users have signed
+    for(let i = 0; i < 1; i++){//approverUsers.length; i++){
 
-    const envelopeIds = getConnection().getRepository(Weekly).find( { select: [ 'userSigned' ], where: {}})
+      const users = await getConnection().getRepository(User).find({ select: ['email'], where: { supervisorEmail: approverUsers[0].email }});
+      const queryUsers = [];
 
+      for(let i = 0; i < users.length; i++){
+        queryUsers.push(users[i].email);
+      }
 
-    const token = await this.getDocusignToken();
+      const date = new Date(2020, 10, 29);
 
-    const authArgs = {
-      accessToken: token.data.access_token,
-      basePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
-      accountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
-      envelopeIds: null
+      const week = await getConnection().getRepository(Week).findOne({ where: [
+          { end: MoreThan(date)},
+          { end: date }
+        ]});
+
+      const envelopeIds = await getConnection().getRepository(Weekly).find( {
+        select: [ 'userSigned' ],
+        where: [
+          {
+            weekId: week.id,
+            user: In(queryUsers) // get all ids for users in array
+          }
+        ]});
+
+      console.log(envelopeIds);
     }
 
+    // const token = await this.getDocusignToken();
+    //
+    // const authArgs = {
+    //   accessToken: token.data.access_token,
+    //   basePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
+    //   accountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
+    //   envelopeIds: null
+    // }
 
   }
 }

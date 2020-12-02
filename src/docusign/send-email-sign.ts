@@ -76,11 +76,12 @@ signingViaEmail.worker = async (args) => {
   if (args.isSubmitter) {
 
     envelope = makeEnvelopeUser(args.envelopeArgs)
+
   }
   else{
     envelope = makeEnvelopeApprover(args.envelopeArgs)
   }
-  return ;
+
   const results = await envelopesApi.createEnvelope(
     args.accountId, {
       envelopeDefinition: envelope

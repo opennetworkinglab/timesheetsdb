@@ -71,7 +71,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
     };
 
   const envelope = await signingViaEmail.controller(signEmailArgs);
-
+console.log(envelope);
   const signed = envelope.envelopeId;
 
   const embeddedArgs = {
