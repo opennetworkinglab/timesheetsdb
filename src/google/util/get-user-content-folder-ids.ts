@@ -106,3 +106,58 @@ export const getUserContentFolderIds = async (auth, args, startCheckValue) => { 
     return this.getUserContentFolderIds(auth, args, startCheckValue - 1);
   }
 }
+
+export const getMonthFolderId = async (auth, args, startCheckValue) => { // user - week - month - year
+
+  let searchTerm;
+  let fileMetadata;
+
+  if(startCheckValue === 0){
+
+    searchTerm = "name='" + args.searchTerm[startCheckValue] + "' and parents in '" + args.parent + "' and trashed = false";
+
+    let userFolder = await gDriveFolder.find(auth, searchTerm);
+
+    if (userFolder.data.files.length > 0) {
+
+      return userFolder.data.files[0].id
+
+    }
+
+    fileMetadata = {
+      'name': args.searchTerm[startCheckValue],
+      'mimeType': 'application/vnd.google-apps.folder',
+      parents: [args.parent]
+    };
+
+    userFolder = await gDriveFolder.gDriveFolder.create(auth, fileMetadata);
+
+    return userFolder.data.files[0].id;
+  }
+
+  searchTerm = "name='" + args.searchTerm[startCheckValue] + "' and parents in '" + args.parent + "' and trashed = false";
+
+  const result = await gDriveFolder.find(auth, searchTerm);
+
+  // Folder exists
+  if (result.data.files.length > 0) {
+
+    args.parent = result.data.files[0].id;
+
+    return await this.getMonthFolderId(auth, args, startCheckValue - 1);
+
+  } else {
+
+    fileMetadata = {
+      'name': args.searchTerm[startCheckValue],
+      'mimeType': 'application/vnd.google-apps.folder',
+      parents: [args.parent]
+    };
+
+    const folder = await gDriveFolder.create(auth, fileMetadata);
+    args.parent = folder.data.id;
+
+    return this.getMonthFolderId(auth, args, startCheckValue - 1);
+  }
+
+}

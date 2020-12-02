@@ -28,6 +28,11 @@ export class WeeklyController {
   constructor(private weeklyService: WeeklyService) {
   }
 
+  @Get('user/summary')
+  summaryReport(){
+    return this.weeklyService.summaryReport();
+  }
+
   @Get('user/reminders')
   userReminderEmails () {
     return this.weeklyService.userReminderEmails();

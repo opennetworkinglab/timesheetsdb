@@ -16,7 +16,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection } from 'typeorm';
+import { getConnection, In } from 'typeorm';
 import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -31,12 +31,14 @@ import { listEnvelopes } from '../docusign/list-envelopes';
 import { listEnvelopeDocuments } from '../docusign/list-envelope-documents';
 import { downloadDocument } from '../docusign/download-document';
 import { auth } from '../google/auth';
-import { tmpdir } from "os";
+import { tmpdir } from 'os';
 import { upload } from '../google/gdrive/upload';
-import { getUserContentFolderIds } from '../google/util/get-user-content-folder-ids';
+import { getMonthFolderId, getUserContentFolderIds } from '../google/util/get-user-content-folder-ids';
 import { Week } from '../week/week.entity';
 import { formatArrayYYMMDD } from '../util/date/date-formating';
 import { sendEmail } from '../google/gmail/send-email';
+import { createPdf, PdfContent } from '../util/pdf/create-pdf';
+import { Day } from '../day/day.entity';
 
 // noinspection DuplicatedCode
 @Injectable()
@@ -208,7 +210,137 @@ export class WeeklyService {
     }
 
     // I am a teapot!
-    throw new HttpException(updates + " updated", HttpStatus.I_AM_A_TEAPOT);
+    throw new HttpException(updates + ' updated', HttpStatus.I_AM_A_TEAPOT);
+  }
+
+  async summaryReport() {
+
+    // Get current month
+    const month = new Date().getMonth();
+    const year = new Date().getFullYear();
+
+    const weeks = await getConnection().getRepository(Week).find({
+      where: {
+        monthNo: In([month, month - 1]),
+      },
+    });
+
+    // converting weeks array into weeks id array
+    const queryWeekIds = [];
+    for (let i = 0; i < weeks.length; i++) {
+
+      const queryMonth = new Date(weeks[i].end).getUTCMonth() + 1;
+
+      // check id end date falls in current month.
+      if (queryMonth === month) {
+        queryWeekIds.push(weeks[i].id);
+      }
+    }
+
+    // Getting weeklies signed for current month.
+    const weekliesSigned = await getConnection().getRepository(Weekly).find({
+      where: {
+        weekId: In(queryWeekIds),
+        supervisorSigned: true,
+      },
+      order: {
+        user: 'ASC',
+      },
+    });
+
+    // combine all weekly ids into one array with user
+    const weekliesUsers = [];
+    let currentUser: User = undefined;
+    let currentUserWeekIds = [];
+    for (let i = 0; i < weekliesSigned.length; i++) {
+
+      const user = weekliesSigned[i].user;
+
+      if (currentUser === undefined) {
+
+        currentUser = user;
+        currentUserWeekIds.push(weekliesSigned[i].weekId);
+      } else if (currentUser.email !== user.email) {
+
+        weekliesUsers.push([currentUser, currentUserWeekIds]);
+
+        currentUser = user;
+        currentUserWeekIds = [];
+        currentUserWeekIds.push(weekliesSigned[i].weekId);
+      } else {
+        currentUserWeekIds.push(weekliesSigned[i].weekId);
+
+        if (i === weekliesSigned.length - 1) {
+          weekliesUsers.push([currentUser, currentUserWeekIds]);
+        }
+      }
+    }
+
+    const pdfContents: PdfContent[] = [];
+    let currentPdfContent: PdfContent = undefined;
+
+    for (let i = 0; i < weekliesUsers.length; i++) {
+
+      currentPdfContent = new PdfContent();
+      currentPdfContent.name = weekliesUsers[i][0].firstName + ' ' + weekliesUsers[i][0].lastName;
+      let totalTime = 0;
+
+      const days = await getConnection().getRepository(Day).find({
+        where: {
+          weekId: In(weekliesUsers[i][1]),
+          user: weekliesUsers[i][0]
+        },
+      });
+
+      for (let j = 0; j < days.length; j++) {
+
+        for(let k = 0; k < days[j].times.length; k++){
+
+          totalTime += days[j].times[k].minutes;
+        }
+      }
+
+      currentPdfContent.data = (totalTime / 60).toString();
+      pdfContents.push(currentPdfContent);
+    }
+
+    const pdfBytes = await createPdf(pdfContents);
+
+    const googleCredentials = await this.getGoogleCredentials();
+    const oAuth2Client = await auth.authorize(googleCredentials);
+
+    const args = {
+      searchTerm: [month, year],
+      parent: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')
+    }
+
+    const gDriveMonthId = await getMonthFolderId(oAuth2Client, args, args.searchTerm.length - 1);
+
+    const readableInstanceStream = new Readable({
+      read() {
+        this.push(pdfBytes);
+        this.push(null);
+      }
+    });
+    // const readableInstanceStream = new Readable({
+    //   read() {
+    //     this.push(Buffer.from(pdfBytes, 'binary'));
+    //     this.push(null);
+    //   }
+    // });
+
+    // Save document to drive
+    const gDriveArgs = {
+      name: 'Summary for ' + year + '-' + month,
+      parents: [gDriveMonthId],
+      mimeType: 'image/pdf',
+      body: readableInstanceStream
+    }
+
+    const file = await upload.worker(oAuth2Client, gDriveArgs);
+
+    console.log(pdfContents);
+    console.log(file);
   }
 
   async getGoogleCredentials() {
@@ -216,16 +348,16 @@ export class WeeklyService {
     const redirectUris = this.configService.get<string>('GOOGLE_REDIRECT_URIS').split(', ');
 
     return {
-      "installed": {
-        "client_id": this.configService.get<string>('GOOGLE_CLIENT_ID'),
-        "project_id": this.configService.get<string>('GOOGLE_PROJECT_ID'),
-        "auth_uri": this.configService.get<string>('GOOGLE_AUTH_URI'),
-        "token_uri": this.configService.get<string>('GOOGLE_TOKEN_URI'),
-        "auth_provider_x509_cert_url": this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
-        "client_secret": this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
-        "redirect_uris": redirectUris
-      }
-    }
+      'installed': {
+        'client_id': this.configService.get<string>('GOOGLE_CLIENT_ID'),
+        'project_id': this.configService.get<string>('GOOGLE_PROJECT_ID'),
+        'auth_uri': this.configService.get<string>('GOOGLE_AUTH_URI'),
+        'token_uri': this.configService.get<string>('GOOGLE_TOKEN_URI'),
+        'auth_provider_x509_cert_url': this.configService.get<string>('GOOGLE_AUTH_PROVIDER_X509_CERT_URL'),
+        'client_secret': this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
+        'redirect_uris': redirectUris,
+      },
+    };
   }
 
   async getDocusignToken() {
