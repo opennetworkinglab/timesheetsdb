@@ -39,8 +39,22 @@ import { formatArrayYYMMDD } from '../util/date/date-formating';
 import { sendEmail } from '../google/gmail/send-email';
 import { createPdf, PdfContent } from '../util/pdf/create-pdf';
 import { Day } from '../day/day.entity';
+import { readFile } from 'fs.promises';
 
-// noinspection DuplicatedCode
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ObjectsToCsv = require('objects-to-csv')
+
+class CsvFile {
+  'Name': string;
+  'Total Hours': string;
+  'Month': number;
+  'Week One': string;
+  'Week Two': string;
+  'Week Three': string;
+  'Week Four': string;
+  'Week Five': string;
+}
+
 @Injectable()
 export class WeeklyService {
 
@@ -227,13 +241,15 @@ export class WeeklyService {
 
     // converting weeks array into weeks id array
     const queryWeekIds = [];
+    const weeksInMonth = [];
     for (let i = 0; i < weeks.length; i++) {
 
-      const queryMonth = new Date(weeks[i].end).getUTCMonth() + 1;
+      const queryMonth = new Date(weeks[i].end).getMonth() + 1;
 
       // check id end date falls in current month.
       if (queryMonth === month) {
         queryWeekIds.push(weeks[i].id);
+        weeksInMonth.push([weeks[i].begin, weeks[i].end]);
       }
     }
 
@@ -304,7 +320,7 @@ export class WeeklyService {
       pdfContents.push(currentPdfContent);
     }
 
-    const pdfBytes = await createPdf(pdfContents);
+    const pdfBytes = await createPdf(month - 1, weeksInMonth, pdfContents);
 
     const googleCredentials = await this.getGoogleCredentials();
     const oAuth2Client = await auth.authorize(googleCredentials);
@@ -316,18 +332,12 @@ export class WeeklyService {
 
     const gDriveMonthId = await getMonthFolderId(oAuth2Client, args, args.searchTerm.length - 1);
 
-    const readableInstanceStream = new Readable({
+    let readableInstanceStream = new Readable({
       read() {
         this.push(pdfBytes);
         this.push(null);
       }
     });
-    // const readableInstanceStream = new Readable({
-    //   read() {
-    //     this.push(Buffer.from(pdfBytes, 'binary'));
-    //     this.push(null);
-    //   }
-    // });
 
     // Save document to drive
     const gDriveArgs = {
@@ -337,10 +347,48 @@ export class WeeklyService {
       body: readableInstanceStream
     }
 
-    const file = await upload.worker(oAuth2Client, gDriveArgs);
+    await upload.worker(oAuth2Client, gDriveArgs);
 
-    console.log(pdfContents);
-    console.log(file);
+    const csvContents = [];
+
+    for(let i = 0; i < pdfContents.length; i++){
+
+      const csvFile = new CsvFile();
+
+      csvFile.Name = pdfContents[i].name;
+      csvFile['Total Hours'] = pdfContents[i].data;
+      csvFile.Month = month;
+
+      csvFile['Week One'] = weeksInMonth[0][0] + ' to ' + weeksInMonth[0][1];
+      csvFile['Week Two'] = weeksInMonth[1][0] + ' to ' + weeksInMonth[1][1];
+      csvFile['Week Three'] = weeksInMonth[2][0] + ' to ' + weeksInMonth[2][1];
+
+      if(weeksInMonth.length >= 4){
+        csvFile['Week Four'] = weeksInMonth[3][0] + ' to ' + weeksInMonth[3][1];
+      }
+
+      if (weeksInMonth.length >= 5 ){
+        csvFile['Week Five'] = weeksInMonth[4][0] + ' to ' + weeksInMonth[4][1];
+      }
+
+      csvContents.push(csvFile);
+    }
+
+    const tempDir = tmpdir();
+    const csv = new ObjectsToCsv(csvContents);
+    await csv.toDisk(tempDir + '/Summary of Nov.csv');
+
+    const readCsvFile = await readFile(tempDir + '/Summary of Nov.csv');
+    readableInstanceStream = new Readable({
+      read() {
+        this.push(Buffer.from(readCsvFile, 'binary'));
+        this.push(null);
+      }
+    });
+
+    gDriveArgs.mimeType = 'text/csv';
+    gDriveArgs.body = readableInstanceStream;
+    await upload.worker(oAuth2Client, gDriveArgs);
   }
 
   async getGoogleCredentials() {
@@ -393,6 +441,7 @@ export class WeeklyService {
 
     const currentDate = new Date();
 
+    // TODO change to previous week. If sunday current and previous week.
     const week = await getConnection().getRepository(Week).findOne({ where: { end: currentDate }});
 
     const cred = await this.getGoogleCredentials();

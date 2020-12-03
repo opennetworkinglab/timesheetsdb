@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 import { writeFile } from 'fs.promises';
 
@@ -24,57 +24,109 @@ export class PdfContent {
   data: string;
 }
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-export const createPdf = async (pdfContents: PdfContent[]) => {
+/**
+ *
+ * @param month int between 0 - 11
+ * @param weeks 2d array of start and end date of each week in the month
+ * @param pdfContents Name of user and total hours
+ */
+export const createPdf = async (month: number, weeks : string[][], pdfContents: PdfContent[]) => {
 
   const xValue1 = 50;
   const xValue2 = 250;
   const headingFont = 18;
   const paraFont = 15;
+  const firstHeightDrop = 4;
+  let secondHeightDrop = 11;
 
   const pdfDoc = await PDFDocument.create();
   const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
-  const page = pdfDoc.addPage();
+  let page = pdfDoc.addPage();
   const { width, height } = page.getSize();
+
+  page.drawText('Weeks for Month: ' + MONTHS[month], {
+    x: xValue1,
+    y: height - firstHeightDrop * headingFont,
+    size: headingFont,
+    font: timesRomanFont,
+    color: rgb(0, 0, 0),
+  });
+
+  let j = 1;
+  for (let i = 0; i < weeks.length; i += 2) {
+
+    page.drawText(weeks[i][0] + ' to ' + weeks[i][1], {
+      x: xValue1,
+      y: height - firstHeightDrop * headingFont - (paraFont * (j * 1.5) + 10),
+      size: paraFont,
+      font: timesRomanFont,
+      color: rgb(0, 0, 0),
+    });
+
+    if (i + 1 < weeks.length) {
+      page.drawText(weeks[i + 1][0] + ' to ' + weeks[i + 1][1], {
+        x: xValue1 + 200,
+        y: height - firstHeightDrop * headingFont - (paraFont * (j * 1.5) + 10),
+        size: paraFont,
+        font: timesRomanFont,
+        color: rgb(0, 0, 0),
+      });
+    }
+    j++;
+  }
 
   page.drawText('Direct Labor', {
     x: xValue1,
-    y: height - 4 * headingFont,
+    y: height - secondHeightDrop * headingFont,
     size: headingFont,
     font: timesRomanFont,
     color: rgb(0, 0, 0),
   });
   page.drawText('Hours', {
     x: xValue2,
-    y: height - 4 * headingFont,
+    y: height - secondHeightDrop * headingFont,
     size: headingFont,
     font: timesRomanFont,
     color: rgb(0, 0, 0),
   });
 
-
+  j = 1;
   for(let i = 0; i < pdfContents.length; i++){
+
+    // If the pdfContents exceeds the page creates new page and continues
+    if(height - secondHeightDrop * headingFont - (paraFont * (j * 1.5) + 10) <= 80){
+      secondHeightDrop = 4;
+      page = pdfDoc.addPage();
+      j = 1;
+    }
 
     page.drawText(pdfContents[i].name, {
       x: xValue1,
-      y: height - 4 * headingFont - (paraFont * ((i+1) * 1.5) + 10),
+      y: height - secondHeightDrop * headingFont - (paraFont * (j * 1.5) + 10),
       size: paraFont,
       font: timesRomanFont,
       color: rgb(0, 0, 0),
     });
     page.drawText(pdfContents[i].data, {
       x: xValue2,
-      y: height - 4 * headingFont - (paraFont * ((i+1) * 1.5) + 10),
+      y: height - secondHeightDrop * headingFont - (paraFont * (j * 1.5) + 10),
       size: paraFont,
       font: timesRomanFont,
       color: rgb(0, 0, 0.),
     });
+    j++;
   }
 
-  // Serialize the PDFDocument to bytes (a Uint8Array)
-  return await pdfDoc.save();
+  // const pdfBytes = await pdfDoc.save();
+  // await writeFile('out.pdf', pdfBytes);
   // writeFile('out.pdf', pdfBytes).then(()=>{
   //   console.log("dsasdad");
+  // }).catch((err) => {
+  //   console.log(err);
   // });
+
+  return await pdfDoc.save();
 }

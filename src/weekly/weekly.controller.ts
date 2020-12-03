@@ -28,17 +28,17 @@ export class WeeklyController {
   constructor(private weeklyService: WeeklyService) {
   }
 
-  @Get('user/summary')
+  @Get('user/summary') // monthly
   summaryReport(){
     return this.weeklyService.summaryReport();
   }
 
-  @Get('user/reminders')
+  @Get('user/reminders') // sunday
   userReminderEmails () {
     return this.weeklyService.userReminderEmails();
   }
 
-  @Get('supervisor/update') // no auth
+  @Get('supervisor/update') // 10 mins
   UpdateWeeklySupervisor() {
     return this.weeklyService.updateWeeklySupervisor();
   }
