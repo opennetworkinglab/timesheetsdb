@@ -28,7 +28,7 @@ listEnvelopes.worker = async (args) => {
 
   const envelopesApi = new docusign.EnvelopesApi(dsApiClient)
 
-  const options = { fromDate: lastQueryDate,fromToStatus: 'Completed' };
+  const options = { fromDate: lastQueryDate, fromToStatus: 'Completed' };
   lastQueryDate = new Date()
 
   return await envelopesApi.listStatusChanges(args.accountId, options);
