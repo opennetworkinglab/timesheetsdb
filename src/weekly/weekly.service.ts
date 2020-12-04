@@ -258,7 +258,7 @@ export class WeeklyService {
   async userReminderEmails() {
 
     const queryEndDates = [];
-    let currentDate = new Date(2020, 11, 27);
+    let currentDate = new Date();
     let diff = currentDate.getDay();
 
     // If Sunday on current week, add to query
@@ -275,6 +275,9 @@ export class WeeklyService {
       where: {
         end: In(queryEndDates),
       },
+      order: {
+        begin: 'ASC'
+      }
     });
 
     const weekIds = [];
@@ -287,13 +290,13 @@ export class WeeklyService {
     const cred = await this.getGoogleCredentials();
     const oAuth2Client = await auth.authorize(cred);
 
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < users.length; i++) {
 
       let toEmail = false;
 
       const weeklies = await getConnection().getRepository(Weekly).find({
         where: {
-          user: users[2].email,
+          user: users[i].email,
           weekId: In(weekIds),
         },
         order: {
@@ -301,7 +304,7 @@ export class WeeklyService {
         },
       });
 
-      let message = 'Please complete timesheet(s) for the following weeks:';
+      let message = 'Timesheets: https://timesheets.opennetworking.org/\n\nPlease complete timesheet(s) for the following weeks:';
       if (weeklies.length === 0) {
 
         toEmail = true;
@@ -324,7 +327,7 @@ export class WeeklyService {
       }
 
       const emailArgs = {
-        userEmail: users[2].email,
+        userEmail: users[i].email,
         message: message,
         subject: 'Incomplete Timesheet(s)',
       };

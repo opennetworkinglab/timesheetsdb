@@ -25,7 +25,7 @@ export class OnfDayController {
   }
 
   @Post()
-  createOnfDay(@Body('day') day: string): Promise<OnfDay>{
-    return this.onfDayService.createOnfDay(day);
+  createOnfDay(@Body('day') days: string[]): Promise<OnfDay>{
+    return this.onfDayService.createOnfDay(days);
   }
 }

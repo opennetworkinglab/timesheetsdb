@@ -23,27 +23,30 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 @EntityRepository(OnfDay)
 export class OnfDayRepository extends Repository<OnfDay> {
 
-  async createOnfDay(day: string): Promise<OnfDay> {
+  async createOnfDay(days: string[]): Promise<OnfDay> {
 
-    try {
+    for (let i = 0; i < days.length; i++) {
 
-      const date = new Date(day);
-      const week = await getConnection().getRepository(Week).findOne({
-        where: [
-          { end: MoreThanOrEqual(date) },
-        ],
-      });
+      try {
 
-      const onfDay = new OnfDay();
-      onfDay.date = date;
-      const result = await onfDay.save();
+        const date = new Date(days[i]);
+        const week = await getConnection().getRepository(Week).findOne({
+          where: [
+            { end: MoreThanOrEqual(date) },
+          ],
+        });
 
-      week.onfDays.push(onfDay);
-      await week.save();
+        const onfDay = new OnfDay();
+        onfDay.date = date;
+        const result = await onfDay.save();
 
-      return result;
-    }catch (e) {
-      throw new HttpException('ONF day already created', HttpStatus.BAD_REQUEST);
+        week.onfDays.push(onfDay);
+        await week.save();
+
+        return result;
+      } catch (e) {
+        throw new HttpException('ONF day already created', HttpStatus.BAD_REQUEST);
+      }
     }
   }
 }
