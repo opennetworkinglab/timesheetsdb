@@ -418,14 +418,14 @@ export class WeeklyService {
     const privateKey = readFileSync('docusignPrivate.key');
 
     const payload = {
-      "iss": this.configService.get<string>('DOCUSIGN_ISS'),
-      "sub": this.configService.get<string>('DOCUSIGN_SUB'),
-      "name": this.configService.get<string>('NAME'),
-      "aud": this.configService.get<string>('DOCUSIGN_AUD'),
-      "iat": Math.floor(new Date().getTime() / 1000),
-      "exp": Math.floor((new Date().getTime() + 1000000) / 1000),
-      "scope": this.configService.get<string>('DOCUSIGN_SCOPE')
-    }
+      'iss': this.configService.get<string>('DOCUSIGN_ISS'),
+      'sub': this.configService.get<string>('DOCUSIGN_SUB'),
+      'name': this.configService.get<string>('NAME'),
+      'aud': this.configService.get<string>('DOCUSIGN_AUD'),
+      'iat': Math.floor(new Date().getTime() / 1000),
+      'exp': Math.floor((new Date().getTime() + 1000000) / 1000),
+      'scope': this.configService.get<string>('DOCUSIGN_SCOPE'),
+    };
 
     const tokenUrl = this.configService.get<string>('DOCUSIGN_TOKEN_URL');
 
@@ -435,41 +435,90 @@ export class WeeklyService {
 
     return await axios.post(tokenUrl, {
         grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: jwtToken
-      }
+        assertion: jwtToken,
+      },
     );
   }
 
-  async userReminderEmails(){
+  async userReminderEmails() {
 
-    const users = await getConnection().getRepository(User).find({ select: ['email'], where: { isActive: true }});
+    const queryEndDates = [];
+    let currentDate = new Date();
+    let diff = currentDate.getDay();
 
-    const currentDate = new Date();
+    // If Sunday on current week, add to query
+    if (diff === 0) {
+      queryEndDates.push(currentDate);
+      diff = 7;
+    }
 
-    // TODO change to previous week. If sunday current and previous week.
-    const week = await getConnection().getRepository(Week).findOne({ where: { end: currentDate }});
+    // end date for previous week.
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - diff);
+    queryEndDates.push(currentDate);
+
+    const weeks = await getConnection().getRepository(Week).find({
+      where: {
+        end: In(queryEndDates),
+      },
+      order: {
+        begin: 'ASC'
+      }
+    });
+
+    const weekIds = [];
+    for (let i = 0; i < weeks.length; i++) {
+      weekIds.push(weeks[i].id);
+    }
+
+    const users = await getConnection().getRepository(User).find({ select: ['email'], where: { isActive: true } });
 
     const cred = await this.getGoogleCredentials();
-
     const oAuth2Client = await auth.authorize(cred);
 
-    for(let i = 0; i < users.length; i++){
+    for (let i = 0; i < users.length; i++) {
 
-      const weekly = await getConnection().getRepository(Weekly).findOne({ where: { user: users[i].email, weekId: week.id }});
+      let toEmail = false;
+
+      const weeklies = await getConnection().getRepository(Weekly).find({
+        where: {
+          user: users[i].email,
+          weekId: In(weekIds),
+        },
+        order: {
+          weekId: 'ASC',
+        },
+      });
+
+      let message = 'Timesheets: https://timesheets.opennetworking.org/\n\nPlease complete timesheet(s) for the following weeks:';
+      if (weeklies.length === 0) {
+
+        toEmail = true;
+
+        message += '\n\t' + weeks[0].begin + ' to ' + weeks[0].end;
+
+        if (weekIds.length == 2) {
+          message += '\n\t' + weeks[1].begin + ' to ' + weeks[1].end;
+        }
+      } else {
+
+        for (let i = 0; i < weeklies.length; i++) {
+
+          if (weeklies[i].userSigned.length === 0) {
+
+            toEmail = true;
+            message += '\n\t' + weeks[i].begin + ' to ' + weeks[i].end;
+          }
+        }
+      }
 
       const emailArgs = {
         userEmail: users[i].email,
-        message: 'Please complete timesheet for week beginning ' + week.begin,
-        subject: 'Complete Timesheet week: ' + week.begin
-      }
+        message: message,
+        subject: 'Incomplete Timesheet(s)',
+      };
 
-      if(weekly){
-
-        if(weekly.userSigned.length === 0){
-          await sendEmail.worker(oAuth2Client, emailArgs);
-        }
-      }
-      else {
+      if (toEmail) {
+        console.log(emailArgs);
         await sendEmail.worker(oAuth2Client, emailArgs);
       }
     }

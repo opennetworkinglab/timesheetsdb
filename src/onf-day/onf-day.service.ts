@@ -25,7 +25,7 @@ export class OnfDayService {
   constructor(@InjectRepository(OnfDayRepository) private onfDayRepository: OnfDayRepository) {
   }
 
-  async createOnfDay(day: string): Promise<OnfDay> {
+  async createOnfDay(day: string[]): Promise<OnfDay> {
     return await this.onfDayRepository.createOnfDay(day);
   }
 }
