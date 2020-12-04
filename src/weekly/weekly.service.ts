@@ -237,6 +237,9 @@ export class WeeklyService {
       where: {
         monthNo: In([month, month - 1]),
       },
+      order: {
+        begin: 'ASC'
+      }
     });
 
     // converting weeks array into weeks id array
@@ -359,16 +362,18 @@ export class WeeklyService {
       csvFile['Total Hours'] = pdfContents[i].data;
       csvFile.Month = month;
 
-      csvFile['Week One'] = weeksInMonth[0][0] + ' to ' + weeksInMonth[0][1];
-      csvFile['Week Two'] = weeksInMonth[1][0] + ' to ' + weeksInMonth[1][1];
-      csvFile['Week Three'] = weeksInMonth[2][0] + ' to ' + weeksInMonth[2][1];
+      if(i == 0) {
+        csvFile['Week One'] = weeksInMonth[0][0] + ' to ' + weeksInMonth[0][1];
+        csvFile['Week Two'] = weeksInMonth[1][0] + ' to ' + weeksInMonth[1][1];
+        csvFile['Week Three'] = weeksInMonth[2][0] + ' to ' + weeksInMonth[2][1];
 
-      if(weeksInMonth.length >= 4){
-        csvFile['Week Four'] = weeksInMonth[3][0] + ' to ' + weeksInMonth[3][1];
-      }
+        if (weeksInMonth.length >= 4) {
+          csvFile['Week Four'] = weeksInMonth[3][0] + ' to ' + weeksInMonth[3][1];
+        }
 
-      if (weeksInMonth.length >= 5 ){
-        csvFile['Week Five'] = weeksInMonth[4][0] + ' to ' + weeksInMonth[4][1];
+        if (weeksInMonth.length >= 5) {
+          csvFile['Week Five'] = weeksInMonth[4][0] + ' to ' + weeksInMonth[4][1];
+        }
       }
 
       csvContents.push(csvFile);
