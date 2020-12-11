@@ -34,9 +34,9 @@ export class UserRepository extends Repository<User> {
   constructor() {
     super();
 
-    this.createUsers().then(() => {
-      console.log("Users created");
-    });
+    // this.createUsers().then(() => {
+    //   console.log("Users created");
+    // });
   }
 
   async createUsers(){
