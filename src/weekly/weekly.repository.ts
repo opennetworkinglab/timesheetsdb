@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, In, Repository, UpdateResult } from 'typeorm';
 import { Weekly } from './weekly.entity';
 import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
@@ -23,6 +23,7 @@ import { generateEnvelopeAndPreview } from '../docusign/util/generation/envelope
 import { movePreviewToUnsigned } from '../google/util/move-preview';
 import { voidEnvelope } from '../docusign/void-envelope';
 import { Day } from '../day/day.entity';
+import { Week } from '../week/week.entity';
 
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
@@ -172,5 +173,79 @@ export class WeeklyRepository extends Repository<Weekly> {
         document: documentUrl,
         supervisorSigned: true
       });
+  }
+
+  /**
+   * Get the difference between week now and earliest non signed week (max 4 weeks in the past)
+   * @param user
+   */
+  async getLastUnsignedWeeklyDiff(user: User): Promise<{ diff }>{
+
+    const currentDate = new Date();
+    let beginDateSubtract = 6;
+
+    if(currentDate.getDay() != 0){
+      beginDateSubtract = currentDate.getDay() - 1;
+    }
+
+    const dateBegin = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - beginDateSubtract)
+    const weekMs = (60*60*24*7*1000)
+
+    let queryWeeks = [];
+    queryWeeks.push(dateBegin);
+    queryWeeks.push(new Date(dateBegin.getTime() - weekMs));
+    queryWeeks.push(new Date(dateBegin.getTime() - (weekMs * 2)));
+    queryWeeks.push(new Date(dateBegin.getTime() - (weekMs * 3)));
+
+    const weeks = await getConnection().getRepository(Week).find({
+      where: {
+        begin: In(queryWeeks)
+      },
+      order: {
+        begin: 'DESC'
+      }
+    });
+
+    const currentWeekId = weeks[0].id;
+    queryWeeks = [];
+
+    for(let i = 0; i < weeks.length; i++){
+      queryWeeks.push(weeks[i].id);
+    }
+
+    const weeklies = await this.find({
+      where: {
+        user: user,
+        weekId: In(queryWeeks)
+      },
+    order: {
+        weekId: 'ASC'
+    }});
+
+    if(weeklies.length == 0){
+
+      return {
+        diff: -3
+      }
+    }
+    else {
+
+      let diff = -3;
+
+      for (let i = 0; i < weeklies.length; i++) {
+
+        const weekId = weeklies[i].weekId;
+
+        if (weekId - currentWeekId === diff && weeklies[i].userSigned !== null) {
+          diff++;
+        }
+      }
+      if (diff > 0){
+        diff = 0;
+      }
+      return {
+        diff: diff
+      }
+    }
   }
 }

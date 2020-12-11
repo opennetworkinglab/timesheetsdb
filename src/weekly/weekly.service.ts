@@ -227,6 +227,10 @@ export class WeeklyService {
     throw new HttpException(updates + ' updated', HttpStatus.I_AM_A_TEAPOT);
   }
 
+  async getLastUnsignedWeeklyDiff(user: User): Promise<{ diff }>{
+    return this.weeklyRepository.getLastUnsignedWeeklyDiff(user);
+  }
+
   async summaryReport() {
 
     // Get current month
@@ -279,6 +283,7 @@ export class WeeklyService {
 
         currentUser = user;
         currentUserWeekIds.push(weekliesSigned[i].weekId);
+
       } else if (currentUser.email !== user.email) {
 
         weekliesUsers.push([currentUser, currentUserWeekIds]);

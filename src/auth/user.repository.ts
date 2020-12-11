@@ -15,7 +15,7 @@
  */
 
 import { HttpException, HttpStatus} from '@nestjs/common';
-import { EntityRepository, getConnection, Not, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
