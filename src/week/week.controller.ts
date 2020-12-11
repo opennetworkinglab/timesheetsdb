@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { WeekService } from './week.service';
 import { Week } from './week.entity';
 
 
 @Controller('week')
-@UseGuards(AuthGuard())
 export class WeekController {
 
   constructor(private weekService: WeekService) {}
 
   @Get()
+  @UseGuards(AuthGuard())
   getWeek(): Promise<Week[]> {
     return this.weekService.getWeek();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard())
   async getWeekById(@Param('id') id):Promise<Week> {
     return this.weekService.getWeekById(id);
+  }
+
+  @Post()
+  async createWeeks(): Promise<void>{
+    return this.weekService.createWeeks();
   }
 }

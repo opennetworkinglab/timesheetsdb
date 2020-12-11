@@ -33,4 +33,8 @@ export class WeekService {
   async getWeekById(id: number):Promise<Week> {
     return this.weekRepository.getWeekById(id);
   }
+
+  async createWeeks(): Promise<void>{
+    return this.weekRepository.createWeeks();
+  }
 }
