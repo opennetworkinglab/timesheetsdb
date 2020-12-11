@@ -43,6 +43,12 @@ export class WeeklyController {
     return this.weeklyService.updateWeeklySupervisor();
   }
 
+  @Get('unsigned')
+  @UseGuards(AuthGuard())
+  getLastUnsignedWeeklyDiff(@GetUser() user: User): Promise<{ diff }> {
+    return this.weeklyService.getLastUnsignedWeeklyDiff(user);
+  }
+
   @Get(':emailId/:weekId')
   @UseGuards(AuthGuard())
   getWeekly(@GetUser() user: User,
