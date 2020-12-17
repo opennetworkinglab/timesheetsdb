@@ -64,7 +64,10 @@ export class WeeklyService {
     private configService: ConfigService) {
   }
 
-  async getWeekly(user: User, weekId: number): Promise<Weekly> {
+  async getWeekly(emailId: string, weekId: number): Promise<Weekly> {
+
+    const user = await getConnection().getRepository(User).findOne({ where: { email: emailId }});
+
     return this.weeklyRepository.getWeekly(user, weekId);
   }
 
