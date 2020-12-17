@@ -55,6 +55,13 @@ class CsvFile {
   'Week Five': string;
 }
 
+class TempUserAndWeekly{
+  email: string;
+  name: string;
+  userSigned: boolean = false;
+  supervisorSigned: boolean = false;
+}
+
 @Injectable()
 export class WeeklyService {
 
@@ -232,6 +239,37 @@ export class WeeklyService {
 
   async getLastUnsignedWeeklyDiff(user: User): Promise<{ diff }>{
     return this.weeklyRepository.getLastUnsignedWeeklyDiff(user);
+  }
+
+  async getUsersAndWeekly(weekId: number): Promise<any> {
+
+    const results = [];
+
+    const users = await getConnection().getRepository(User).find({ where: { isActive: true}});
+
+    for(let i = 0; i < users.length; i++){
+
+      const weekly = await this.weeklyRepository.getWeekly(users[i], weekId);
+
+      const tempUser = new TempUserAndWeekly();
+      tempUser.email = users[i].email;
+      tempUser.name = users[i].firstName + ' ' + users[i].lastName;
+
+      if(weekly) {
+        if (weekly.userSigned && weekly.userSigned.length > 0) {
+          tempUser.userSigned = true;
+        }
+
+        if (weekly.supervisorSigned) {
+          tempUser.supervisorSigned = true;
+        }
+      }
+
+      results.push(tempUser)
+
+    }
+
+    return results;
   }
 
   async summaryReport() {

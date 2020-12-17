@@ -29,7 +29,7 @@ import { Week } from '../week/week.entity';
 export class WeeklyRepository extends Repository<Weekly> {
 
   async getWeekly(user: User, weekId: number): Promise<Weekly> {
-
+console.log(user, weekId)
     return await this.findOne({ where: { user: user, weekId: weekId } });
   }
 
