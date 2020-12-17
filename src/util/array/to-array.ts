@@ -44,10 +44,6 @@ export const timesTo2DArray7Days = async (user, days) => {
     let userIndex = 0;
     let timesIndex = -1;
 
-    console.log(currentDay);
-    if(i === 3){
-      console.log(new Date(days[dayIndex].day).getDate(), currentDay);
-    }
     // check that day is current day. Also checks if we have gone through all days
     if(dayIndex < days.length && new Date(days[dayIndex].day).getDate() === currentDay) {
 
