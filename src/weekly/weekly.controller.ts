@@ -51,9 +51,9 @@ export class WeeklyController {
 
   @Get(':emailId/:weekId')
   @UseGuards(AuthGuard())
-  getWeekly(@GetUser() user: User,
+  getWeekly(@Param('emailId') emailId,
             @Param('weekId') weekId): Promise<Weekly> {
-    return this.weeklyService.getWeekly(user, weekId);
+    return this.weeklyService.getWeekly(emailId, weekId);
   }
 
   @Patch(':emailId/:weekId')
