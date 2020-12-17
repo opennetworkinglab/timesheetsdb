@@ -80,7 +80,7 @@ export class UserRepository extends Repository<User> {
     const user = await this.findOne({ where: { email: email }});
 
     if(user){
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User already exists. Duplicate email', HttpStatus.BAD_REQUEST);
     }
 
     const newUser = new User();
@@ -111,7 +111,12 @@ export class UserRepository extends Repository<User> {
         newUser.projects.push(getProject);
       }
     }
-    await newUser.save();
+
+    try {
+      await user.save();
+    }catch (error){
+      throw new HttpException('User already exists. Duplicate name', HttpStatus.BAD_REQUEST);
+    }
 
     throw new HttpException("User created", HttpStatus.CREATED);
   }
