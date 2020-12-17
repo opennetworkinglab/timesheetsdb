@@ -44,6 +44,10 @@ export const timesTo2DArray7Days = async (user, days) => {
     let userIndex = 0;
     let timesIndex = -1;
 
+    console.log(currentDay);
+    if(i === 3){
+      console.log(new Date(days[dayIndex].day).getDate(), currentDay);
+    }
     // check that day is current day. Also checks if we have gone through all days
     if(dayIndex < days.length && new Date(days[dayIndex].day).getDate() === currentDay) {
 
@@ -66,6 +70,7 @@ export const timesTo2DArray7Days = async (user, days) => {
         }
         // Create times for any additional projects
         else {
+
           const time = new Time();
           time.name = user.projects[userIndex].name;
           time.minutes = 0;
@@ -89,11 +94,19 @@ export const timesTo2DArray7Days = async (user, days) => {
       }
       else if(currentDay === 30) {
 
+        let toCheck = true;
+
         for (let i = 0; i < MONTHS30.length; i++) {
 
           if(month === MONTHS30[i]){
             currentDay = 1;
+            toCheck = false;
+            break;
           }
+        }
+        // Was not incrementing current day if the check for only 30 days was false.
+        if(toCheck){
+          currentDay++;
         }
       }
       else if (currentDay === 31){
