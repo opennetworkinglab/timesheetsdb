@@ -28,6 +28,12 @@ export class WeeklyController {
   constructor(private weeklyService: WeeklyService) {
   }
 
+  @Get('usersweekly/:weekId')
+  @UseGuards(AuthGuard())
+  getUsersAndWeekly(@Param('weekId') weekId): Promise<any> {
+    return this.weeklyService.getUsersAndWeekly(weekId);
+  }
+
   @Get('user/summary') // monthly
   summaryReport(){
     return this.weeklyService.summaryReport();
