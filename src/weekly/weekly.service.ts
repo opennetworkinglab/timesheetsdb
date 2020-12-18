@@ -564,7 +564,6 @@ export class WeeklyService {
       };
 
       if (toEmail) {
-        console.log(emailArgs);
         await sendEmail.worker(oAuth2Client, emailArgs);
       }
     }
