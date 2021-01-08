@@ -150,7 +150,10 @@ function htmlPage(args) {
 
         <h1 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
             color: darkblue;margin-bottom: 0;">${args.submitterName}: ${args.submitterEmail}</h1>
-  
+        
+        <h3 style="font-family: 'Trebuchet MS', Helvetica, sans-serif;
+            color: darkblue;margin-bottom: 0;"> DARPA allocation: ${args.submitterDarpaAllocation}%</h3>
+        
         <h4>Week: ${args.week.begin} to ${args.week.end}</h4>
   
         <p style="margin-top:0; margin-bottom:0;">Approver: ${args.supervisorName}, ${args.supervisorEmail}</p>

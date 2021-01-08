@@ -56,6 +56,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   const htmlArgs = {
       submitterEmail: user.email,
       submitterName: user.firstName + " " + user.lastName,
+      submitterDarpaAllocation: user.darpaAllocationPct,
       supervisorEmail: supervisor.email,
       supervisorName: supervisor.firstName + " " + supervisor.lastName,
       days: daysResult,
