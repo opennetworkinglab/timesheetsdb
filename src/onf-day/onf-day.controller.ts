@@ -16,7 +16,6 @@
 
 import { Body, Controller, Post } from '@nestjs/common';
 import { OnfDayService } from './onf-day.service';
-import { OnfDay } from './onf-day.entity';
 
 @Controller('onfday')
 export class OnfDayController {
@@ -25,7 +24,7 @@ export class OnfDayController {
   }
 
   @Post()
-  createOnfDay(@Body('day') days: string[]): Promise<OnfDay>{
-    return this.onfDayService.createOnfDay(days);
+  createOnfDay(@Body('days') days: string[]): Promise<void>{
+    return this.onfDayService.createOnfDays(days);
   }
 }

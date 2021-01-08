@@ -51,7 +51,8 @@ Point day
 Point onfday
     Post
         Just call /onfday/
-            day: __VALUE__
+            days: [ __VALUE__ , __VALUE__ ]
+                Date format: UTC e.g. 2021-01-06
 
 Point week
     Get
@@ -74,6 +75,8 @@ Point weekly
     Get
         user/reminders
             sends reminder emails
+        user/summary
+            Generates a pdf and csv of the users that have signed file for the month
 
         supervisor/update
             checks to see id supervisor has signed

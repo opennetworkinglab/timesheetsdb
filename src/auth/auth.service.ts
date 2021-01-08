@@ -53,7 +53,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    return this.userRepository.getUsers(user);
+    return this.userRepository.getUsers();
   }
 
   async getSupervisor(user: User): Promise<User> {

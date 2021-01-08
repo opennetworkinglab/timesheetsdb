@@ -58,8 +58,8 @@ class CsvFile {
 class TempUserAndWeekly{
   email: string;
   name: string;
-  userSigned: boolean = false;
-  supervisorSigned: boolean = false;
+  userSigned = false;
+  supervisorSigned = false;
 }
 
 @Injectable()
@@ -275,7 +275,7 @@ export class WeeklyService {
   async summaryReport() {
 
     // Get current month
-    const month = new Date().getMonth();
+    const month = new Date().getMonth() + 1;
     const year = new Date().getFullYear();
 
     const weeks = await getConnection().getRepository(Week).find({
@@ -300,7 +300,7 @@ export class WeeklyService {
         weeksInMonth.push([weeks[i].begin, weeks[i].end]);
       }
     }
-
+    console.log(queryWeekIds);
     // Getting weeklies signed for current month.
     const weekliesSigned = await getConnection().getRepository(Weekly).find({
       where: {
@@ -340,7 +340,7 @@ export class WeeklyService {
         }
       }
     }
-
+    console.log("dsdadsddads")
     const pdfContents: PdfContent[] = [];
     let currentPdfContent: PdfContent = undefined;
 

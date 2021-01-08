@@ -16,7 +16,7 @@
 
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
-import { writeFile } from 'fs.promises';
+// import { writeFile } from 'fs.promises';
 
 export class PdfContent {
 
@@ -45,7 +45,7 @@ export const createPdf = async (month: number, weeks : string[][], pdfContents: 
   const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
   let page = pdfDoc.addPage();
-  const { width, height } = page.getSize();
+  const { height } = page.getSize();
 
   page.drawText('Weeks for Month: ' + MONTHS[month], {
     x: xValue1,

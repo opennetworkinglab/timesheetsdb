@@ -181,7 +181,7 @@ export class UserRepository extends Repository<User> {
     });
   }
 
-  async getUsers(user: User): Promise<User[]> {
+  async getUsers(): Promise<User[]> {
 
     // return this.find({
     //   where: { email: Not(user.email) },
