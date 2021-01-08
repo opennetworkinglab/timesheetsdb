@@ -16,7 +16,6 @@
 
 import { Body, Controller, Post } from '@nestjs/common';
 import { OnfDayService } from './onf-day.service';
-import { OnfDay } from './onf-day.entity';
 
 @Controller('onfday')
 export class OnfDayController {

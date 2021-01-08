@@ -17,7 +17,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OnfDayRepository } from './onf-day.repository';
-import { OnfDay } from './onf-day.entity';
 
 @Injectable()
 export class OnfDayService {
