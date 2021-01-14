@@ -45,13 +45,13 @@ To run the app you'll need:
     Google - use of Google Drive for storing the documents and png previews of them.
 
 #### Database File - ormconfig.json
-Insert your database information into this file:  
-type - e.g. postgres  
-host  
-port  
-username  
-password  
-database - name of the database (Must be created manually)  
+Insert your database information into this file:
+* type - e.g. postgres  
+* host  
+* port  
+* username  
+* password  
+* database - name of the database (Must be created manually)  
 
 ### Update / Change to Entities (Database Tables)
 #### Scripts
@@ -97,12 +97,12 @@ ts-node ./node_modules/typeorm/cli.js migration:revert
 ```
 
 #### Tables created:
-Users - User information  
-Days - Day for a user containing the times for that day.  
-Projects - Project names and priority  
-Times - Times for a user for an individual day.  
-Week - Weeks of the year.  
-Weeklies - Contains the links to the preview and document once user signs.
+* Users - User information
+* Days - Day for a user containing the times for that day.  
+* Projects - Project names and priority  
+* Times - Times for a user for an individual day.  
+* Week - Weeks of the year.  
+* Weeklies - Contains the links to the preview and document once user signs.
 
 ### Development
 ```
@@ -120,7 +120,7 @@ $ npm run start:prod
 Testing is completed using [Ansible](https://gerrit.opencord.org/admin/repos/infra-manifest).
 
 # Rest Points
-Exposed on port 3000. A curl syntax for Rest Points can be found in 'Rest points with curl.txt'.
+Exposed on port 3000. A curl syntax for Rest Points can be found in [Rest_points_with_curl.md](Rest_points_with_curl.md).
 
 ## Project Priority
 Priority 1 is for shared projects. E.g Sick
@@ -142,7 +142,7 @@ Some aspects of the application allow the use of templates.
 The template's folder houses these templates.  
 Current templates exist for:  
 - Gmail
-    - Reminder emails
+- Reminder emails
 
 Main Folder - Id of this folder will be passed in the env file.
 Main Folder -> year
