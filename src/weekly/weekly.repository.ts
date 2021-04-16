@@ -25,6 +25,7 @@ import { voidEnvelope } from '../docusign/void-envelope';
 import { Day } from '../day/day.entity';
 import { Week } from '../week/week.entity';
 
+
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
 
@@ -94,7 +95,8 @@ export class WeeklyRepository extends Repository<Weekly> {
         weekId: weekId
       }, {
         preview: results.preview,
-        userSigned: results.signed
+        userSigned: results.signed,
+        userSignedDate: results.signedDate
       });
 
     return results;

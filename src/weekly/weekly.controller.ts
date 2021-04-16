@@ -21,6 +21,7 @@ import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
 import { Weekly } from './weekly.entity';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
+import { generateWeeklyPdf } from '../util/pdf/generate-weekly-pdf';
 
 @Controller('weekly')
 export class WeeklyController {

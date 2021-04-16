@@ -133,7 +133,13 @@ export const timesTo2DArray7Days = async (user, days) => {
 
     for(let j = 0; j < dayTimes.length; j++){
 
-      timeName[i][j] = dayTimes[j].name;
+      // Change Darpa to uppercase
+      let name = dayTimes[j].name
+      if(dayTimes[j].name.includes('Darpa')){
+        name = dayTimes[j].name.toUpperCase();
+      }
+
+      timeName[i][j] = name;
       timeMinutes[i][j] = dayTimes[j].minutes / 60;
       totalWeekdayTime += timeMinutes[i][j];
     }

@@ -31,6 +31,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { getUserContentFolderIds } from '../../../google/util/get-user-content-folder-ids';
 import { upload } from '../../../google/gdrive/upload';
 import { recipientView } from '../../recipient-view-request';
+import { generateWeeklyPdf } from '../../../util/pdf/generate-weekly-pdf';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.
@@ -52,6 +53,34 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
 
   const daysResult = await timesTo2DArray7Days(user, days);
 
+  // TODO: UTC TO PST
+  const userSignedDate = new Date();
+
+  let submitterTimeString;
+  let approverTimeString;
+
+  if(userSignedDate.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).includes('AM')){
+    submitterTimeString = userSignedDate.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).replace(' AM', 'am') + " PST"
+  }
+  else{
+    submitterTimeString = userSignedDate.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).replace(' PM', 'pm') + " PST"
+  }
+
+  // if(supx.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).includes('AM')){
+  //   approverTimeString = supx.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).replace(' AM', 'am') + " PST"
+  // }
+  // else{
+  //   approverTimeString = supx.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).replace(' PM', 'pm') + " PST"
+  // }
+
+  const splitBeginDate = formatArrayYYMMDD(week.begin);
+  const splitEndDate = formatArrayYYMMDD(week.end);
+
+  const weekString = {
+    begin: splitBeginDate[1] + '/' + splitBeginDate[2] + '/' + splitBeginDate[0],
+    end: splitEndDate[1] + '/' + splitEndDate[2] + '/' + splitEndDate[0]
+  };
+
   // args for document generation. The document to be signed. Html args are for the html that is used to create the document
   const htmlArgs = {
       submitterEmail: user.email,
@@ -60,7 +89,9 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
       supervisorEmail: supervisor.email,
       supervisorName: supervisor.firstName + " " + supervisor.lastName,
       days: daysResult,
-      week: week,
+      week: weekString,
+      userSignedDate: submitterTimeString,
+      supervisorSignedDate: '',
     },
     signEmailArgs = {
       documentName: user.firstName + "_" + user.lastName + "_" + week.begin + "_" + week.end,
@@ -70,6 +101,8 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
       htmlArgs: htmlArgs,
     };
 
+  //TODO: Gen html doc
+  const pdf = await generateWeeklyPdf(htmlArgs)
   const envelope = await signingViaEmail.controller(signEmailArgs);
 
   const signed = envelope.envelopeId;
@@ -115,7 +148,18 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
     saveFilename: saveName,
     savePath: tempDir
   });
-  const result = await image(1);
+  // const result = await image(1);
+
+  const imageNewPdf = fromBuffer(Buffer.from(pdf), {
+    density: 100,
+    format: "png",
+    width: 600,
+    height: 600,
+    quality: 100,
+    saveFilename: saveName,
+    savePath: tempDir
+  });
+  const resultNewPdf = await imageNewPdf(1);
 
   const oAuth2Client = await auth.authorize(authArgs.googleCredentials);
 
@@ -133,7 +177,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
 
   const results = await getUserContentFolderIds(oAuth2Client, args, args.searchTerm.length - 1);
 
-  let imageName = result.name.split('.');
+  let imageName = resultNewPdf.name.split('.');
   imageName = imageName[0] + "." + imageName[2];
 
   const gDriveArgs = {
@@ -141,7 +185,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
     name: imageName,
     parents: [results.imagesFolder],
     mimeType: 'image/png',
-    body: createReadStream(tempDir + '/' + result.name)
+    body: createReadStream(tempDir + '/' + resultNewPdf.name)
   }
 
   const file  = await upload.worker(oAuth2Client, gDriveArgs);
@@ -153,6 +197,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   return {
     preview: preview,
     signed: signed,
+    signedDate: userSignedDate,
     viewRequest: viewRequest
   }
 }
