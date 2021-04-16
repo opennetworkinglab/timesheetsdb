@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { WeeklyService } from './weekly.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
 import { Weekly } from './weekly.entity';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
-import { generateWeeklyPdf } from '../util/pdf/generate-weekly-pdf';
 
 @Controller('weekly')
 export class WeeklyController {
@@ -48,6 +47,14 @@ export class WeeklyController {
   @Get('supervisor/update') // 10 mins
   UpdateWeeklySupervisor() {
     return this.weeklyService.updateWeeklySupervisor();
+  }
+
+  @Post('approver/:emailId/:weekId')
+  @UseGuards(AuthGuard())
+  updateWeeklyApprover(@GetUser() user: User,
+                       @Param('weekId') weekId,
+                       @Param('emailId') submitterEmail){
+    return this.weeklyService.updateWeeklyApprover(user, submitterEmail, weekId);
   }
 
   @Get('unsigned')

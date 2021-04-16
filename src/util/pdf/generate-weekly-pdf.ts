@@ -15,13 +15,15 @@
  */
 
 import { writeFileSync } from 'fs';
+import { tmpdir } from "os";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = require('puppeteer');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
 
+const tempDir = tmpdir();
 const buildPaths = {
-  buildPathHtml: path.resolve('./build.html'),
+  buildPathHtml: path.resolve(tempDir,'./build.html'),
   buildPathPdf: path.resolve('./build.pdf')
 };
 
@@ -156,7 +158,7 @@ const printPdf = async () => {
 const init = async () => {
   try {
     const pdf = await printPdf();
-    writeFileSync(buildPaths.buildPathPdf, pdf);
+    // writeFileSync(buildPaths.buildPathPdf, pdf);
     return pdf;
   } catch (error) {
     console.log('Error generating PDF', error);

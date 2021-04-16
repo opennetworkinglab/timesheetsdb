@@ -40,6 +40,7 @@ import { sendEmail } from '../google/gmail/send-email';
 import { createPdf, PdfContent } from '../util/pdf/create-pdf';
 import { Day } from '../day/day.entity';
 import { readFile } from 'fs.promises';
+import { generatePdf } from '../docusign/util/generation/envelope-preview';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ObjectsToCsv = require('objects-to-csv')
@@ -110,6 +111,71 @@ export class WeeklyService {
 
     await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, authArgs, googleArgs, updateWeeklyDto);
     return { viewRequest: null };
+  }
+
+  async updateWeeklyApprover(user: User, userEmail: string, weekId: number){
+    
+    const submitterUser = await getConnection().getRepository(User).findOne( { where: { email: userEmail }});
+    const weekly = await getConnection().getRepository(Weekly).findOne({ where: { user: submitterUser, weekId: weekId } });
+
+    // if envelope ids are gotten that are not created from this application they wont be in db
+    if (weekly) {
+
+      const googleCredentials = await this.getGoogleCredentials();
+      const googleShareUrl = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+      const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
+
+      const week = await getConnection().getRepository(Week).findOne({ where: { id: weekly.weekId } });
+      let weekStart = formatArrayYYMMDD(week.begin);
+      const weekEnd = formatArrayYYMMDD(week.end);
+      weekStart = weekStart[1] + "-" + weekStart[2]
+      const month = weekEnd[1];
+      const year = weekEnd[0];
+
+      const authArgs = {
+        docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
+        docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
+        googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
+        googleShareUrl: googleShareUrl,
+        googleCredentials: googleCredentials
+      }
+
+      const pdfResult = await generatePdf(submitterUser, user, weekId, weekly, authArgs, googleParent)
+
+      const readableInstanceStream = new Readable({
+        read() {
+          this.push(Buffer.from(pdfResult.pdf, 'binary'));
+          this.push(null);
+        }
+      });
+      //-------
+
+      //-- Upload to Google
+      const credentials = await this.getGoogleCredentials();
+      const oAuth2Client = await auth.authorize(credentials);
+
+      const userFolderArgs = {
+        searchTerm: [weekStart, month, year],
+        parent: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')
+      }
+      const userFolder = await getUserContentFolderIds(oAuth2Client, userFolderArgs, userFolderArgs.searchTerm.length - 1);
+
+      // Save document to drive
+      const gDriveArgs = {
+        name: submitterUser.firstName + '_' + submitterUser.lastName + '_' + week.begin + '_' + week.end,
+        parents: [userFolder.userFolder],
+        mimeType: 'image/pdf',
+        body: readableInstanceStream
+      }
+
+      const file = await upload.worker(oAuth2Client, gDriveArgs);
+
+      const url = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+      const urlSplit = url.split('IDLOCATION');
+      const documentUrl = urlSplit[0] + file.data.id;
+
+      return await this.weeklyRepository.updateWeeklyApprover(submitterUser, weekId, documentUrl, pdfResult.preview, pdfResult.signedDate);
+    }
   }
 
   async updateWeeklySupervisor() {
