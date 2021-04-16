@@ -27,13 +27,6 @@ const buildPaths = {
   buildPathPdf: path.resolve('./build.pdf')
 };
 
-/**
- *
- * @param month int between 0 - 11
- * @param weeks 2d array of start and end date of each week in the month
- * @param pdfContents Name of user and total hours
- */
-// TODO: Pass in user
 export const generateWeeklyPdf = async (args) => {
 
   let htmlDoc = `<!DOCTYPE html>
