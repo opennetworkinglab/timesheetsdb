@@ -41,6 +41,8 @@ import { createPdf, PdfContent } from '../util/pdf/create-pdf';
 import { Day } from '../day/day.entity';
 import { readFile } from 'fs.promises';
 import { generatePdf } from '../docusign/util/generation/envelope-preview';
+import { timestamp } from 'rxjs/operators';
+import { Time } from '../time/time.entity';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ObjectsToCsv = require('objects-to-csv')
@@ -59,8 +61,10 @@ class CsvFile {
 class TempUserAndWeekly{
   email: string;
   name: string;
-  userSigned = false;
-  supervisorSigned = false;
+  alloc: number;
+  times: Time[][];
+  userSigned: Date;
+  supervisorSigned: Date;
 }
 
 @Injectable()
@@ -311,7 +315,7 @@ export class WeeklyService {
 
     const results = [];
 
-    const users = await getConnection().getRepository(User).find({ where: { isActive: true}});
+    const users = await getConnection().getRepository(User).find({ where: { isActive: true }});
 
     for(let i = 0; i < users.length; i++){
 
@@ -320,19 +324,29 @@ export class WeeklyService {
       const tempUser = new TempUserAndWeekly();
       tempUser.email = users[i].email;
       tempUser.name = users[i].firstName + ' ' + users[i].lastName;
+      tempUser.alloc = users[i].darpaAllocationPct;
 
       if(weekly) {
+
         if (weekly.userSigned && weekly.userSigned.length > 0) {
-          tempUser.userSigned = true;
+
+          const dayTimes = await getConnection().getRepository(Day).find( { where: { user: users[i], weekId: weekId }});
+
+          const time = [];
+          for(let j = 0; j < dayTimes.length; j++){
+
+            time.push(dayTimes[j].times)
+            tempUser.times = time;
+          }
+          tempUser.userSigned = weekly.userSignedDate
         }
 
         if (weekly.supervisorSigned) {
-          tempUser.supervisorSigned = true;
+          tempUser.supervisorSigned = weekly.supervisorSignedDate;
         }
       }
 
       results.push(tempUser)
-
     }
 
     return results;
