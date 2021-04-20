@@ -59,20 +59,12 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
 
   const userSignedDate = new Date();
 
-  let submitterTimeString;
-
-  if (userSignedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).includes('AM')) {
-    submitterTimeString = userSignedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(' AM', 'am') + " PST"
-  } else {
-    submitterTimeString = userSignedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(' PM', 'pm') + " PST"
-  }
-
-  // if(supx.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).includes('AM')){
-  //   approverTimeString = supx.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).replace(' AM', 'am') + " PST"
-  // }
-  // else{
-  //   approverTimeString = supx.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}).replace(' PM', 'pm') + " PST"
-  // }
+  const submitterTimeString = userSignedDate.toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    timeZoneName: 'short'
+  })
+    .replace(' AM', 'am')
+    .replace(' PM', 'pm');
 
   const splitBeginDate = formatArrayYYMMDD(week.begin);
   const splitEndDate = formatArrayYYMMDD(week.end);
