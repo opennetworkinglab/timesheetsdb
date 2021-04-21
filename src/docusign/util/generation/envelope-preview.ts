@@ -197,35 +197,34 @@ export const generatePdf = async (submitterUser, approverUser, weekId, weekly: W
 
   const daysResult = await timesTo2DArray7Days(submitterUser, days);
 
+  const signedDate = new Date();
+
+  const timeString = signedDate.toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    timeZoneName: 'short'
+  })
+    .replace(' AM', 'am')
+    .replace(' PM', 'pm');
+
   const splitBeginDate = formatArrayYYMMDD(week.begin);
   const splitEndDate = formatArrayYYMMDD(week.end);
+
   const weekString = {
     begin: splitBeginDate[1] + '/' + splitBeginDate[2] + '/' + splitBeginDate[0],
     end: splitEndDate[1] + '/' + splitEndDate[2] + '/' + splitEndDate[0]
   };
-
-  const signedDate = new Date();
-
-  let timeString;
-
-  if (signedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).includes('AM')) {
-    timeString = signedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(' AM', 'am') + " PST"
-  } else {
-    timeString = signedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(' PM', 'pm') + " PST"
-  }
 
   let htmlArgs;
 
   if(weekly){
 
     const userSignedDate = new Date(weekly.userSignedDate);
-    let userTimeString;
-
-    if (userSignedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).includes('AM')) {
-      userTimeString = userSignedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(' AM', 'am') + " PST"
-    } else {
-      userTimeString = userSignedDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }).replace(' PM', 'pm') + " PST"
-    }
+    const userTimeString = userSignedDate.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+      timeZoneName: 'short'
+    })
+      .replace(' AM', 'am')
+      .replace(' PM', 'pm');
 
     htmlArgs = {
       submitterEmail: submitterUser.email,

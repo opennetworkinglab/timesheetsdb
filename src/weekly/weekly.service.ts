@@ -62,6 +62,7 @@ class TempUserAndWeekly{
   email: string;
   name: string;
   alloc: number;
+  supervisor: string;
   times: Time[][];
   userSigned: Date;
   supervisorSigned: Date;
@@ -325,6 +326,7 @@ export class WeeklyService {
       tempUser.email = users[i].email;
       tempUser.name = users[i].firstName + ' ' + users[i].lastName;
       tempUser.alloc = users[i].darpaAllocationPct;
+      tempUser.supervisor = users[i].supervisorEmail;
 
       if(weekly) {
 
