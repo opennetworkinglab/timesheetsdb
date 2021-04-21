@@ -113,8 +113,9 @@ export class UserRepository extends Repository<User> {
     }
 
     try {
-      await user.save();
+      await newUser.save();
     }catch (error){
+
       throw new HttpException('User already exists. Duplicate name', HttpStatus.BAD_REQUEST);
     }
 
