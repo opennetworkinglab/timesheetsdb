@@ -31,6 +31,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { getUserContentFolderIds } from '../../../google/util/get-user-content-folder-ids';
 import { upload } from '../../../google/gdrive/upload';
 import { recipientView } from '../../recipient-view-request';
+import { generateWeeklyPdf } from '../../../util/pdf/generate-weekly-pdf';
+import { Weekly } from '../../../weekly/weekly.entity';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.
@@ -42,15 +44,35 @@ import { recipientView } from '../../recipient-view-request';
  */
 export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleParent, redirectUrl) => {
 
-  const week = await getConnection().getRepository(Week).findOne({ where: { id: weekId }});
-  const days = await getConnection().getRepository(Day).find({ where: { user: user, weekId: weekId }, order: { day: 'ASC' }});
-  const supervisor = await getConnection().getRepository(User).findOne({ where: { email: user.supervisorEmail }});
+  const week = await getConnection().getRepository(Week).findOne({ where: { id: weekId } });
+  const days = await getConnection().getRepository(Day).find({
+    where: { user: user, weekId: weekId },
+    order: { day: 'ASC' }
+  });
+  const supervisor = await getConnection().getRepository(User).findOne({ where: { email: user.supervisorEmail } });
 
-  if(days.length === 0){
+  if (days.length === 0) {
     throw new HttpException("No times have been logged for any days this week", HttpStatus.BAD_REQUEST);
   }
 
   const daysResult = await timesTo2DArray7Days(user, days);
+
+  const userSignedDate = new Date();
+
+  const submitterTimeString = userSignedDate.toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    timeZoneName: 'short'
+  })
+    .replace(' AM', 'am')
+    .replace(' PM', 'pm');
+
+  const splitBeginDate = formatArrayYYMMDD(week.begin);
+  const splitEndDate = formatArrayYYMMDD(week.end);
+
+  const weekString = {
+    begin: splitBeginDate[1] + '/' + splitBeginDate[2] + '/' + splitBeginDate[0],
+    end: splitEndDate[1] + '/' + splitEndDate[2] + '/' + splitEndDate[0]
+  };
 
   // args for document generation. The document to be signed. Html args are for the html that is used to create the document
   const htmlArgs = {
@@ -60,7 +82,9 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
       supervisorEmail: supervisor.email,
       supervisorName: supervisor.firstName + " " + supervisor.lastName,
       days: daysResult,
-      week: week,
+      week: weekString,
+      userSignedDate: submitterTimeString,
+      supervisorSignedDate: '',
     },
     signEmailArgs = {
       documentName: user.firstName + "_" + user.lastName + "_" + week.begin + "_" + week.end,
@@ -117,6 +141,7 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
   });
   const result = await image(1);
 
+
   const oAuth2Client = await auth.authorize(authArgs.googleCredentials);
 
   let weekStart = formatArrayYYMMDD(week.begin);
@@ -144,15 +169,143 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
     body: createReadStream(tempDir + '/' + result.name)
   }
 
-  const file  = await upload.worker(oAuth2Client, gDriveArgs);
+  const file = await upload.worker(oAuth2Client, gDriveArgs);
 
-  const url  = authArgs.googleShareUrl;
+  const url = authArgs.googleShareUrl;
   const urlSplit = url.split('IDLOCATION');
   const preview = urlSplit[0] + file.data.id;
 
   return {
     preview: preview,
     signed: signed,
+    signedDate: userSignedDate,
     viewRequest: viewRequest
   }
 }
+
+export const generatePdf = async (submitterUser, approverUser, weekId, weekly: Weekly, authArgs, googleParent) => {
+
+  const week = await getConnection().getRepository(Week).findOne({ where: { id: weekId } });
+  const days = await getConnection().getRepository(Day).find({
+    where: { user: submitterUser, weekId: weekId },
+    order: { day: 'ASC' }
+  });
+
+  if(days.length === 0) {
+    throw new HttpException("No times have been logged for any days this week", HttpStatus.BAD_REQUEST);
+  }
+
+  const daysResult = await timesTo2DArray7Days(submitterUser, days);
+
+  const signedDate = new Date();
+
+  const timeString = signedDate.toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    timeZoneName: 'short'
+  })
+    .replace(' AM', 'am')
+    .replace(' PM', 'pm');
+
+  const splitBeginDate = formatArrayYYMMDD(week.begin);
+  const splitEndDate = formatArrayYYMMDD(week.end);
+
+  const weekString = {
+    begin: splitBeginDate[1] + '/' + splitBeginDate[2] + '/' + splitBeginDate[0],
+    end: splitEndDate[1] + '/' + splitEndDate[2] + '/' + splitEndDate[0]
+  };
+
+  let htmlArgs;
+
+  if(weekly){
+
+    const userSignedDate = new Date(weekly.userSignedDate);
+    const userTimeString = userSignedDate.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+      timeZoneName: 'short'
+    })
+      .replace(' AM', 'am')
+      .replace(' PM', 'pm');
+
+    htmlArgs = {
+      submitterEmail: submitterUser.email,
+      submitterName: submitterUser.firstName + " " + submitterUser.lastName,
+      submitterDarpaAllocation: submitterUser.darpaAllocationPct,
+      supervisorEmail: approverUser.email,
+      supervisorName: approverUser.firstName + " " + approverUser.lastName,
+      days: daysResult,
+      week: weekString,
+      userSignedDate: userTimeString,
+      supervisorSignedDate: timeString,
+    }
+  }
+  else{
+
+    htmlArgs = {
+      submitterEmail: submitterUser.email,
+      submitterName: submitterUser.firstName + " " + submitterUser.lastName,
+      submitterDarpaAllocation: submitterUser.darpaAllocationPct,
+      supervisorEmail: approverUser.email,
+      supervisorName: approverUser.firstName + " " + approverUser.lastName,
+      days: daysResult,
+      week: weekString,
+      userSignedDate: timeString,
+      supervisorSignedDate: '',
+    }
+
+  }
+
+  const pdf = await generateWeeklyPdf(htmlArgs)
+  const saveName = submitterUser.firstName + '_' + submitterUser.lastName + '_' + week.begin + '_' + week.end
+
+  const tempDir = tmpdir();
+  const image = fromBuffer(Buffer.from(pdf, 'binary'), {
+    density: 100,
+    format: "png",
+    width: 600,
+    height: 600,
+    quality: 100,
+    saveFilename: saveName,
+    savePath: tempDir
+  });
+  const result = await image(1);
+
+  const oAuth2Client = await auth.authorize(authArgs.googleCredentials);
+
+  let weekStart = formatArrayYYMMDD(week.begin);
+  const weekEnd = formatArrayYYMMDD(week.end);
+
+  weekStart = weekStart[1] + "-" + weekStart[2]
+  const month = weekEnd[1];
+  const year = weekEnd[0];
+
+  const args = {
+    searchTerm: [weekStart, month, year],
+    parent: googleParent
+  }
+
+  const results = await getUserContentFolderIds(oAuth2Client, args, args.searchTerm.length - 1);
+
+  let imageName = result.name.split('.');
+  imageName = imageName[0] + "." + imageName[2];
+
+  const gDriveArgs = {
+
+    name: imageName,
+    parents: [results.imagesFolder],
+    mimeType: 'image/png',
+    body: createReadStream(tempDir + '/' + result.name)
+  }
+
+  const file = await upload.worker(oAuth2Client, gDriveArgs);
+
+  const url = authArgs.googleShareUrl;
+  const urlSplit = url.split('IDLOCATION');
+  const preview = urlSplit[0] + file.data.id;
+
+  return {
+    pdf: pdf,
+    preview: preview,
+    signedDate: signedDate,
+  }
+}
+

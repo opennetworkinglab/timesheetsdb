@@ -19,11 +19,12 @@ import { Weekly } from './weekly.entity';
 import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
-import { generateEnvelopeAndPreview } from '../docusign/util/generation/envelope-preview';
+import { generateEnvelopeAndPreview, generatePdf } from '../docusign/util/generation/envelope-preview';
 import { movePreviewToUnsigned } from '../google/util/move-preview';
 import { voidEnvelope } from '../docusign/void-envelope';
 import { Day } from '../day/day.entity';
 import { Week } from '../week/week.entity';
+
 
 @EntityRepository(Weekly)
 export class WeeklyRepository extends Repository<Weekly> {
@@ -62,6 +63,7 @@ export class WeeklyRepository extends Repository<Weekly> {
 
     let weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
     const days = await getConnection().getRepository(Day).find({ where: { weekId: weekId}});
+    const approverUser = await getConnection().getRepository(User).findOne( { where: { email: user.supervisorEmail}})
 
     if(days.length === 0){
       throw new BadRequestException("No days for this week have been filled");
@@ -87,14 +89,16 @@ export class WeeklyRepository extends Repository<Weekly> {
     }
 
     const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
+    const results1 = await generatePdf(user, approverUser, weekId, null, authArgs, googleParent)
 
     await this.update(
       {
         user: user,
         weekId: weekId
       }, {
-        preview: results.preview,
-        userSigned: results.signed
+        preview: results1.preview,
+        userSigned: results.signed,
+        userSignedDate: results1.signedDate
       });
 
     return results;
@@ -171,6 +175,20 @@ export class WeeklyRepository extends Repository<Weekly> {
         preview: previewUrl,
         document: documentUrl,
         supervisorSigned: true
+      });
+  }
+
+  async updateWeeklyApprover(submittedUser: User, weekId: number, documentUrl: string, previewUrl: string, date: Date){
+
+    return await this.update(
+      {
+        user: submittedUser,
+        weekId: weekId
+      }, {
+        preview: previewUrl,
+        document: documentUrl,
+        supervisorSigned: true,
+        supervisorSignedDate: date
       });
   }
 
