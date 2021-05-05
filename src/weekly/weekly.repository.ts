@@ -20,7 +20,7 @@ import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
 import { generateEnvelopeAndPreview, generatePdf } from '../docusign/util/generation/envelope-preview';
-import { movePreviewToUnsigned } from '../google/util/move-preview';
+import { moveDocumentToUnsigned } from '../google/util/move-preview';
 import { voidEnvelope } from '../docusign/void-envelope';
 import { Day } from '../day/day.entity';
 import { Week } from '../week/week.entity';
@@ -91,6 +91,7 @@ export class WeeklyRepository extends Repository<Weekly> {
     const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
     const results1 = await generatePdf(user, approverUser, weekId, null, authArgs, googleParent)
 
+
     await this.update(
       {
         user: user,
@@ -150,7 +151,7 @@ export class WeeklyRepository extends Repository<Weekly> {
       throw new HttpException('Approver has already signed the timesheet', HttpStatus.BAD_REQUEST);
     }
 
-    const moveFile = await movePreviewToUnsigned(user, moveFileArgs);
+    const moveFile = await moveDocumentToUnsigned(moveFileArgs);
 
     if (moveFile.status !== 200) {
       console.log(moveFile);
@@ -178,7 +179,23 @@ export class WeeklyRepository extends Repository<Weekly> {
       });
   }
 
-  async updateWeeklyApprover(submittedUser: User, weekId: number, documentUrl: string, previewUrl: string, date: Date){
+  async unsignWeeklyApprover(submittedUser: User, weekId: number){
+
+    return await this.update(
+      {
+        user: submittedUser,
+        weekId: weekId
+      },
+      {
+        preview: null,
+        document: null,
+        supervisorSignedDate: null,
+        supervisorSigned: false
+      }
+    )
+  }
+
+  async signWeeklyApprover(submittedUser: User, weekId: number, documentUrl: string, previewUrl: string, date: Date){
 
     return await this.update(
       {

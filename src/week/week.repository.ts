@@ -58,6 +58,7 @@ export class WeekRepository extends Repository<Week> {
     const startDate = Math.round(+currentDate);
     let initWeek = lastWeek.weekNo + 1;
 
+    //TODO: change to 1 week
     for (let w = 1; w <= 52; w++) {
 
       const d = new Date(startDate + w * weekS);
@@ -88,7 +89,7 @@ export class WeekRepository extends Repository<Week> {
     let currentYear = new Date(startDate + 1 * weekMs).getFullYear();
 
     // Populating weeks table 34
-    for (let w = 1; w <= 52; w++) {
+    for (let w = 1; w <= 1; w++) {
 
       const d = new Date(startDate + w * weekMs);
 
