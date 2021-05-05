@@ -126,7 +126,9 @@ export const generateWeeklyPdf = async (args) => {
 
 const printPdf = async () => {
   /** Launch a headleass browser */
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    executablePath: '/usr/bin/chromium-browser'
+  });
   /* 1- Create a newPage() object. It is created in default browser context. */
   const page = await browser.newPage();
   /* 2- Will open our generated `.html` file in the new Page instance. */
