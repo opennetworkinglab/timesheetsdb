@@ -44,6 +44,14 @@ export class WeeklyController {
     return this.weeklyService.userReminderEmails();
   }
 
+  @Post('reminders/:emailId/:weekId')
+  @UseGuards(AuthGuard())
+  sendReminderEmail(@GetUser() user: User,
+                    @Param('weekId') weekId,
+                    @Param('emailId') emailId) {
+    return this.weeklyService.sendReminderEmail(user, emailId, weekId);
+  }
+
   @Get('supervisor/update') // 10 mins
   UpdateWeeklySupervisor() {
     return this.weeklyService.updateWeeklySupervisor();

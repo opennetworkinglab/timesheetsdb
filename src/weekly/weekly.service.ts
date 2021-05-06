@@ -396,6 +396,42 @@ export class WeeklyService {
     return results;
   }
 
+  async sendReminderEmail(user: User, emailId: string, weekId: number) {
+
+    if ( !user.isActive && !user.isSupervisor ) {
+      throw new HttpException('Do not have permissions', HttpStatus.BAD_REQUEST);
+    }
+
+    const submitterUser = await getConnection().getRepository(User).findOne( {
+      where: {
+        email: emailId
+      }
+    });
+
+    if (submitterUser.supervisorEmail !== user.email){
+      throw new HttpException('Not approver of user', HttpStatus.BAD_REQUEST);
+    }
+
+    const week = await getConnection().getRepository(Week).findOne({
+      where: {
+        id: weekId
+      }
+    });
+
+    const cred = await this.getGoogleCredentials();
+    const oAuth2Client = await auth.authorize(cred);
+
+    const message = 'Timesheets: https://timesheets.opennetworking.org/\n\nPlease complete timesheet week: ' + week.begin + ' - ' + week.end;
+
+    const emailArgs = {
+      userEmail: emailId,
+      message: message,
+      subject: 'Incomplete Timesheet',
+    };
+
+    return await sendEmail.worker(oAuth2Client, emailArgs);
+  }
+
   async summaryReport() {
 
     // Get current month
