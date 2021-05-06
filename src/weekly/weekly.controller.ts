@@ -78,4 +78,20 @@ export class WeeklyController {
                    @Body('redirectUrl') redirectUrl: string): Promise<{ viewRequest }> {
     return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto, redirectUrl);
   }
+
+  @Get('reject/:emailId')
+  @UseGuards(AuthGuard())
+  getRejectWeekly(@GetUser() user: User,
+                  @Param('emailId') emailId){
+    return this.weeklyService
+  }
+
+  @Post('reject/:emailId/:weekId')
+  @UseGuards(AuthGuard())
+  rejectUsersWeekly(@GetUser() user: User,
+                    @Param('emailId') emailId,
+                    @Param('weekId') weekId,
+                    @Body('comment') comment) {
+    return this.weeklyService.rejectUsersWeekly(user, emailId, weekId, comment)
+  }
 }

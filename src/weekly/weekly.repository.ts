@@ -98,7 +98,8 @@ export class WeeklyRepository extends Repository<Weekly> {
       }, {
         preview: results1.preview,
         userSigned: results.signed,
-        userSignedDate: results1.signedDate
+        userSignedDate: results1.signedDate,
+        rejected: false
       });
 
     return results;
@@ -264,5 +265,18 @@ export class WeeklyRepository extends Repository<Weekly> {
         diff: diff
       }
     }
+  }
+
+  async rejectUsersWeekly(submitterUser: User, weekId: number, comment: string){
+    return this.update({
+      user: submitterUser,
+      weekId: weekId
+    },{
+      preview: null,
+      userSigned: null,
+      userSignedDate: null,
+      rejected: true,
+      comment: comment
+    });
   }
 }
