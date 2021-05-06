@@ -27,11 +27,12 @@ export class WeekRepository extends Repository<Week> {
     super();
 
     // Create week on first start of application
-    this.createWeek().then(() => {
-      console.log("Weeks created");
-    }).catch(()=> {
-      console.log("Weeks already created");
-    });
+    // Breaks WEEK TABLE SEQUENCE
+    // this.createWeek().then(() => {
+    //   console.log("Weeks created");
+    // }).catch(()=> {
+    //   console.log("Weeks already created");
+    // });
   }
 
   async getWeeks(): Promise<Week[]> {
@@ -58,7 +59,7 @@ export class WeekRepository extends Repository<Week> {
     const startDate = Math.round(+currentDate);
     let initWeek = lastWeek.weekNo + 1;
 
-    for (let w = 1; w <= 52; w++) {
+    for (let w = 1; w <= 1; w++) {
 
       const d = new Date(startDate + w * weekS);
 
@@ -88,7 +89,7 @@ export class WeekRepository extends Repository<Week> {
     let currentYear = new Date(startDate + 1 * weekMs).getFullYear();
 
     // Populating weeks table 34
-    for (let w = 1; w <= 52; w++) {
+    for (let w = 1; w <= 1; w++) {
 
       const d = new Date(startDate + w * weekMs);
 

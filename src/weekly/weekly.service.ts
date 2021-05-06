@@ -43,6 +43,7 @@ import { readFile } from 'fs.promises';
 import { generatePdf } from '../docusign/util/generation/envelope-preview';
 import { timestamp } from 'rxjs/operators';
 import { Time } from '../time/time.entity';
+import { moveDocumentToUnsigned } from '../google/util/move-preview';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ObjectsToCsv = require('objects-to-csv')
@@ -118,7 +119,48 @@ export class WeeklyService {
     return { viewRequest: null };
   }
 
-  async updateWeeklyApprover(user: User, userEmail: string, weekId: number){
+  async unsignWeeklyApprover(userEmail: string, weekId: number){
+
+    const submitterUser = await getConnection().getRepository(User).findOne( { where: { email: userEmail }});
+    const weekly = await getConnection().getRepository(Weekly).findOne({ where: { user: submitterUser, weekId: weekId } });
+
+    if (!weekly.supervisorSignedDate){
+      throw new HttpException('Approver has not signed this week', HttpStatus.BAD_REQUEST);
+    }
+
+    const googleCredentials = await this.getGoogleCredentials();
+    const googleShareUrl = this.configService.get<string>('GOOGLE_DOC_URL_TEMPLATE');
+    const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
+
+    const googleShareUrlArr = googleShareUrl.split('IDLOCATION');
+
+    let documentID = weekly.preview.replace(googleShareUrlArr[0], "");
+
+    const moveFileArgs = {
+      googleCredentials: googleCredentials,
+      googleParent: googleParent,
+      weekId: weekId,
+      fileId: documentID
+    }
+    let moveFile = await moveDocumentToUnsigned(moveFileArgs);
+
+    if (moveFile.status !== 200) {
+      console.log(moveFile);
+    }
+
+    documentID = weekly.document.replace(googleShareUrlArr[0], "");
+
+    moveFileArgs.fileId = documentID;
+    moveFile = await moveDocumentToUnsigned(moveFileArgs);
+
+    if (moveFile.status !== 200) {
+      console.log(moveFile);
+    }
+
+    return await this.weeklyRepository.unsignWeeklyApprover(submitterUser, weekId);
+  }
+
+  async signWeeklyApprover(user: User, userEmail: string, weekId: number){
     
     const submitterUser = await getConnection().getRepository(User).findOne( { where: { email: userEmail }});
     const weekly = await getConnection().getRepository(Weekly).findOne({ where: { user: submitterUser, weekId: weekId } });
@@ -179,7 +221,7 @@ export class WeeklyService {
       const urlSplit = url.split('IDLOCATION');
       const documentUrl = urlSplit[0] + file.data.id;
 
-      return await this.weeklyRepository.updateWeeklyApprover(submitterUser, weekId, documentUrl, pdfResult.preview, pdfResult.signedDate);
+      return await this.weeklyRepository.signWeeklyApprover(submitterUser, weekId, documentUrl, pdfResult.preview, pdfResult.signedDate);
     }
   }
 

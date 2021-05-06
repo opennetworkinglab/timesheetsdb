@@ -17,7 +17,6 @@
 import { getConnection } from 'typeorm';
 import { Week } from '../../week/week.entity';
 import { formatArrayYYMMDD } from '../../util/date/date-formating';
-import { User } from '../../auth/user.entity';
 import { moveFile } from '../gdrive/move-file';
 import { auth } from '../auth';
 import { getUserContentFolderIds } from './get-user-content-folder-ids';
@@ -28,7 +27,7 @@ import { getUserContentFolderIds } from './get-user-content-folder-ids';
  * @param user
  * @param args .weekID .FileId .googleCredentials
  */
-export const movePreviewToUnsigned = async (user: User, args) => {
+export const moveDocumentToUnsigned = async (args) => {
 
   const week = await getConnection().getRepository(Week).findOne({ where: { id: args.weekId }});
 
