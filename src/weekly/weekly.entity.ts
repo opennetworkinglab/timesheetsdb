@@ -58,4 +58,12 @@ export class Weekly extends BaseEntity {
   @ApiProperty()
   @Column({ name: 'supervisor_signed_date', nullable: true, type: 'timestamp'})
   supervisorSignedDate: Date
+
+  @ApiProperty()
+  @Column({ name: 'rejected', default: false})
+  rejected: boolean
+
+  @ApiProperty()
+  @Column({ name: 'comment', nullable: true })
+  comment: string
 }

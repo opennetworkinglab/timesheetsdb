@@ -396,6 +396,32 @@ export class WeeklyService {
     return results;
   }
 
+  async rejectUsersWeekly( user: User, emailId: string, weekId: number, comment: string ) {
+
+    const submitterUser = await getConnection().getRepository(User).findOne({
+      where: {
+        email: emailId
+      }
+    });
+
+    const supervisorSigned = await this.weeklyRepository.findOne({ where: { user: submitterUser, weekId: weekId }})
+
+    if ( submitterUser.supervisorEmail !== user.email ) {
+      throw new HttpException('Only the approver for user ' + submitterUser.firstName + ' ' + submitterUser.lastName + ' can reject the timesheet',
+        HttpStatus.BAD_REQUEST);
+    }
+
+    if ( supervisorSigned.supervisorSignedDate ) {
+      throw new HttpException('You must unsign before rejecting', HttpStatus.BAD_REQUEST);
+    }
+
+    if ( comment.length < 1) {
+      throw new HttpException('Comment must be left', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.weeklyRepository.rejectUsersWeekly(submitterUser, weekId, comment);
+  }
+
   async summaryReport() {
 
     // Get current month
