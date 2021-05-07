@@ -144,15 +144,14 @@ export const generateEnvelopeAndPreview = async (user, weekId, authArgs, googleP
 
   const oAuth2Client = await auth.authorize(authArgs.googleCredentials);
 
-  let weekStart = formatArrayYYMMDD(week.begin);
   const weekEnd = formatArrayYYMMDD(week.end);
 
-  weekStart = weekStart[1] + "-" + weekStart[2]
+  const weekFolderDate = weekEnd[1] + "-" + weekEnd[2]
   const month = weekEnd[1];
   const year = weekEnd[0];
 
   const args = {
-    searchTerm: [weekStart, month, year],
+    searchTerm: [weekFolderDate, month, year],
     parent: googleParent
   }
 
@@ -271,15 +270,14 @@ export const generatePdf = async (submitterUser, approverUser, weekId, weekly: W
 
   const oAuth2Client = await auth.authorize(authArgs.googleCredentials);
 
-  let weekStart = formatArrayYYMMDD(week.begin);
   const weekEnd = formatArrayYYMMDD(week.end);
 
-  weekStart = weekStart[1] + "-" + weekStart[2]
+  const weekFolderDate = weekEnd[1] + "-" + weekEnd[2]
   const month = weekEnd[1];
   const year = weekEnd[0];
 
   const args = {
-    searchTerm: [weekStart, month, year],
+    searchTerm: [weekFolderDate, month, year],
     parent: googleParent
   }
 

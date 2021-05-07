@@ -33,15 +33,14 @@ export const moveDocumentToUnsigned = async (args) => {
 
   const oAuth2Client = await auth.authorize(args.googleCredentials);
 
-  let weekStart = formatArrayYYMMDD(week.begin);
   const weekEnd = formatArrayYYMMDD(week.end);
 
-  weekStart = weekStart[1] + "-" + weekStart[2]
+  const weekFolderDate = weekEnd[1] + "-" + weekEnd[2]
   const month = weekEnd[1];
   const year = weekEnd[0];
 
   const userFolderArgs = {
-    searchTerm: [weekStart, month, year],
+    searchTerm: [weekFolderDate, month, year],
     parent: args.googleParent
   }
 
