@@ -300,4 +300,16 @@ export class WeeklyRepository extends Repository<Weekly> {
       comment: comment
     });
   }
+
+  async getRejectWeeks(user: User) {
+
+    return  await this.find({
+      where: {
+        user: user,
+        rejected: true
+      },
+    order: {
+        weekId: 'ASC'
+    }});
+  }
 }
