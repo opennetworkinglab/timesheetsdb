@@ -20,7 +20,7 @@ import { User } from '../auth/user.entity';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateWeeklyDto } from './dto/update-weekly.dto';
 import { generateEnvelopeAndPreview, generatePdf } from '../docusign/util/generation/envelope-preview';
-import { movePreviewToUnsigned } from '../google/util/move-preview';
+import { moveDocumentToUnsigned } from '../google/util/move-preview';
 import { voidEnvelope } from '../docusign/void-envelope';
 import { Day } from '../day/day.entity';
 import { Week } from '../week/week.entity';
@@ -91,6 +91,7 @@ export class WeeklyRepository extends Repository<Weekly> {
     const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
     const results1 = await generatePdf(user, approverUser, weekId, null, authArgs, googleParent)
 
+
     await this.update(
       {
         user: user,
@@ -125,36 +126,40 @@ export class WeeklyRepository extends Repository<Weekly> {
       throw new BadRequestException("Has not been signed");
     }
 
-    const googleShareUrlArr = googleArgs.googleShareUrl.split('IDLOCATION');
-    const previewUrl = weeklySigned.preview;
+    if ( weeklySigned.preview ) {
 
-    const previewId = previewUrl.replace(googleShareUrlArr[0], "");
+      const googleShareUrlArr = googleArgs.googleShareUrl.split('IDLOCATION');
+      const previewUrl = weeklySigned.preview;
 
-    const moveFileArgs = {
-      googleCredentials: googleArgs.googleCredentials,
-      googleParent: googleArgs.googleParent,
-      weekId: weekId,
-      fileId: previewId
-    }
+      const previewId = previewUrl.replace(googleShareUrlArr[0], "");
 
-    const docArgs = {
-      basePath: args.docusignBasePath,
-      accessToken: args.docusignToken,
-      accountId: args.docusignAccountId
-    }
+      const moveFileArgs = {
+        googleCredentials: googleArgs.googleCredentials,
+        googleParent: googleArgs.googleParent,
+        weekId: weekId,
+        fileId: previewId
+      }
 
-    // If the envelope has been signed by approver but the backend is not updated yet. this will catch it
-    // A completed envelope cannot be voided. This will throw an error.
-    try {
-      await voidEnvelope.send(docArgs, weeklySigned.userSigned);
-    }catch (e){
-      throw new HttpException('Approver has already signed the timesheet', HttpStatus.BAD_REQUEST);
-    }
+      const docArgs = {
+        basePath: args.docusignBasePath,
+        accessToken: args.docusignToken,
+        accountId: args.docusignAccountId
+      }
 
-    const moveFile = await movePreviewToUnsigned(user, moveFileArgs);
+      // If the envelope has been signed by approver but the backend is not updated yet. this will catch it
+      // A completed envelope cannot be voided. This will throw an error.
+      try {
+        await voidEnvelope.send(docArgs, weeklySigned.userSigned);
+      }catch (e){
+        throw new HttpException('Approver has already signed the timesheet', HttpStatus.BAD_REQUEST);
+      }
 
-    if (moveFile.status !== 200) {
-      console.log(moveFile);
+      const moveFile = await moveDocumentToUnsigned(moveFileArgs);
+
+      if (moveFile.status !== 200) {
+        console.log(moveFile);
+      }
+
     }
 
     return await this.update(
@@ -179,7 +184,23 @@ export class WeeklyRepository extends Repository<Weekly> {
       });
   }
 
-  async updateWeeklyApprover(submittedUser: User, weekId: number, documentUrl: string, previewUrl: string, date: Date){
+  async unsignWeeklyApprover(submittedUser: User, weekId: number){
+
+    return await this.update(
+      {
+        user: submittedUser,
+        weekId: weekId
+      },
+      {
+        preview: null,
+        document: null,
+        supervisorSignedDate: null,
+        supervisorSigned: false
+      }
+    )
+  }
+
+  async signWeeklyApprover(submittedUser: User, weekId: number, documentUrl: string, previewUrl: string, date: Date){
 
     return await this.update(
       {

@@ -49,12 +49,19 @@ export class WeeklyController {
     return this.weeklyService.updateWeeklySupervisor();
   }
 
-  @Post('approver/:emailId/:weekId')
+  @Post('approver/sign/:emailId/:weekId')
   @UseGuards(AuthGuard())
-  updateWeeklyApprover(@GetUser() user: User,
+  signWeeklyApprover(@GetUser() user: User,
+                     @Param('weekId') weekId,
+                     @Param('emailId') submitterEmail){
+    return this.weeklyService.signWeeklyApprover(user, submitterEmail, weekId);
+  }
+  @Post('approver/unsign/:emailId/:weekId')
+  @UseGuards(AuthGuard())
+  unsignWeeklyApprover(@GetUser() user: User,
                        @Param('weekId') weekId,
                        @Param('emailId') submitterEmail){
-    return this.weeklyService.updateWeeklyApprover(user, submitterEmail, weekId);
+    return this.weeklyService.unsignWeeklyApprover(submitterEmail, weekId);
   }
 
   @Get('unsigned')
