@@ -422,6 +422,10 @@ export class WeeklyService {
     return this.weeklyRepository.rejectUsersWeekly(submitterUser, weekId, comment);
   }
 
+  async getRejectWeeks(user: User) {
+    return await this.weeklyRepository.getRejectWeeks(user);
+  }
+
   async summaryReport() {
 
     // Get current month
@@ -490,7 +494,7 @@ export class WeeklyService {
         }
       }
     }
-    console.log("dsdadsddads")
+
     const pdfContents: PdfContent[] = [];
     let currentPdfContent: PdfContent = undefined;
 

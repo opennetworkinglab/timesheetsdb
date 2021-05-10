@@ -28,6 +28,13 @@ export class WeeklyController {
   constructor(private weeklyService: WeeklyService) {
   }
 
+  @Get('reject/weeks')
+  @UseGuards(AuthGuard())
+  getRejectWeeks(@GetUser() user: User,
+                 @Param('emailId') emailId){
+    return this.weeklyService.getRejectWeeks(user);
+  }
+
   @Get('usersweekly/:weekId')
   @UseGuards(AuthGuard())
   getUsersAndWeekly(@Param('weekId') weekId): Promise<any> {
@@ -84,13 +91,6 @@ export class WeeklyController {
                    @Body() updateWeeklyDto: UpdateWeeklyDto,
                    @Body('redirectUrl') redirectUrl: string): Promise<{ viewRequest }> {
     return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto, redirectUrl);
-  }
-
-  @Get('reject/:emailId')
-  @UseGuards(AuthGuard())
-  getRejectWeekly(@GetUser() user: User,
-                  @Param('emailId') emailId){
-    return this.weeklyService
   }
 
   @Post('reject/:emailId/:weekId')
