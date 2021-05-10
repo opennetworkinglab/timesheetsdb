@@ -703,7 +703,7 @@ export class WeeklyService {
 
         for (let i = 0; i < weeklies.length; i++) {
 
-          if (weeklies[i].userSigned.length === 0) {
+          if (!weeklies[i].userSigned || weeklies[i].userSigned.length === 0) {
 
             toEmail = true;
             message += '\n\t' + weeks[i].begin + ' to ' + weeks[i].end;
