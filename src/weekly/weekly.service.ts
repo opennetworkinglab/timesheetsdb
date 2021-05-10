@@ -454,7 +454,7 @@ export class WeeklyService {
         weeksInMonth.push([weeks[i].begin, weeks[i].end]);
       }
     }
-    console.log(queryWeekIds);
+
     // Getting weeklies signed for current month.
     const weekliesSigned = await getConnection().getRepository(Weekly).find({
       where: {
