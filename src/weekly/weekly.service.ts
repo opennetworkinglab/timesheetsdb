@@ -41,7 +41,6 @@ import { createPdf, PdfContent } from '../util/pdf/create-pdf';
 import { Day } from '../day/day.entity';
 import { readFile } from 'fs.promises';
 import { generatePdf } from '../docusign/util/generation/envelope-preview';
-import { timestamp } from 'rxjs/operators';
 import { Time } from '../time/time.entity';
 import { moveDocumentToUnsigned } from '../google/util/move-preview';
 
@@ -403,12 +402,11 @@ export class WeeklyService {
     }
 
     const submitterUser = await getConnection().getRepository(User).findOne( {
-      where: {
-        email: emailId
-      }
-    });
+    where: {
+      email: emailId
+    }});
 
-    if (submitterUser.supervisorEmail !== user.email){
+    if (submitterUser.supervisorEmail !== user.email) {
       throw new HttpException('Not approver of user', HttpStatus.BAD_REQUEST);
     }
 
@@ -430,6 +428,36 @@ export class WeeklyService {
     };
 
     return await sendEmail.worker(oAuth2Client, emailArgs);
+  }
+
+  async rejectUsersWeekly( user: User, emailId: string, weekId: number, comment: string ) {
+
+    const submitterUser = await getConnection().getRepository(User).findOne( {
+      where: {
+        email: emailId
+      }});
+
+    const submitterWeekly = await this.weeklyRepository.findOne({ where: { user: submitterUser, weekId: weekId }});
+
+    if (!submitterWeekly.userSigned || submitterWeekly.userSigned.length === 0){
+      throw new HttpException('Submitter has not signed. Cannot reject. Send reminder',
+        HttpStatus.BAD_REQUEST);
+    }
+
+    if ( submitterUser.supervisorEmail !== user.email ) {
+      throw new HttpException('Only the approver for user ' + submitterUser.firstName + ' ' + submitterUser.lastName + ' can reject the timesheet',
+        HttpStatus.BAD_REQUEST);
+    }
+
+    if ( submitterWeekly.supervisorSignedDate ) {
+      throw new HttpException('You must unsign before rejecting', HttpStatus.BAD_REQUEST);
+    }
+
+    if ( comment.length < 1) {
+      throw new HttpException('Comment must be left', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.weeklyRepository.rejectUsersWeekly(submitterUser, weekId, comment);
   }
 
   async summaryReport() {
