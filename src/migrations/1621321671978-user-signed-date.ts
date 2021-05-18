@@ -23,6 +23,7 @@ export class userSignedDate1621321671978 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "weeklies" ADD "user_signed_date" DATE DEFAULT '"2021-03-31T08:27:47.473Z"'`);
     }
 
 }
