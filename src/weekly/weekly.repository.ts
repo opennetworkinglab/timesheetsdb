@@ -91,7 +91,6 @@ export class WeeklyRepository extends Repository<Weekly> {
     const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
     const results1 = await generatePdf(user, approverUser, weekId, null, authArgs, googleParent)
 
-
     await this.update(
       {
         user: user,
