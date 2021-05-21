@@ -19,11 +19,11 @@ import {MigrationInterface, QueryRunner} from "typeorm";
 export class userSignedDate1621321671978 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "weeklies" ADD "user_signed_date" TIMESTAMP DEFAULT '"2021-03-31T08:27:47.473Z"'`);
+        await queryRunner.query(`ALTER TABLE "weeklies" ALTER COLUMN "user_signed_date" TYPE TIMESTAMP`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "weeklies" ADD "user_signed_date" DATE DEFAULT '"2021-03-31T08:27:47.473Z"'`);
+        await queryRunner.query(`ALTER TABLE "weeklies" ALTER COLUMN "user_signed_date" TYPE DATE`);
     }
 
 }
