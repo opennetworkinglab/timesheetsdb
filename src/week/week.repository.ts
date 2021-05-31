@@ -67,7 +67,8 @@ export class WeekRepository extends Repository<Week> {
         initWeek = 1;
         currentYear = d.getFullYear();
       }
-
+console.log(new Date(d.getTime()))
+      console.log(new Date(d.getTime() + (weekS) - 1000));
       const week = new Week();
       week.year = d.getFullYear();
       week.weekNo = initWeek;
