@@ -84,7 +84,7 @@ export class WeeklyService {
     return this.weeklyRepository.getWeekly(user, weekId);
   }
 
-  async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto, redirectUrl: string): Promise<{ viewRequest }> {
+  async updateWeeklyUser(user: User, weekId: number, updateWeeklyDto: UpdateWeeklyDto ): Promise<{ any }> {
 
     const { userSigned } = updateWeeklyDto;
 
@@ -105,7 +105,7 @@ export class WeeklyService {
 
     if(userSigned){
 
-      return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto, redirectUrl);
+      return await this.weeklyRepository.updateWeeklyUserSign(authArgs, user, weekId, googleParent, updateWeeklyDto);
     }
 
     const googleArgs = {
@@ -115,7 +115,7 @@ export class WeeklyService {
     }
 
     await this.weeklyRepository.updateWeeklyUserUnsign(user, weekId, authArgs, googleArgs, updateWeeklyDto);
-    return { viewRequest: null };
+    return null;
   }
 
   async unsignWeeklyApprover(userEmail: string, weekId: number){
@@ -172,9 +172,7 @@ export class WeeklyService {
       const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
 
       const week = await getConnection().getRepository(Week).findOne({ where: { id: weekly.weekId } });
-      let weekStart = formatArrayYYMMDD(week.begin);
       const weekEnd = formatArrayYYMMDD(week.end);
-      weekStart = weekStart[1] + "-" + weekStart[2]
       const month = weekEnd[1];
       const year = weekEnd[0];
 
@@ -201,7 +199,7 @@ export class WeeklyService {
       const oAuth2Client = await auth.authorize(credentials);
 
       const userFolderArgs = {
-        searchTerm: [weekStart, month, year],
+        searchTerm: [weekEnd[1] + '-' + weekEnd[2], month, year],
         parent: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')
       }
       const userFolder = await getUserContentFolderIds(oAuth2Client, userFolderArgs, userFolderArgs.searchTerm.length - 1);

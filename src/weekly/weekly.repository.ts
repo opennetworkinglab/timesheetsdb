@@ -59,7 +59,7 @@ export class WeeklyRepository extends Repository<Weekly> {
    * @param googleParent Main parent folder
    * @param updateWeeklyDto
    */
-  async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto, redirectUrl: string): Promise<{ viewRequest }> {
+  async updateWeeklyUserSign(authArgs, user: User, weekId: number, googleParent: string, updateWeeklyDto: UpdateWeeklyDto): Promise< any > {
 
     let weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
     const days = await getConnection().getRepository(Day).find({ where: { weekId: weekId}});
@@ -88,17 +88,17 @@ export class WeeklyRepository extends Repository<Weekly> {
       throw new BadRequestException("Already signed");
     }
 
-    const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
-    const results1 = await generatePdf(user, approverUser, weekId, null, authArgs, googleParent)
+    // const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
+    const results = await generatePdf(user, approverUser, weekId, null, authArgs, googleParent)
 
     await this.update(
       {
         user: user,
         weekId: weekId
       }, {
-        preview: results1.preview,
-        userSigned: results.signed,
-        userSignedDate: results1.signedDate,
+        preview: results.preview,
+        userSigned: 'set',
+        userSignedDate: results.signedDate,
         rejected: false
       });
 
@@ -130,7 +130,7 @@ export class WeeklyRepository extends Repository<Weekly> {
       const googleShareUrlArr = googleArgs.googleShareUrl.split('IDLOCATION');
       const previewUrl = weeklySigned.preview;
 
-      const previewId = previewUrl.replace(googleShareUrlArr[0], "");
+      const previewId = previewUrl.replace(googleShareUrlArr[0], '');
 
       const moveFileArgs = {
         googleCredentials: googleArgs.googleCredentials,

@@ -30,8 +30,7 @@ export class WeeklyController {
 
   @Get('reject/weeks')
   @UseGuards(AuthGuard())
-  getRejectWeeks(@GetUser() user: User,
-                 @Param('emailId') emailId){
+  getRejectWeeks(@GetUser() user: User){
     return this.weeklyService.getRejectWeeks(user);
   }
 
@@ -71,6 +70,7 @@ export class WeeklyController {
                      @Param('emailId') submitterEmail){
     return this.weeklyService.signWeeklyApprover(user, submitterEmail, weekId);
   }
+
   @Post('approver/unsign/:emailId/:weekId')
   @UseGuards(AuthGuard())
   unsignWeeklyApprover(@GetUser() user: User,
@@ -96,9 +96,8 @@ export class WeeklyController {
   @UseGuards(AuthGuard())
   UpdateWeeklyUser(@GetUser() user: User,
                    @Param('weekId') weekId,
-                   @Body() updateWeeklyDto: UpdateWeeklyDto,
-                   @Body('redirectUrl') redirectUrl: string): Promise<{ viewRequest }> {
-    return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto, redirectUrl);
+                   @Body() updateWeeklyDto: UpdateWeeklyDto): Promise< any> {
+    return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto);
   }
 
   @Post('reject/:emailId/:weekId')
