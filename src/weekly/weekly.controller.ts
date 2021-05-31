@@ -96,8 +96,7 @@ export class WeeklyController {
   @UseGuards(AuthGuard())
   UpdateWeeklyUser(@GetUser() user: User,
                    @Param('weekId') weekId,
-                   @Body() updateWeeklyDto: UpdateWeeklyDto,
-                   @Body('redirectUrl') redirectUrl: string): Promise< any> {
+                   @Body() updateWeeklyDto: UpdateWeeklyDto): Promise< any> {
     return this.weeklyService.updateWeeklyUser(user, weekId, updateWeeklyDto);
   }
 
