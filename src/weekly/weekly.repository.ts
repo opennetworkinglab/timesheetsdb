@@ -139,19 +139,19 @@ export class WeeklyRepository extends Repository<Weekly> {
         fileId: previewId
       }
 
-      const docArgs = {
-        basePath: args.docusignBasePath,
-        accessToken: args.docusignToken,
-        accountId: args.docusignAccountId
-      }
+      // const docArgs = {
+      //   basePath: args.docusignBasePath,
+      //   accessToken: args.docusignToken,
+      //   accountId: args.docusignAccountId
+      // }
 
       // If the envelope has been signed by approver but the backend is not updated yet. this will catch it
       // A completed envelope cannot be voided. This will throw an error.
-      try {
-        await voidEnvelope.send(docArgs, weeklySigned.userSigned);
-      }catch (e){
-        throw new HttpException('Approver has already signed the timesheet', HttpStatus.BAD_REQUEST);
-      }
+      // try {
+      //   await voidEnvelope.send(docArgs, weeklySigned.userSigned);
+      // }catch (e){
+      //   throw new HttpException('Approver has already signed the timesheet', HttpStatus.BAD_REQUEST);
+      // }
 
       const moveFile = await moveDocumentToUnsigned(moveFileArgs);
 
