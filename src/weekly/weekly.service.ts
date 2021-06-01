@@ -206,7 +206,7 @@ export class WeeklyService {
 
       // Save document to drive
       const gDriveArgs = {
-        name: submitterUser.firstName + '_' + submitterUser.lastName + '_' + week.begin + '_' + week.end,
+        name: submitterUser.firstName + '_' + submitterUser.lastName + '_' + week.begin + '_' + week.end + '.pdf',
         parents: [userFolder.userFolder],
         mimeType: 'image/pdf',
         body: readableInstanceStream
