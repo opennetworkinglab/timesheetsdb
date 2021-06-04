@@ -417,7 +417,8 @@ export class WeeklyService {
     const cred = await this.getGoogleCredentials();
     const oAuth2Client = await auth.authorize(cred);
 
-    const message = 'Timesheets: https://timesheets.opennetworking.org/\n\nPlease complete timesheet week: ' + week.begin + ' - ' + week.end;
+    const message = 'Approver requests the below:\n' +
+      'Timesheets: https://timesheets.opennetworking.org/\n\nPlease complete timesheet week: ' + week.begin + ' - ' + week.end;
 
     const emailArgs = {
       userEmail: emailId,
