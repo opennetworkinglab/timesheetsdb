@@ -66,6 +66,7 @@ class TempUserAndWeekly{
   times: Time[][];
   userSigned: Date;
   supervisorSigned: Date;
+  preview: string;
 }
 
 @Injectable()
@@ -172,6 +173,7 @@ export class WeeklyService {
       const googleParent = this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER');
 
       const week = await getConnection().getRepository(Week).findOne({ where: { id: weekly.weekId } });
+      const weekStart = formatArrayYYMMDD(week.begin);
       const weekEnd = formatArrayYYMMDD(week.end);
       const month = weekEnd[1];
       const year = weekEnd[0];
@@ -199,7 +201,7 @@ export class WeeklyService {
       const oAuth2Client = await auth.authorize(credentials);
 
       const userFolderArgs = {
-        searchTerm: [weekEnd[1] + '-' + weekEnd[2], month, year],
+        searchTerm: [weekStart[1] + '-' + weekStart[2] + ' to ' + weekEnd[1] + '-' + weekEnd[2], month, year],
         parent: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER')
       }
       const userFolder = await getUserContentFolderIds(oAuth2Client, userFolderArgs, userFolderArgs.searchTerm.length - 1);
@@ -368,6 +370,8 @@ export class WeeklyService {
       tempUser.supervisor = users[i].supervisorEmail;
 
       if(weekly) {
+
+        tempUser.preview = weekly.preview;
 
         if (weekly.userSigned && weekly.userSigned.length > 0) {
 
