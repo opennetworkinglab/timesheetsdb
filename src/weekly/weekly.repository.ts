@@ -63,7 +63,7 @@ export class WeeklyRepository extends Repository<Weekly> {
 
     let weeklySigned = await this.findOne({ where: { user: user, weekId: weekId } });
     const days = await getConnection().getRepository(Day).find({ where: { weekId: weekId}});
-    const approverUser = await getConnection().getRepository(User).findOne( { where: { email: user.supervisorEmail}})
+    // const approverUser = await getConnection().getRepository(User).findOne( { where: { email: user.supervisorEmail}})
 
     if(days.length === 0){
       throw new BadRequestException("No days for this week have been filled");
@@ -89,7 +89,7 @@ export class WeeklyRepository extends Repository<Weekly> {
     }
 
     // const results = await generateEnvelopeAndPreview(user, weekId, authArgs, googleParent, redirectUrl);
-    const results = await generatePdf(user, approverUser, weekId, null, authArgs, googleParent)
+    const results = await generatePdf(user, null, weekId, null, authArgs, googleParent)
 
     await this.update(
       {
