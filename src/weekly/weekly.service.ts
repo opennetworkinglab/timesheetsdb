@@ -31,7 +31,7 @@ import { listEnvelopes } from '../docusign/list-envelopes';
 import { listEnvelopeDocuments } from '../docusign/list-envelope-documents';
 import { downloadDocument } from '../docusign/download-document';
 import { auth } from '../google/auth';
-import { tmpdir } from 'os';
+import { endianness, tmpdir } from 'os';
 import { upload } from '../google/gdrive/upload';
 import { getMonthFolderId, getUserContentFolderIds } from '../google/util/get-user-content-folder-ids';
 import { Week } from '../week/week.entity';
@@ -678,6 +678,121 @@ export class WeeklyService {
         assertion: jwtToken,
       },
     );
+  }
+
+  /**
+   * Sends email to supervisors that have not signed
+   * Checks current month
+   */
+  async supervisorReminderEmails() {
+
+    const date = new Date();
+
+    const weeks = await getConnection().getRepository(Week).find( {
+      where: {
+        monthNo: date.getUTCMonth(),
+        year: date.getUTCFullYear()
+      },
+      order: {
+        id: 'ASC'
+      }
+    });
+
+    const weekIds = weeks.map(week => week.id);
+
+    const weeklies = await this.weeklyRepository.find( {
+      where: {
+        weekId: In(weekIds),
+        supervisorSigned: false
+      },
+      order: {
+        user: 'ASC'
+      }
+    });
+
+    // Interface to contain all info needed to send email
+    interface SupervisorEmailInfo {
+      supervisorEmail: string;
+      users: { userEmail: string,
+        weeks: {
+          begin, end
+        }[]
+      }[]
+    }
+
+    const emailWeeklies: SupervisorEmailInfo[] = [];
+
+    weeklies.forEach( weekly => {
+
+      // Find supervisor in array of emailWeeklies
+      const supervisorEmailInfo = emailWeeklies.find(sei => sei.supervisorEmail === weekly.user.supervisorEmail);
+
+      // Edit above object if exist
+      if(supervisorEmailInfo){
+
+        const user = supervisorEmailInfo.users.find(user => user.userEmail === weekly.user.email);
+
+        // If user exists add week
+        if(user){
+
+          user.weeks.push( {
+            begin: weeks.find(week => week.id === weekly.weekId ).begin,
+            end: weeks.find(week => week.id === weekly.weekId ).end
+          });
+        }
+        else{
+
+          // Creating user and adding the begin and end date for this weekly
+          supervisorEmailInfo.users.push({
+            userEmail: weekly.user.email,
+            weeks: [{
+              begin: weeks.find(week => week.id === weekly.weekId ).begin,
+              end: weeks.find(week => week.id === weekly.weekId ).end
+            }]
+          });
+        } // end of user if else
+      }
+      else{
+
+        emailWeeklies.push({
+          supervisorEmail: weekly.user.supervisorEmail,
+          users: [{
+            userEmail: weekly.user.email,
+            weeks: [{
+              begin: weeks.find(week => week.id === weekly.weekId ).begin,
+              end: weeks.find(week => week.id === weekly.weekId ).end
+            }]
+          }]
+        });
+      }
+    });
+
+    const cred = await this.getGoogleCredentials();
+    const oAuth2Client = await auth.authorize(cred);
+
+    for (const item of emailWeeklies) {
+
+      let message = `<html><head><style>table,td { border: 1px solid black; border-collapse: collapse; padding: 10px 10px 10px 10px; }</style></head><body><h1>Please sign timesheets for the weeks for the below users</h1>`;
+      message += `<table>`;
+
+      for (const user of item.users){
+
+        message += `<tr><td>${user.userEmail}</td></tr>`;
+
+        for(const week of user.weeks){
+
+          message += `<tr><td></td><td>${week.begin} - ${week.end}</td></tr>`;
+        }
+      }
+
+      const emailArgs = {
+        userEmail: item.supervisorEmail,
+        message: message,
+        subject: 'Incomplete Timesheet(s)',
+      };
+
+      await sendEmail.worker(oAuth2Client, emailArgs);
+    }
   }
 
   async userReminderEmails() {

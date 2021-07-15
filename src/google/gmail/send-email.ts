@@ -33,9 +33,9 @@ sendEmail.worker = async (auth, args) => {
 
     params.subject = Buffer.from(params.subject).toString("base64");
     const str = [
-      'Content-Type: text/plain; charset="UTF-8"\n',
+      'Content-Type: text/html; charset="UTF-8"\n',
       "MINE-Version: 1.0\n",
-      "Content-Transfer-Encoding: 7bit\n",
+      "Content-Transfer-Encoding: base64\n",
       `to: ${params.to} \n`,
       `from: ${params.from} \n`,
       `subject: =?UTF-8?B?${params.subject}?= \n\n`,
