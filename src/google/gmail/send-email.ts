@@ -19,7 +19,6 @@ const {google} = require('googleapis');
 
 export const sendEmail = exports;
 
-
 /**
  *
  * @param auth
