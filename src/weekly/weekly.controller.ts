@@ -47,7 +47,7 @@ export class WeeklyController {
 
   @Get('user/reminders') // sunday
   userReminderEmails () {
-    return this.weeklyService.userReminderEmails();
+    return this.weeklyService.reminderEmails();
   }
 
   @Post('reminders/:emailId/:weekId')
@@ -59,10 +59,10 @@ export class WeeklyController {
     return this.weeklyService.sendReminderEmail(user, emailId, weekId, comment);
   }
 
-  @Get('supervisor/update') // 10 mins
-  UpdateWeeklySupervisor() {
-    return this.weeklyService.updateWeeklySupervisor();
-  }
+  // @Get('supervisor/update') // 10 mins
+  // UpdateWeeklySupervisor() {
+  //   return this.weeklyService.updateWeeklySupervisor();
+  // }
 
   @Post('approver/sign/:emailId/:weekId')
   @UseGuards(AuthGuard())
