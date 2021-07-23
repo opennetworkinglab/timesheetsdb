@@ -16,7 +16,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection, In } from 'typeorm';
+import { getConnection, In, LessThanOrEqual } from 'typeorm';
 import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -680,6 +680,15 @@ export class WeeklyService {
     );
   }
 
+  async reminderEmails(){
+    await this.userReminderEmails();
+    await this.supervisorReminderEmails();
+
+    return {
+      userReminderEmails: 'Sent',
+      supervisorReminderEmails: 'Sent'
+    };
+  }
   /**
    * Sends email to supervisors that have not signed
    * Checks current month
@@ -690,7 +699,7 @@ export class WeeklyService {
 
     const weeks = await getConnection().getRepository(Week).find( {
       where: {
-        monthNo: date.getUTCMonth(),
+        monthNo: date.getUTCMonth() + 1,
         year: date.getUTCFullYear()
       },
       order: {
@@ -772,16 +781,24 @@ export class WeeklyService {
 
     for (const item of emailWeeklies) {
 
-      let message = `<html><head><style>table,td { border: 1px solid black; border-collapse: collapse; padding: 10px 10px 10px 10px; }</style></head><body><h1>Please sign timesheets for the weeks for the below users</h1>`;
+      let message = `<html><head><style>table,td { border: 1px solid black; border-collapse: collapse; padding: 10px 10px 10px 10px; }</style></head><body><h1>Please sign timesheets for the weeks of the following users:</h1>`;
       message += `<table>`;
 
       for (const user of item.users){
 
-        message += `<tr><td>${user.userEmail}</td></tr>`;
+        message += `<tr><td>${user.userEmail}</td>`;
 
-        for(const week of user.weeks){
+        let count = 1;
+        for(const week of user.weeks) {
 
-          message += `<tr><td></td><td>${week.begin} - ${week.end}</td></tr>`;
+          if (count !== 1) {
+
+            message += `<tr><td></td><td>${week.begin} - ${week.end}</td></tr>`;
+          } else {
+
+            message += `<td>${week.begin} - ${week.end}</td></tr>`;
+            count = 0;
+          }
         }
       }
 
@@ -797,82 +814,59 @@ export class WeeklyService {
 
   async userReminderEmails() {
 
-    const queryEndDates = [];
-    let currentDate = new Date();
-    let diff = currentDate.getDay();
+    const date = new Date();
 
-    // If Sunday on current week, add to query
-    if (diff === 0) {
-      queryEndDates.push(currentDate);
-      diff = 7;
-    }
-
-    // end date for previous week.
-    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - diff);
-    queryEndDates.push(currentDate);
-
-    const weeks = await getConnection().getRepository(Week).find({
+    // Maybe have start date the 7/2021. Around the time docusign was removed
+    // Month chosen as DARPA work in month blocks.
+    const weeks = await getConnection().getRepository(Week).find( {
       where: {
-        end: In(queryEndDates),
+        end: LessThanOrEqual(date),
+        monthNo: date.getUTCMonth() + 1 // Remove for all checking all weeks
       },
       order: {
-        begin: 'ASC'
+        id: 'ASC'
       }
     });
 
-    const weekIds = [];
-    for (let i = 0; i < weeks.length; i++) {
-      weekIds.push(weeks[i].id);
-    }
+    const weekIds = weeks.map(week => week.id);
 
     const users = await getConnection().getRepository(User).find({ select: ['email'], where: { isActive: true } });
 
     const cred = await this.getGoogleCredentials();
     const oAuth2Client = await auth.authorize(cred);
 
-    for (let i = 0; i < users.length; i++) {
+    for (const user of users) {
 
-      let toEmail = false;
-
-      const weeklies = await getConnection().getRepository(Weekly).find({
+      const weeklyIds = (await this.weeklyRepository.find({
+        select: ['weekId'],
         where: {
-          user: users[i].email,
-          weekId: In(weekIds),
+          user: user.email,
+          weekId: In(weekIds)
         },
         order: {
-          weekId: 'ASC',
-        },
-      });
-
-      let message = 'Timesheets: https://timesheets.opennetworking.org/\n\nPlease complete timesheet(s) for the following weeks:';
-      if (weeklies.length === 0) {
-
-        toEmail = true;
-
-        message += '\n\t' + weeks[0].begin + ' to ' + weeks[0].end;
-
-        if (weekIds.length == 2) {
-          message += '\n\t' + weeks[1].begin + ' to ' + weeks[1].end;
+          user: 'ASC'
         }
-      } else {
+      })).map(week => week.weekId);
 
-        for (let i = 0; i < weeklies.length; i++) {
+      const emailWeeksIds = weekIds.filter(item => !weeklyIds.includes(item));
 
-          if (!weeklies[i].userSigned || weeklies[i].userSigned.length === 0) {
+      if(emailWeeksIds.length !== 0) {
 
-            toEmail = true;
-            message += '\n\t' + weeks[i].begin + ' to ' + weeks[i].end;
-          }
+        let message = `<html><head><style>table,td { border: 1px solid black; border-collapse: collapse; padding: 10px 10px 10px 10px; }</style></head><body><h2>Timesheets: https://timesheets.opennetworking.org/</h2><h2>Please complete timesheet(s) for the following weeks:</h2>`;
+        message += `<table>`;
+
+        const emailWeeks = weeks.filter(item => emailWeeksIds.includes(item.id));
+
+        for (const week of emailWeeks) {
+          message += `<tr><td>${week.begin} to ${week.end}</td></tr>`
         }
-      }
 
-      const emailArgs = {
-        userEmail: users[i].email,
-        message: message,
-        subject: 'Incomplete Timesheet(s)',
-      };
+        const emailArgs = {
+          userEmail: user.email,
+          message: message,
+          subject: 'Incomplete Timesheet(s)',
+        };
 
-      if (toEmail) {
         await sendEmail.worker(oAuth2Client, emailArgs);
       }
     }

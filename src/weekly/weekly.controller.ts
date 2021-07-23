@@ -47,7 +47,7 @@ export class WeeklyController {
 
   @Get('user/reminders') // sunday
   userReminderEmails () {
-    return this.weeklyService.supervisorReminderEmails();
+    return this.weeklyService.reminderEmails();
   }
 
   @Post('reminders/:emailId/:weekId')
