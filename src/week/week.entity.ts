@@ -25,6 +25,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { OnfDay } from '../onf-day/onf-day.entity';
+import { User } from '../auth/user.entity';
 
 @Entity('weeks') // Database table name
 @Unique('week_year_week', ['year', 'weekNo'])
@@ -60,4 +61,8 @@ export class Week extends BaseEntity {
   @OneToMany(() => OnfDay, onfDay => onfDay.week, { eager: true })
   @JoinColumn()
   onfDays: OnfDay[]
+
+  @ApiProperty()
+  @OneToMany(() => User, user => user.startDate)
+  users: User[]
 }

@@ -16,7 +16,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection, In, LessThanOrEqual } from 'typeorm';
+import { Equal, getConnection, In, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm';
 import { Readable } from 'stream';
 import * as jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -43,6 +43,8 @@ import { readFile } from 'fs.promises';
 import { generatePdf } from '../docusign/util/generation/envelope-preview';
 import { Time } from '../time/time.entity';
 import { moveDocumentToUnsigned } from '../google/util/move-preview';
+import { reduceRotation } from 'pdf-lib';
+import { not } from 'rxjs/internal-compatibility';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ObjectsToCsv = require('objects-to-csv')
@@ -805,12 +807,10 @@ export class WeeklyService {
 
     const date = new Date();
 
-    // Maybe have start date the 7/2021. Around the time docusign was removed
-    // Month chosen as DARPA work in month blocks.
     const weeks = await getConnection().getRepository(Week).find( {
       where: {
         end: LessThanOrEqual(date),
-        monthNo: date.getUTCMonth() + 1 // Remove for all checking all weeks
+        year: date.getUTCFullYear()
       },
       order: {
         id: 'ASC'
@@ -819,25 +819,36 @@ export class WeeklyService {
 
     const weekIds = weeks.map(week => week.id);
 
-    const users = await getConnection().getRepository(User).find({ select: ['email'], where: { isActive: true } });
+    const users = await getConnection().getRepository(User).find({ where: { isActive: true } });
 
     const cred = await this.getGoogleCredentials();
     const oAuth2Client = await auth.authorize(cred);
 
     for (const user of users) {
 
-      const weeklyIds = (await this.weeklyRepository.find({
-        select: ['weekId'],
-        where: {
-          user: user.email,
-          weekId: In(weekIds)
-        },
-        order: {
-          user: 'ASC'
+      const userWeekIds = weekIds.filter(item => {
+        if(item >= user.startDate.id){
+          return item;
         }
-      })).map(week => week.weekId);
+      });
 
-      const emailWeeksIds = weekIds.filter(item => !weeklyIds.includes(item));
+      // Not does not work. WHY DID I CHOOSE TYPEORM??? NEVER AGAIN!
+      // const weeklyIds = (await this.weeklyRepository.find({
+      //   select: ['weekId'],
+      //   where: {
+      //     user: user.email,
+      //     weekId: In(userWeekIds),
+      //     userSigned: Not(null)
+      //   }
+      // })).map(week => week.weekId);
+
+      const weeklyIds = (await this.weeklyRepository.createQueryBuilder('weekly')
+        .where('weekly_user_email = :email', { email: user.email })
+        .andWhere('week_id IN (:...arr)', { arr: userWeekIds })
+        .andWhere('user_signed is not null')
+        .getMany()).map(week => week.weekId);
+
+      const emailWeeksIds = userWeekIds.filter(item => !weeklyIds.includes(item));
 
       if(emailWeeksIds.length !== 0) {
 
