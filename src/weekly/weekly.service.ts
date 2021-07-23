@@ -96,9 +96,6 @@ export class WeeklyService {
     const token = await this.getDocusignToken();
 
     const authArgs = {
-      docusignToken: token.data.access_token,
-      docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
-      docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
       googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
       googleShareUrl: googleShareUrl,
       googleCredentials: googleCredentials
@@ -179,8 +176,6 @@ export class WeeklyService {
       const year = weekEnd[0];
 
       const authArgs = {
-        docusignBasePath: this.configService.get<string>('DOCUSIGN_BASE_PATH'),
-        docusignAccountId: this.configService.get<string>('DOCUSIGN_ACCOUNT_ID'),
         googleParents: this.configService.get<string>('GOOGLE_DOC_PARENT_FOLDER'),
         googleShareUrl: googleShareUrl,
         googleCredentials: googleCredentials
@@ -210,7 +205,7 @@ export class WeeklyService {
       const gDriveArgs = {
         name: submitterUser.firstName + '_' + submitterUser.lastName + '_' + week.begin + '_' + week.end + '.pdf',
         parents: [userFolder.userFolder],
-        mimeType: 'image/pdf',
+        mimeType: 'application/pdf',
         body: readableInstanceStream
       }
 
