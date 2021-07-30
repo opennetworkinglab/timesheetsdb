@@ -832,7 +832,7 @@ export class WeeklyService {
         }
       });
 
-      // Not does not work. WHY DID I CHOOSE TYPEORM??? NEVER AGAIN!
+      // Note does not work. WHY DID I CHOOSE TYPEORM??? NEVER AGAIN!
       // const weeklyIds = (await this.weeklyRepository.find({
       //   select: ['weekId'],
       //   where: {
