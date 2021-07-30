@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryColumn, Unique } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany, ManyToOne, OneToMany,
+  PrimaryColumn,
+  Unique,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Project } from '../project/project.entity';
 import { Day } from '../day/day.entity';
 import { Weekly } from '../weekly/weekly.entity';
+import { Week } from '../week/week.entity';
 
 @Entity('users')
 @Unique('full_name', ['firstName', 'lastName'])
@@ -57,6 +67,11 @@ export class User extends BaseEntity {
   @ManyToMany(() => Project, project => project.users, { eager: true })
   @JoinTable({ name: 'user_projects' })
   projects: Project[]
+
+  @ApiProperty()
+  @ManyToOne( () => Week, week => week.users, { eager: true })
+  @JoinColumn({ name: 'start_week_id'})
+  startDate: Week
 
   @ApiProperty()
   @OneToMany(() => Day, day => day.user, { eager: false })

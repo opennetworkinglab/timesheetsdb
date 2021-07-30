@@ -15,11 +15,12 @@
  */
 
 import { HttpException, HttpStatus} from '@nestjs/common';
-import { EntityRepository, getConnection, Repository, UpdateResult } from 'typeorm';
+import { EntityRepository, getConnection, MoreThanOrEqual, Repository, UpdateResult } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Project } from '../project/project.entity';
+import { Week } from '../week/week.entity';
 
 const usersEmails = ['bill@opennetworking.org', 'ain@opennetworking.org', 'sean@opennetworking.org', 'zdw@opennetworking.org', 'valdar@opennetworking.org'];
 const supervisor = ['ain@opennetworking.org', 'bill@opennetworking.org', 'ain@opennetworking.org', 'bill@opennetworking.org', 'valdar@opennetworking.org'];
@@ -90,6 +91,13 @@ export class UserRepository extends Repository<User> {
     newUser.supervisorEmail = supervisorEmail;
     newUser.darpaAllocationPct = darpaAllocationPct;
     newUser.isSupervisor = isSupervisor;
+    newUser.startDate = await getConnection().getRepository(Week).findOne({
+      select: ['id'],
+      where: {
+        begin: MoreThanOrEqual(new Date()),
+        end: MoreThanOrEqual(new Date())
+      }
+    });
     newUser.projects = [];
 
     const sharedProjects = await getConnection().getRepository(Project).find({ where: { priority: 1 }});
