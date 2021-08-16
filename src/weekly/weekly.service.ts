@@ -120,6 +120,9 @@ export class WeeklyService {
 
   async unsignWeeklyApprover(userEmail: string, weekId: number){
 
+    const today = new Date();
+    console.log('ERROR CHECK: user: ' + userEmail + ' - week ID: ' + weekId + ' - Date/Time: ' + today.getDate() + '/' + (today.getMonth()+1) + ' ' + today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds());
+
     const submitterUser = await getConnection().getRepository(User).findOne( { where: { email: userEmail }});
     const weekly = await getConnection().getRepository(Weekly).findOne({ where: { user: submitterUser, weekId: weekId } });
 
