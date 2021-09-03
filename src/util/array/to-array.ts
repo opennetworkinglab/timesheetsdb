@@ -17,6 +17,7 @@
 import { getConnection } from 'typeorm';
 import { Week } from '../../week/week.entity';
 import { Time } from '../../time/time.entity';
+import { Project } from '../../project/project.entity';
 
 const MONTHS30 = [3, 5, 8, 10]; // Apr, Jun, Sep, Nov
 const FEB = 1;
@@ -27,6 +28,25 @@ export const timesTo2DArray7Days = async (user, days) => {
     where: {
       id: days[0].weekId
     }});
+
+  // SORT PROJECTS FOR EACH DAY
+  const projects = await getConnection().getRepository(Project).find({
+    order: {
+      priority: 'ASC'
+    }
+  });
+    user.projects.sort((a, b) => {
+
+      const project1 = projects.find(project=> project.name === a.name);
+      const project2 = projects.find(project=> project.name === b.name);
+
+      if (project1.priority > project2.priority){
+        return 1;
+      }
+      else {
+        return -1;
+      }
+    });
 
   const weekBeginDate = new Date(week.begin);
   let currentDay = weekBeginDate.getDate();
@@ -161,35 +181,6 @@ export const timesTo2DArray7Days = async (user, days) => {
       totalProjectTime += timeMinutes[j][i];
     }
     timeMinutes[7][i] = totalProjectTime;
-  }
-
-  // const sharedProjectsName = ['Darpa HR001120C0107','Sick', 'Holiday', 'PTO', 'G_A', 'IR_D']; // old order
-  // const sharedProjectsName1 = ['Darpa HR001120C0107', 'IR_D',  'G_A', 'PTO', 'Sick', 'Holiday']; new order
-
-  for (let i = 0; i < timeName.length; i++){
-
-    const ir = timeName[i][5];
-    const irMins = timeMinutes[i][5];
-    const ga = timeName[i][4];
-    const gaMins = timeMinutes[i][4];
-    const pto = timeName[i][3];
-    const ptoMins = timeMinutes[i][3];
-    const sick = timeName[i][1];
-    const sickMins = timeMinutes[i][1];
-    const hol = timeName[i][2];
-    const holMins = timeMinutes[i][2];
-
-    timeName[i][1] = ir;
-    timeName[i][2] = ga;
-    timeName[i][3] = pto;
-    timeName[i][4] = sick;
-    timeName[i][5] = hol;
-
-    timeMinutes[i][1] = irMins;
-    timeMinutes[i][2] = gaMins;
-    timeMinutes[i][3] = ptoMins;
-    timeMinutes[i][4] = sickMins;
-    timeMinutes[i][5] = holMins;
   }
 
   return {
