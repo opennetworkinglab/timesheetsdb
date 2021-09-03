@@ -33,6 +33,7 @@ import { upload } from '../../../google/gdrive/upload';
 import { recipientView } from '../../recipient-view-request';
 import { generateWeeklyPdf } from '../../../util/pdf/generate-weekly-pdf';
 import { Weekly } from '../../../weekly/weekly.entity';
+import { Project } from '../../../project/project.entity';
 
 /**
  * Generates an envelope and preview and uploads preview to google drive.
@@ -192,6 +193,30 @@ export const generatePdf = async (submitterUser, approverUser, weekId, weekly: W
 
   if(days.length === 0) {
     throw new HttpException("No times have been logged for any days this week", HttpStatus.BAD_REQUEST);
+  }
+
+  // SORT PROJECTS FOR EACH DAY
+  const projects = await getConnection().getRepository(Project).find({
+    order: {
+      priority: 'ASC'
+    }
+  });
+
+  for (let i = 0; i < days.length; i++){
+
+    days[i].times.sort((a, b) => {
+
+      const project1 = projects.find(project=> project.name === a.name);
+      const project2 = projects.find(project=> project.name === b.name);
+
+      if (project1.priority > project2.priority){
+        return 1;
+      }
+      else {
+        return -1;
+      }
+    });
+
   }
 
   const daysResult = await timesTo2DArray7Days(submitterUser, days);
