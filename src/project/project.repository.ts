@@ -28,11 +28,11 @@ export class ProjectRepository extends Repository<Project> {
   constructor() {
     super();
 
-    this.createSharedProjects().then(() => {
-      console.log("Projects created: " + sharedProjectsName);
-    }).catch(()=> {
-      console.log("Projects already created: " + sharedProjectsName);
-    });
+    // this.createSharedProjects().then(() => {
+    //   console.log("Projects created: " + sharedProjectsName);
+    // }).catch(()=> {
+    //   console.log("Projects already created: " + sharedProjectsName);
+    // });
   }
 
   async createProject(createProjectDto: CreateProjectDto): Promise<void> {

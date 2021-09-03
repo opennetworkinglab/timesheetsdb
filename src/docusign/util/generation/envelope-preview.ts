@@ -195,30 +195,6 @@ export const generatePdf = async (submitterUser, approverUser, weekId, weekly: W
     throw new HttpException("No times have been logged for any days this week", HttpStatus.BAD_REQUEST);
   }
 
-  // SORT PROJECTS FOR EACH DAY
-  const projects = await getConnection().getRepository(Project).find({
-    order: {
-      priority: 'ASC'
-    }
-  });
-
-  for (let i = 0; i < days.length; i++){
-
-    days[i].times.sort((a, b) => {
-
-      const project1 = projects.find(project=> project.name === a.name);
-      const project2 = projects.find(project=> project.name === b.name);
-
-      if (project1.priority > project2.priority){
-        return 1;
-      }
-      else {
-        return -1;
-      }
-    });
-
-  }
-
   const daysResult = await timesTo2DArray7Days(submitterUser, days);
 
   const signedDate = new Date();
