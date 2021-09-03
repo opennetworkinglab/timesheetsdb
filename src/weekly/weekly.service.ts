@@ -778,6 +778,7 @@ export class WeeklyService {
       let message = `<html><head><style>table,td { border: 1px solid black; border-collapse: collapse; padding: 10px 10px 10px 10px; }</style></head><body><h1>Please sign timesheets for the weeks of the following users:</h1>`;
       message += `<table>`;
 
+      let userCount = 0;
       for (const user of item.users){
 
         message += `<tr><td>${user.userEmail}</td>`;
@@ -794,6 +795,11 @@ export class WeeklyService {
             count = 0;
           }
         }
+
+        if (userCount != item.users.length - 1){
+          message += `<tr><td></td></tr>`;
+        }
+        userCount++;
       }
 
       const emailArgs = {
