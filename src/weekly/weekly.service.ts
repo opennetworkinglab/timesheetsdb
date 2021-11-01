@@ -221,7 +221,12 @@ export class WeeklyService {
       const urlSplit = url.split('IDLOCATION');
       const documentUrl = urlSplit[0] + file.data.id;
 
-      return await this.weeklyRepository.signWeeklyApprover(submitterUser, weekId, documentUrl, pdfResult.preview, pdfResult.signedDate);
+      await this.weeklyRepository.signWeeklyApprover(submitterUser, weekId, documentUrl, pdfResult.preview, pdfResult.signedDate);
+
+      return {
+        documentUrl: documentUrl,
+        signedDate: pdfResult.signedDate
+      }
     }
   }
 
