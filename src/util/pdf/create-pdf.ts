@@ -39,7 +39,7 @@ export const createPdf = async (month: number, weeks : string[][], pdfContents: 
   const headingFont = 18;
   const paraFont = 15;
   const firstHeightDrop = 4;
-  let secondHeightDrop = 11;
+  let secondHeightDrop = 15;
 
   const pdfDoc = await PDFDocument.create();
   const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);

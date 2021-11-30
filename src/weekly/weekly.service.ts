@@ -586,7 +586,7 @@ export class WeeklyService {
     const gDriveArgs = {
       name: 'Summary for ' + year + '-' + month,
       parents: [gDriveMonthId],
-      mimeType: 'image/pdf',
+      mimeType: 'application/pdf',
       body: readableInstanceStream
     }
 
@@ -621,9 +621,9 @@ export class WeeklyService {
 
     const tempDir = tmpdir();
     const csv = new ObjectsToCsv(csvContents);
-    await csv.toDisk(tempDir + '/Summary of Nov.csv');
+    await csv.toDisk(tempDir + '/Summary.csv');
 
-    const readCsvFile = await readFile(tempDir + '/Summary of Nov.csv');
+    const readCsvFile = await readFile(tempDir + '/Summary.csv');
     readableInstanceStream = new Readable({
       read() {
         this.push(Buffer.from(readCsvFile, 'binary'));
